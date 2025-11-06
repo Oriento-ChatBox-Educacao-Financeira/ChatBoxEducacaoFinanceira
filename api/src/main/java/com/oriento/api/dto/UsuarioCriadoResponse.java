@@ -11,7 +11,7 @@ public record UsuarioCriadoResponse(
     
     public static UsuarioCriadoResponse erroJaCadastrado() {
         return new UsuarioCriadoResponse(
-                "Email ou CNPJ já cadastrado."
+                "Credenciais já cadastradas."
         );
     }
 
