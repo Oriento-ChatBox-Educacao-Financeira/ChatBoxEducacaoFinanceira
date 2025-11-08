@@ -1,0 +1,25 @@
+.custom-botton {
+  width: 100%;
+  background: #fbbf24;
+  color: #1e40af;
+  border: none;
+  padding: 14px 22px;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+.custom-botton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 0px #ce8702;
+  transition: all 0.2s ease;
+}
+
+.custom-botton:active {
+  background-color: #2a6bd4;
+  color: #ffffff;
+  transition: all 0.001s ease;
+  box-shadow: 0px 3px 0px #012054;
+  transform: translateY(2px);
+}

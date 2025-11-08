@@ -1,0 +1,82 @@
+<app-main-navbar>
+  <div class="chat-container">
+    <!-- Cabeçalho superior do chat -->
+    <div class="chat-header-top">
+      <div class="chatbot-icon">
+        <i class="ph ph-wechat-logo"></i>
+      </div>
+      <div class="zoom-icon">
+        <i class="ph ph-arrows-in-simple"></i>
+      </div>
+    </div>
+
+    <!-- Mensagens e Dashboard -->
+    <div class="chat-messages">
+      <!-- Mensagem Usuário -->
+      <div class="message user-message">
+        <div class="message-text">Qual é minha situação financeira atual?</div>
+      </div>
+
+      <!-- Mensagem Bot -->
+      <div class="message bot-message">
+        <!-- <div class="message-icon">
+          <i class="ph ph-robot"></i>
+        </div> -->
+        <div class="message-text">
+          Com base nos seus dados mais recentes, sua empresa está atualmente em uma posição
+          financeira estável.
+        </div>
+      </div>
+
+      <!-- Dashboard Financeiro -->
+      <div class="dashboard">
+        <div class="dashboard-title">Lucro Líquido ao Longo do Tempo</div>
+        <div class="dashboard-value">R$ 125.000</div>
+        <div class="dashboard-growth">Últimos 12 Meses +15%</div>
+        <div class="dashboard-graph">Gráfico</div>
+        <div class="dashboard-months">
+          <span>Jan</span>
+          <span>Feb</span>
+          <span>Mar</span>
+          <span>Apr</span>
+          <span>May</span>
+          <span>Jun</span>
+          <span>Jul</span>
+        </div>
+      </div>
+
+      <!-- Dica do Bot -->
+      <div class="message bot-message">
+        <!-- <div class="message-icon">
+          <i class="ph ph-robot"></i>
+        </div> -->
+        <div class="message-text">
+          <div class="tip-title">Dica:</div>
+          Revisar regularmente suas demonstrações financeiras pode ajudá-lo a identificar tendências
+          e oportunidades de melhoria.
+        </div>
+      </div>
+
+      <!-- Ações -->
+      <div class="actions">
+        <div class="action">Ver perfil mensal</div>
+        <div class="action">Explicar DRE</div>
+        <div class="action">Consultoria de caixa</div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="chat-loading" *ngIf="isLoading">Assistente está digitando...</div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <div class="input-wrapper">
+        <input type="text" placeholder="Digite sua pergunta..." />
+        <button class="send-button">
+          <i class="ph ph-paper-plane-right"></i>
+        </button>
+      </div>
+      <button class="human-button"><!--<i class="ph ph-user"></i>-->Humano</button>
+    </div>
+  </div>
+</app-main-navbar>

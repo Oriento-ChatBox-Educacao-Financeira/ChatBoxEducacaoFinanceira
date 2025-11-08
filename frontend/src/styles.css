@@ -1,0 +1,26 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  /* Cores Primárias */
+  --primary-deep-blue: #103688; /* Autoridade, confiança e estabilidade */
+  --primary-modern-gold: #ffb800; /* Prosperidade, resultado e energia de sucesso */
+
+  /* Cores Secundárias */
+  --secondary-smart-blue: #1e40af; /* Inovação e clareza analítica */
+  --secondary-light-blue: #e5eaf4; /* Fundo limpo, ajuda na legibilidade */
+
+  /* Cores de Apoio */
+  --support-executive-gray: #4b5563; /* Texto secundário, dashboards, contraste */
+  --support-pure-white: #ffffff; /* Base institucional e minimalismo */
+  --support-profit-green: #22c55e; /* Indicadores positivos (crescimento, lucro) */
+  --support-risk-red: #dc2626; /* Alertas, quedas ou riscos */
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
+}

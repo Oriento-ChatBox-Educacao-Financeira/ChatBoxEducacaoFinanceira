@@ -1,0 +1,6 @@
+.main-content-area {
+  /* Ajuste esse valor para a altura exata do seu topbar */
+  padding-top: 80px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}

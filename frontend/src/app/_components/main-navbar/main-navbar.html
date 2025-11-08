@@ -1,0 +1,7 @@
+<app-topbar (openMenuClick)="sidebar.toggleSidebar()"></app-topbar>
+
+<app-navbar #sidebar></app-navbar>
+
+<main class="main-content-area">
+  <ng-content></ng-content>
+</main>
