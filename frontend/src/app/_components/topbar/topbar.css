@@ -6,8 +6,9 @@
 
 .topbar-nav {
   background-color: var(--primary-blue);
-  padding: 12px 22px;
+  padding: 2px 16px;
   z-index: 900;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 /* LOGO "ORIENTO" */
@@ -17,7 +18,7 @@
   gap: 14px;
   color: var(--primary-white);
   font-weight: 700;
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .navbar-brand:hover {
@@ -26,8 +27,8 @@
 
 /*  QUADRADO DA LOGO */
 .logo-square {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   background-color: var(--primary-gold);
   border-radius: 6px;
   color: var(--primary-blue);
@@ -41,11 +42,17 @@
 /* BOTÃO */
 .btn-icon {
   color: var(--primary-white);
-  font-size: 28px;
+  font-size: 24px;
   border: none;
-  padding: 4px 8px;
+  padding: 6px 8px;
 }
 
 .btn-icon:hover {
   color: var(--primary-gold);
+}
+
+@media (max-width: 600px) {
+  .btn-icon {
+    padding: 9px 8px;
+  }
 }

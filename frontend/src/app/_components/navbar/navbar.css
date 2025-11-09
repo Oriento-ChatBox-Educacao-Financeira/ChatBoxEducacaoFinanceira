@@ -6,25 +6,12 @@
   --primary-white: #ffffff;
   --secondary-blue: #1e40af;
 }
-/*
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-} */
 
 .sidebar {
   position: fixed;
   top: 0;
   right: 0;
-  width: 473px;
+  width: 423px;
   height: 100vh;
   background: var(--secondary-blue);
   display: flex;
@@ -44,19 +31,22 @@
 /* CABEÇALHO */
 .sidebar-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 60px;
+  padding: 0 70px;
+  gap: 80px;
   color: var(--primary-white);
   font-weight: 700;
   font-size: 18px;
   margin-bottom: 45px;
 }
+
 .sidebar-title {
-  font-size: 35px;
+  font-size: 30px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
 }
+
 .sidebar-header i {
   margin-bottom: 9px;
   font-size: 30px;
@@ -65,14 +55,12 @@
 }
 
 .sidebar-header i:hover {
-  font-size: 30px;
-  transition: all 0.3s ease;
-  cursor: pointer;
   color: var(--primary-gold);
 }
 
-/* MENU  */
+/* MENU */
 .sidebar-menu {
+  width: 3000px;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -83,16 +71,20 @@
 
 .menu-item {
   background: var(--primary-blue);
-  width: 5000px;
-  height: 75px;
+  height: 65px;
   padding: 0 30px;
   border-radius: 30px;
   transition: 0.3s;
   color: #fff;
   display: flex;
   align-items: center;
-  font-size: 20px;
+  gap: 15px;
+  font-size: 18px;
   font-weight: 600;
+}
+
+.menu-item i {
+  font-size: 26px;
 }
 
 .menu-item:hover {
@@ -100,41 +92,49 @@
   cursor: pointer;
 }
 
-/* ITEM ACTIVE  */
+/* ITEM ACTIVE */
 .active {
   background: var(--primary-gold);
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
-  height: 75px;
   font-weight: 700;
   color: var(--primary-blue);
 }
 
 /* PROFILE */
 .sidebar-profile {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding-bottom: 30px;
+  margin: 15px 50px;
   color: var(--primary-white);
   gap: 10px;
 }
 
 .profile-img {
-  width: 60px;
-  height: 60px;
+  margin-top: 20px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 2px solid #ffbb00;
+  border: 1px solid var(--primary-white);
   object-fit: cover;
 }
 
 .profile-name {
-  font-size: 20px;
+  font-size: 15px;
   color: var(--primary-white);
   font-weight: 700;
 }
 
-/* RESPONSIVIDADE */
 @media (max-width: 820px) {
+  .sidebar-profile {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+  .profile-info {
+    align-items: center;
+  }
 }
