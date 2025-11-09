@@ -1,10 +1,18 @@
 package com.oriento.api.model;
 
 import com.oriento.api.dto.LoginRequest;
-import jakarta.persistence.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Entidade JPA que representa um usuário no banco de dados.
@@ -48,7 +56,7 @@ public class Usuario {
      */
     @Column(unique = true)
     private String email;
-    
+
     /**
      * Nome do usuário (pessoa física).
      */
@@ -71,6 +79,9 @@ public class Usuario {
      * Sempre use BCryptPasswordEncoder para criptografar antes de salvar.
      */
     private String senha;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<GeminiConversation> conversations = new HashSet<>();
 
     /**
      * Verifica se as credenciais de login fornecidas correspondem a este usuário.
@@ -128,6 +139,20 @@ public class Usuario {
     }
     public void setNomeFantasia(String nomeFantasia) {
         this.nomeFantasia = nomeFantasia;
+    }
+    public Set<GeminiConversation> getConversations() {
+        return conversations;
+    }
+    public void setConversations(Set<GeminiConversation> conversations) {
+        this.conversations = conversations;
+    }
+    public void addConversation(GeminiConversation conversation) {
+        conversations.add(conversation);
+        conversation.setUsuario(this);
+    }
+    public void removeConversation(GeminiConversation conversation) {
+        conversations.remove(conversation);
+        conversation.setUsuario(null);
     }
 
 }
