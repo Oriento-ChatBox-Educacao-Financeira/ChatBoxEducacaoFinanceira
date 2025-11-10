@@ -14,8 +14,8 @@ target/
 .sts4-cache
 
 ### Env ###
-
-*./src/main/resources/keys
+.env
+src/main/resources/keys/gemini
 
 ### IntelliJ IDEA ###
 .idea

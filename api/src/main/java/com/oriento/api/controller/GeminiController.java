@@ -1,5 +1,8 @@
 package com.oriento.api.controller;
 
+import com.oriento.api.dto.AskResponse;
+import com.oriento.api.model.Usuario;
+import com.oriento.api.repositories.UsuarioRepository;
 import com.oriento.api.services.GeminiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,6 +13,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Controller responsável por gerenciar endpoints relacionados ao assistente virtual Oriento.
@@ -39,14 +47,16 @@ public class GeminiController {
      * Responsável por processar perguntas e gerar respostas do assistente Oriento.
      */
     private final GeminiService geminiService;
+    private final UsuarioRepository usuarioRepository;
 
     /**
      * Construtor do controller do Gemini.
      * 
      * @param geminiService Serviço que contém a lógica de processamento do Oriento
      */
-    public GeminiController(GeminiService geminiService) {
+    public GeminiController(GeminiService geminiService, UsuarioRepository usuarioRepository) {
         this.geminiService = geminiService;
+        this.usuarioRepository = usuarioRepository;
         logger.info("GeminiController inicializado com sucesso");
     }
 
@@ -56,14 +66,10 @@ public class GeminiController {
      * Este endpoint recebe uma pergunta do usuário sobre finanças empresariais
      * e retorna uma resposta gerada pelo assistente Oriento, especializado em
      * educação financeira para pequenas e médias empresas.
-     *
-     * NOTA: O parâmetro 'personalidade' está presente na assinatura do método
-     * mas não é utilizado atualmente. Pode ser implementado no futuro para
-     * personalizar o estilo de resposta do assistente.
-     *
+     * 
      * @param prompt Pergunta ou solicitação do usuário sobre finanças empresariais
-     * @param personalidade Parâmetro para personalização do estilo de resposta (não utilizado atualmente)
-     * @return Resposta gerada pelo assistente Oriento em formato de texto
+     * @param conversationId Identificador da conversa para manter contexto (opcional)
+     * @return Estrutura contendo a resposta gerada e o identificador da conversa
      */
     @Operation(
         summary = "Fazer pergunta ao Oriento",
@@ -84,28 +90,43 @@ public class GeminiController {
         )
     })
     @PostMapping("/ask")
-    public String askGeminiApi(
-            @Parameter(description = "Pergunta sobre educação financeira para PMEs", required = true)
+    public AskResponse askGeminiApi(
             @RequestBody String prompt,
-            @Parameter(description = "ID da personalidade do assistente (não utilizado atualmente)", required = true)
-            @RequestParam Integer personalidade) {
+            @RequestParam(required = false) String conversationId,
+            @AuthenticationPrincipal Jwt jwt) {
+
         logger.info("Recebida requisição para o assistente Oriento");
-        logger.debug("Prompt: {}, Personalidade: {}", prompt, personalidade);
-        
-        // NOTA: O parâmetro 'personalidade' não está sendo utilizado atualmente
-        // Pode ser implementado no futuro para personalizar o comportamento do Oriento
-        if (personalidade != null) {
-            logger.debug("Parâmetro de personalidade recebido: {} (não utilizado atualmente)", personalidade);
-        }
+        logger.debug("Prompt: {}", prompt);
+
+        Usuario usuario = resolverUsuario(jwt);
+        logger.debug("Usuário autenticado: {}", usuario.getIdUsuario());
         
         // Delega o processamento para o GeminiService
         // O serviço é responsável por toda a lógica de interação com a API do Gemini
-        String resposta = geminiService.askOriento(prompt);
+        AskResponse resposta = geminiService.askOriento(prompt, conversationId, usuario);
         
         logger.info("Resposta do Oriento gerada com sucesso");
-        logger.debug("Tamanho da resposta: {} caracteres", resposta != null ? resposta.length() : 0);
+        logger.debug("ID da conversa utilizado: {}", resposta != null ? resposta.conversationId() : null);
+        logger.debug("Tamanho da resposta: {} caracteres",
+                resposta != null && resposta.response() != null ? resposta.response().length() : 0);
         
         return resposta;
+    }
+
+    private Usuario resolverUsuario(Jwt jwt) {
+        if (jwt == null || jwt.getSubject() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não autenticado");
+        }
+
+        UUID usuarioId;
+        try {
+            usuarioId = UUID.fromString(jwt.getSubject());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido");
+        }
+
+        return usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário não encontrado"));
     }
 
 }

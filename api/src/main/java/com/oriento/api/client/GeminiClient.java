@@ -1,5 +1,6 @@
 package com.oriento.api.client;
 
+import com.google.genai.Chat;
 import com.google.genai.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,9 +73,10 @@ public class GeminiClient {
         Client client = Client.builder()
                 .apiKey(apiKey)
                 .build();
-        
+
         logger.info("Cliente do Google Gemini criado com sucesso");
         return client;
     }
 
 }
+
