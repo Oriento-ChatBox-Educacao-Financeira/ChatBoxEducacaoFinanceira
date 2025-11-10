@@ -1,0 +1,205 @@
+<form class="register-container" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div class="brand-section">
+    <div class="brand-logo">O</div>
+    <h2 class="brand-title">ORIENTO</h2>
+  </div>
+
+  <div class="form-section flex-1 bg-cover max-[1100px]:hidden">
+    <div class="mobile-logo">
+      <div class="brand-logo">O</div>
+    </div>
+    <div class="auth-header">
+      <h1 class="auth-title">Cadastre-se</h1>
+      <p class="auth-subtitle">Crie sua conta e ative seu assistente financeiro</p>
+    </div>
+
+    <div id="registerForm">
+      <!-- Nome Fantasia -->
+      <div
+        class="form-group"
+        [class.has-error]="
+          registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
+        "
+      >
+        <label for="nomeFantasia" class="form-label">Nome fantasia</label>
+        <div class="input-icon">
+          <i class="ph ph-building"></i>
+          <input
+            type="text"
+            id="nomeFantasia"
+            formControlName="nomeFantasia"
+            class="form-input"
+            placeholder="Digite o nome da sua empresa"
+          />
+        </div>
+
+        @if (registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched)
+        {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">{{ getErrorMessage('nomeFantasia') }}</p>
+        </div>
+        }
+      </div>
+
+      <!-- Razão Social -->
+      <div class="form-group">
+        <label for="razaoSocial" class="form-label">Razão social (opcional)</label>
+        <div class="input-icon">
+          <i class="ph ph-file-text"></i>
+          <input
+            type="text"
+            id="razaoSocial"
+            formControlName="razaoSocial"
+            class="form-input"
+            placeholder="Digite a razão social (opcional)"
+          />
+        </div>
+      </div>
+
+      <!-- CNPJ -->
+      <div
+        class="form-group"
+        [class.has-error]="registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched"
+      >
+        <label for="cnpj" class="form-label">CNPJ</label>
+        <div class="input-icon">
+          <i class="ph ph-identification-card"></i>
+          <input
+            type="text"
+            id="cnpj"
+            formControlName="cnpj"
+            class="form-input"
+            placeholder="Informe o CNPJ da empresa"
+          />
+        </div>
+
+        @if (registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched) {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">{{ getErrorMessage('cnpj') }}</p>
+        </div>
+        }
+      </div>
+
+      <!-- E-mail -->
+      <div
+        class="form-group"
+        [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+      >
+        <label for="email" class="form-label">E-mail</label>
+        <div class="input-icon">
+          <i class="ph ph-envelope-simple"></i>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="Digite o e-mail da empresa"
+          />
+        </div>
+
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">{{ getErrorMessage('email') }}</p>
+        </div>
+        }
+      </div>
+
+      <!-- Confirmar e-mail -->
+      <div
+        class="form-group"
+        [class.has-error]="
+          registerForm.hasError('emailMismatch') && registerForm.get('confirmarEmail')?.touched
+        "
+      >
+        <label for="confirmarEmail" class="form-label">Confirmar e-mail</label>
+        <div class="input-icon">
+          <i class="ph ph-envelope-simple-open"></i>
+          <input
+            type="email"
+            id="confirmarEmail"
+            formControlName="confirmarEmail"
+            class="form-input"
+            placeholder="Confirme o e-mail"
+          />
+        </div>
+
+        @if (registerForm.hasError('emailMismatch') && registerForm.get('confirmarEmail')?.touched)
+        {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">Os e-mails não coincidem.</p>
+        </div>
+        }
+      </div>
+
+      <!-- Senha -->
+      <div
+        class="form-group"
+        [class.has-error]="registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched"
+      >
+        <label for="senha" class="form-label">Senha</label>
+        <div class="input-icon">
+          <i class="ph ph-lock"></i>
+          <input
+            type="password"
+            id="senha"
+            formControlName="senha"
+            class="form-input"
+            placeholder="Crie uma senha segura"
+          />
+        </div>
+
+        @if (registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched) {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">{{ getErrorMessage('senha') }}</p>
+        </div>
+        }
+      </div>
+
+      <!-- Confirmar senha -->
+      <div
+        class="form-group"
+        [class.has-error]="
+          registerForm.hasError('passwordMismatch') && registerForm.get('confirmarSenha')?.touched
+        "
+      >
+        <label for="confirmarSenha" class="form-label">Confirmar senha</label>
+        <div class="input-icon">
+          <i class="ph ph-lock-open"></i>
+          <input
+            type="password"
+            id="confirmarSenha"
+            formControlName="confirmarSenha"
+            class="form-input"
+            placeholder="Confirme a senha"
+          />
+        </div>
+
+        @if (registerForm.hasError('passwordMismatch') &&
+        registerForm.get('confirmarSenha')?.touched) {
+        <div class="error-message d-flex align-items-center">
+          <i class="ph ph-warning-circle"></i>
+          <p class="m-0">As senhas não coincidem.</p>
+        </div>
+        }
+      </div>
+
+      <app-primary-button
+        textoBotao="Cadastrar"
+        [disabled]="loading || registerForm.invalid"
+      ></app-primary-button>
+
+      @if (errorMessage) {
+      <p class="error-text text-center mt-3">{{ errorMessage }}</p>
+      }
+    </div>
+
+    <p class="auth-footer">
+      Já tem uma conta? <a (click)="goToLogin()" class="link">Acesse a plataforma</a>
+    </p>
+  </div>
+</form>

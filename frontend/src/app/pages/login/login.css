@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:host {
+  --primary-blue: #103688;
+  --primary-gold: #ffbb00;
+  --primary-white: #ffffff;
+  --secondary-blue: #1e40af;
+  --text-dark: #111827;
+  --gray-dark: #374151;
+  --gray-medium: #9ca3af;
+  --gray-light: #d1d5db;
+  --error: #dc2626;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.login-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* SECTION DA LOGO */
+.brand-section {
+  flex-basis: 60%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-image: url('../../../../public/login/bg-login.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.brand-logo {
+  margin-top: 34px;
+  width: 100px;
+  height: 100px;
+  background: var(--primary-gold);
+  color: var(--secondary-blue);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  z-index: 1;
+  font-size: 45px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 12px #1e40af73;
+}
+
+.brand-title {
+  z-index: 1;
+  font-size: 45px;
+  font-weight: 900;
+  color: var(--secondary-blue);
+  letter-spacing: 1px;
+}
+
+/* SECTION DO FORMULÁRIO */
+.form-section {
+  flex-basis: 40%;
+  padding: 50px 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--primary-blue);
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.auth-title {
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--primary-gold);
+  margin-bottom: 10px;
+}
+.auth-subtitle {
+  font-size: 18px;
+  color: var(--primary-white);
+}
+
+.form-group {
+  margin-bottom: 24px;
+  text-align: left;
+}
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--primary-gold);
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 22px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background: var(--secondary-blue);
+  color: var(--primary-white);
+  transition: all 0.2s;
+}
+.form-input::placeholder {
+  color: var(--gray-light);
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-gold);
+  background: var(--secondary-blue);
+  box-shadow: 0 0 0 1px var(--primary-gold);
+}
+
+/* AJUSTE DE ICONES */
+.input-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon i {
+  position: absolute;
+  left: 16px;
+  color: var(--gray-light);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.input-icon .form-input {
+  padding-left: 45px;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 24px;
+  color: var(--primary-white);
+}
+.link {
+  color: var(--primary-gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+.link:hover {
+  text-decoration: underline;
+  color: var(--primary-gold);
+  cursor: pointer;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--error);
+  margin-top: 10px;
+}
+
+.error-message p {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0;
+}
+
+.form-group:has(.error-message) > label {
+  color: var(--error);
+}
+
+.error-text {
+  color: var(--error);
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 820px) {
+  .login-container {
+    flex-direction: column;
+  }
+  .brand-section {
+    order: -1;
+    display: none;
+  }
+  .form-section {
+    flex-basis: auto;
+    padding: 40px 30px;
+    min-height: 100vh;
+  }
+}

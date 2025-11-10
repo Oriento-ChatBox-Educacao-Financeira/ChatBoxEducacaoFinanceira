@@ -1,0 +1,34 @@
+<nav class="sidebar" [class.closed]="!isSidebarOpen">
+  <div class="sidebar-header">
+    <h2 class="sidebar-title">DASHBOARDS</h2>
+    <i class="ph ph-caret-double-right" (click)="toggleSidebar()"></i>
+  </div>
+
+  <ul class="sidebar-menu">
+    <li class="menu-item active">
+      <i class="ph ph-layout"></i>
+      <span>Painel</span>
+    </li>
+    <li class="menu-item">
+      <i class="ph ph-chart-bar"></i>
+      <span>Relatórios</span>
+    </li>
+    <li class="menu-item">
+      <i class="ph ph-users"></i>
+      <span>Usuários</span>
+    </li>
+    <li class="menu-item">
+      <i class="ph ph-gear-six"></i>
+      <span>Configurações</span>
+    </li>
+    <li class="menu-item">
+      <i class="ph ph-sign-out"></i>
+      <span>Sair</span>
+    </li>
+  </ul>
+
+  <div class="sidebar-profile">
+    <img src="profile/image-ilustrativa.JPG" alt="Perfil" class="profile-img" />
+    <span class="profile-name">Alchaar</span>
+  </div>
+</nav>

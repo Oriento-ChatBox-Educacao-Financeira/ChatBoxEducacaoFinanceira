@@ -1,0 +1,58 @@
+:host {
+  --primary-blue: #103688;
+  --primary-gold: #ffbb00;
+  --primary-white: #ffffff;
+}
+
+.topbar-nav {
+  background-color: var(--primary-blue);
+  padding: 2px 16px;
+  z-index: 900;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* LOGO "ORIENTO" */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--primary-white);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.navbar-brand:hover {
+  color: #f0f0f0;
+}
+
+/*  QUADRADO DA LOGO */
+.logo-square {
+  width: 30px;
+  height: 30px;
+  background-color: var(--primary-gold);
+  border-radius: 6px;
+  color: var(--primary-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  z-index: 1;
+}
+
+/* BOTÃO */
+.btn-icon {
+  color: var(--primary-white);
+  font-size: 24px;
+  border: none;
+  padding: 6px 8px;
+}
+
+.btn-icon:hover {
+  color: var(--primary-gold);
+}
+
+@media (max-width: 600px) {
+  .btn-icon {
+    padding: 9px 8px;
+  }
+}

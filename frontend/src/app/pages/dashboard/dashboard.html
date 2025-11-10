@@ -1,0 +1,118 @@
+<div class="dashboard-page">
+  <main class="dashboard-grid">
+    <section class="chart-card">
+      <div class="chart-header">
+        <h2 class="chart-title">Demonstrativo de Resultados (DRE)</h2>
+        <span class="chart-period">Último Trimestre</span>
+      </div>
+      <div class="chart-content">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Descrição</th>
+              <th>Valor (R$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Receita Operacional Bruta</td>
+              <td class="value-positive">150.000,00</td>
+            </tr>
+            <tr>
+              <td>(-) Deduções da Receita Bruta</td>
+              <td class="value-negative">(15.000,00)</td>
+            </tr>
+            <tr>
+              <td>(=) Receita Líquida</td>
+              <td class="value-positive">135.000,00</td>
+            </tr>
+            <tr>
+              <td>(-) CPV</td>
+              <td class="value-negative">(60.000,00)</td>
+            </tr>
+            <tr class="total-row">
+              <td>(=) Lucro Bruto</td>
+              <td class="value-positive">75.000,00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <div class="chart-header">
+        <h2 class="chart-title">Fluxo de Caixa Mensal</h2>
+        <span class="chart-period">Últimos 6 Meses</span>
+      </div>
+      <div class="chart-content">
+        <div class="line-chart">
+          <svg viewBox="0 0 300 180">
+            <line class="axis-line" x1="20" y1="30" x2="280" y2="30" />
+            <line class="axis-line" x1="20" y1="80" x2="280" y2="80" />
+            <line class="axis-line" x1="20" y1="130" x2="280" y2="130" />
+            <polyline
+              class="line-receita"
+              points="30,120 80,90 130,100 180,70 230,80 280,50"
+              fill="none"
+            />
+            <polyline
+              class="line-despesa"
+              points="30,150 80,130 130,140 180,110 230,120 280,90"
+              fill="none"
+            />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <div class="chart-header">
+        <h2 class="chart-title">Despesas por Categoria</h2>
+        <span class="chart-period">Mês Atual</span>
+      </div>
+      <div class="chart-content">
+        <div class="donut-chart">
+          <svg viewBox="0 0 100 100">
+            <circle
+              class="donut-segment segment-color"
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke-dasharray="251.2"
+              stroke-dashoffset="100.48"
+            ></circle>
+
+            <circle
+              class="donut-segment segment-color"
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke-dasharray="251.2"
+              stroke-dashoffset="75.36"
+            ></circle>
+
+            <circle
+              class="donut-segment segment-color"
+              cx="50"
+              cy="50"
+              r="40"
+              fill="none"
+              stroke-dasharray="251.2"
+              stroke-dashoffset="25.12"
+            ></circle>
+          </svg>
+
+          <div class="donut-center">
+            <span>R$ 15K</span><br />
+            <small>Total Despesas</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chat -->
+  <app-chat-widget></app-chat-widget>
+</div>

@@ -1,0 +1,80 @@
+<app-main-navbar>
+  <div class="chat-wrapper" [class.open]="isOpen">
+    <!-- Balão flutuante -->
+    <div *ngIf="!isOpen" class="chatbot-icon floating" (click)="toggleChat()">
+      <i class="ph ph-wechat-logo"></i>
+    </div>
+
+    <!-- Janela do chat -->
+    <div *ngIf="isOpen" class="chat-container">
+      <div class="chat-header-top">
+        <div class="chatbot-icon small">
+          <i class="ph ph-wechat-logo"></i>
+        </div>
+        <div class="zoom-icon" (click)="toggleChat()">
+          <i class="ph ph-arrows-in-simple"></i>
+        </div>
+      </div>
+
+      <!-- Corpo do chat -->
+      <div class="chat-messages">
+        <!-- Mensagem inicial fixa -->
+        <div *ngIf="messages.length === 0" class="message bot-message">
+          <div class="message-text">
+            Olá, eu sou o Oriento, seu assistente financeiro. Envie uma pergunta ou escolha uma das
+            opções abaixo para começarmos a organizar suas finanças de forma simples e inteligente.
+          </div>
+        </div>
+
+        <div
+          *ngFor="let msg of messages; trackBy: trackByIndex"
+          class="message"
+          [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'"
+        >
+          <div class="message-text">{{ msg.text }}</div>
+        </div>
+
+        <!-- Dashboard financeiro simulado -->
+        <div class="dashboard" *ngIf="messages.length > 0">
+          <div class="dashboard-title">Lucro Líquido ao Longo do Tempo</div>
+          <div class="dashboard-value">R$ 125.000</div>
+          <div class="dashboard-growth">Últimos 12 Meses +15%</div>
+          <div class="dashboard-graph">Gráfico</div>
+          <div class="dashboard-months">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span
+            ><span>Jun</span><span>Jul</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sugestões rápidas -->
+      <div class="chat-suggestions">
+        <div class="actions">
+          <div class="action" (click)="sendSuggestion('Ver perfil mensal')">Ver perfil mensal</div>
+          <div class="action" (click)="sendSuggestion('Explicar DRE')">Explicar DRE</div>
+          <div class="action" (click)="sendSuggestion('Consultoria de caixa')">
+            Consultoria de caixa
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            [(ngModel)]="userInput"
+            placeholder="Digite sua pergunta..."
+            (keydown.enter)="sendMessage()"
+          />
+          <button class="send-button" (click)="sendMessage()">
+            <i class="ph ph-paper-plane-right"></i>
+          </button>
+        </div>
+        <button class="human-button">
+          <i class="ph ph-user"></i>
+          Humano
+        </button>
+      </div>
+    </div>
+  </div>
+</app-main-navbar>
