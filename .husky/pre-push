@@ -1,9 +1,22 @@
 #!/usr/bin/env sh
 
+# Detecta se o push contem apenas tags (refs/tags/...).
+# Em push apenas de tags a validacao de nome de branch nao se aplica.
+only_tags=1
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/*) only_tags=0 ;;
+  esac
+done
+
+if [ "$only_tags" = "1" ]; then
+  exit 0
+fi
+
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Bloqueia push direto na main (ruleset do GitHub também bloqueia, mas o hook
-# economiza o vai-e-volta com o servidor).
+# Bloqueia push direto na main e develop (ruleset do GitHub tambem bloqueia,
+# mas o hook economiza o vai-e-volta com o servidor).
 if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "develop" ]; then
   echo ""
   echo "❌  Push direto em '$BRANCH' nao e permitido."
