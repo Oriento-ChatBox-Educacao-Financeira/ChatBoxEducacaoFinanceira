@@ -1,15 +1,28 @@
 #!/usr/bin/env sh
 
-# Detecta se o push contem apenas tags (refs/tags/...).
-# Em push apenas de tags a validacao de nome de branch nao se aplica.
+# Le o stdin do git e classifica o push.
+# Permite push exclusivo de tags ou exclusivo de deletes (limpeza de branch),
+# casos em que a validacao de nome de branch nao se aplica.
 only_tags=1
+all_deletes=1
+has_input=0
+ZERO_SHA="0000000000000000000000000000000000000000"
+
 while read local_ref local_sha remote_ref remote_sha; do
+  has_input=1
   case "$remote_ref" in
     refs/heads/*) only_tags=0 ;;
   esac
+  if [ "$local_sha" != "$ZERO_SHA" ]; then
+    all_deletes=0
+  fi
 done
 
-if [ "$only_tags" = "1" ]; then
+if [ "$has_input" = "1" ] && [ "$only_tags" = "1" ]; then
+  exit 0
+fi
+
+if [ "$has_input" = "1" ] && [ "$all_deletes" = "1" ]; then
   exit 0
 fi
 
