@@ -4,7 +4,6 @@ import { AuthGuard } from './guards/auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
 
-  // Páginas de autenticação (eager loading para acesso rápido)
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),
@@ -13,14 +12,17 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () => import('./pages/register/register').then((m) => m.Register),
   },
+  {
+    path: 'register/confirm',
+    loadComponent: () =>
+      import('./pages/register-confirm/register-confirm').then((m) => m.RegisterConfirm),
+  },
 
-  // Página protegida com lazy loading
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
     canActivate: [AuthGuard],
   },
 
-  // Redireciona para login se a rota não for encontrada
   { path: '**', redirectTo: '/login' },
 ];

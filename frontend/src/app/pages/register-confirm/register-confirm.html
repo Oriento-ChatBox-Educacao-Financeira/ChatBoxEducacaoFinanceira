@@ -1,0 +1,220 @@
+<div class="register-wrapper">
+  <!-- PAINEL ESQUERDO -->
+  <aside class="brand-panel">
+    <div class="brand-panel__glow brand-panel__glow--bottom"></div>
+
+    <div class="brand-panel__top">
+      <div class="brand-logo-row">
+        <div class="brand-icon">
+          <span>O</span>
+        </div>
+        <span class="brand-name">ORIENTO</span>
+      </div>
+
+      <div class="brand-headline">
+        <h1>
+          Construa seu <br />
+          legado <br />
+          financeiro com <br />
+          precisão.
+        </h1>
+        <p>
+          Junte-se a uma rede de elite de profissionais financeiros que usam insights editoriais
+          baseados em IA para dominar os mercados.
+        </p>
+      </div>
+    </div>
+
+    <div class="brand-testimonial">
+      <blockquote>
+        "Desde que começamos a usar o Oriento, nosso atendimento se tornou muito mais rápido,
+        inteligente e eficiente. O chatbot entrega orientações financeiras precisas em segundos, e
+        nossos usuários realmente gostam da experiência. É como ter um assistente financeiro premium
+        disponível 24 horas por dia."
+      </blockquote>
+      <div class="testimonial-author">
+        <img
+          src="/profile/lucelho-testimonial.jpeg"
+          alt="Lucelho Silva"
+          class="testimonial-avatar"
+        />
+        <div>
+          <strong>Lucelho Silva</strong>
+          <span>CEO Elkys</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- PAINEL DIREITO -->
+  <main class="form-panel">
+    <div class="form-panel__inner">
+      <!-- Stepper — passo 2 ativo -->
+      <div class="stepper">
+        <div class="stepper__step">
+          <div class="stepper__bubble">1</div>
+          <span class="stepper__label">Detalhes da conta</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__step">
+          <div class="stepper__bubble stepper__bubble--active">2</div>
+          <span class="stepper__label stepper__label--active">Verificação</span>
+        </div>
+      </div>
+
+      <!-- Cabeçalho -->
+      <div class="form-header">
+        <h2>Crie sua conta</h2>
+        <p>Insira suas credenciais para iniciar sua jornada nas finanças.</p>
+      </div>
+
+      <!-- Formulário -->
+      <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
+        <!-- Confirmar E-mail -->
+        <div
+          class="field"
+          [class.field--error]="
+            (confirmForm.get('confirmarEmail')?.invalid &&
+              confirmForm.get('confirmarEmail')?.touched) ||
+            (confirmForm.hasError('camposNaoConferem') &&
+              confirmForm.get('confirmarEmail')?.touched)
+          "
+        >
+          <label for="confirmarEmail" class="field__label">CONFIRME SEU E-MAIL</label>
+          <div class="field__input-wrap">
+            <input
+              type="email"
+              id="confirmarEmail"
+              formControlName="confirmarEmail"
+              class="field__input"
+              placeholder="name@company.com"
+            />
+            <img src="/register/icon-email.svg" alt="" class="field__icon" />
+          </div>
+          @if (
+            confirmForm.get('confirmarEmail')?.hasError('required') &&
+            confirmForm.get('confirmarEmail')?.touched
+          ) {
+            <p class="field__error">Campo obrigatório.</p>
+          }
+          @if (
+            confirmForm.get('confirmarEmail')?.hasError('email') &&
+            confirmForm.get('confirmarEmail')?.touched
+          ) {
+            <p class="field__error">Digite um e-mail válido.</p>
+          }
+          @if (
+            confirmForm.hasError('camposNaoConferem') && confirmForm.get('confirmarEmail')?.touched
+          ) {
+            <p class="field__error">Os e-mails não coincidem.</p>
+          }
+        </div>
+
+        <!-- Confirmar Senha -->
+        <div
+          class="field"
+          [class.field--error]="
+            (confirmForm.get('confirmarSenha')?.invalid &&
+              confirmForm.get('confirmarSenha')?.touched) ||
+            (confirmForm.hasError('senhasNaoConferem') &&
+              confirmForm.get('confirmarSenha')?.touched)
+          "
+        >
+          <label for="confirmarSenha" class="field__label">CONFIRME SUA SENHA</label>
+          <div class="field__input-wrap">
+            <input
+              type="password"
+              id="confirmarSenha"
+              formControlName="confirmarSenha"
+              class="field__input"
+              placeholder="Digite sua senha"
+              (input)="checkPasswordMatch()"
+            />
+            <img src="/register/icon-password.svg" alt="" class="field__icon" />
+          </div>
+          @if (
+            confirmForm.get('confirmarSenha')?.hasError('required') &&
+            confirmForm.get('confirmarSenha')?.touched
+          ) {
+            <p class="field__error">Campo obrigatório.</p>
+          }
+
+          <!-- Barra de correspondência -->
+          <div class="strength-bar">
+            <div class="strength-bar__tracks">
+              <div
+                [class]="
+                  'strength-bar__track' +
+                  (confirmForm.get('confirmarSenha')?.value
+                    ? passwordsMatch
+                      ? ' strength-bar__track--match'
+                      : ' strength-bar__track--no-match'
+                    : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track' +
+                  (confirmForm.get('confirmarSenha')?.value
+                    ? passwordsMatch
+                      ? ' strength-bar__track--match'
+                      : ' strength-bar__track--no-match'
+                    : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track' +
+                  (confirmForm.get('confirmarSenha')?.value
+                    ? passwordsMatch
+                      ? ' strength-bar__track--match'
+                      : ' strength-bar__track--no-match'
+                    : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track' +
+                  (confirmForm.get('confirmarSenha')?.value
+                    ? passwordsMatch
+                      ? ' strength-bar__track--match'
+                      : ' strength-bar__track--no-match'
+                    : '')
+                "
+              ></div>
+            </div>
+            @if (confirmForm.get('confirmarSenha')?.value) {
+              <span
+                [class]="
+                  'strength-bar__label strength-bar__label--' +
+                  (passwordsMatch ? 'match' : 'no-match')
+                "
+              >
+                {{ passwordsMatch ? 'AS SENHAS COINCIDEM.' : 'AS SENHAS NÃO COINCIDEM.' }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="loading || confirmForm.invalid || !passwordsMatch"
+          >
+            {{ loading ? 'Aguarde...' : 'Criar uma conta' }}
+          </button>
+          <p class="login-link">
+            Já tem uma conta?
+            <a (click)="goToLogin()" class="login-link__anchor">Iniciar sessão</a>
+          </p>
+        </div>
+
+        @if (errorMessage) {
+          <p class="error-text">{{ errorMessage }}</p>
+        }
+      </form>
+    </div>
+  </main>
+</div>
