@@ -39,6 +39,7 @@ export class Register implements OnDestroy {
       cnpj: ['', [Validators.required, CustomValidators.cnpj]],
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, CustomValidators.senhaForte]],
+      aceiteTermos: [false, Validators.requiredTrue],
     });
   }
 
