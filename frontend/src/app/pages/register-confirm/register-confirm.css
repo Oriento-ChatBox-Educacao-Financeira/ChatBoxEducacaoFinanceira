@@ -1,21 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap');
 
-:host {
-  --blue-dark: #002162;
-  --blue-mid: #103688;
-  --gold: #feb700;
-  --gold-text: #271900;
-  --white: #ffffff;
-  --bg: #f8f9fa;
-  --text-dark: #191c1d;
-  --text-mid: #444651;
-  --text-muted: rgba(116, 118, 131, 0.5);
-  --input-bg: #f3f4f5;
-  --border: #c4c6d3;
-  --error: #dc2626;
-  font-family: 'Inter', sans-serif;
-}
-
 * {
   margin: 0;
   padding: 0;
