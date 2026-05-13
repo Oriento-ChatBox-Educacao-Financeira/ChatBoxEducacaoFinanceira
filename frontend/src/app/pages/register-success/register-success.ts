@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SupabaseClientService } from '../../services/supabase.client';
@@ -14,7 +14,7 @@ const RESEND_COOLDOWN_SECONDS = 60;
   templateUrl: './register-success.html',
   styleUrls: ['./register-success.css'],
 })
-export class RegisterSuccess implements OnInit {
+export class RegisterSuccess implements OnInit, OnDestroy {
   email = '';
   resending = false;
   resendMessage = '';
@@ -32,6 +32,10 @@ export class RegisterSuccess implements OnInit {
 
   ngOnInit(): void {
     this.email = this.route.snapshot.queryParamMap.get('email') ?? '';
+  }
+
+  ngOnDestroy(): void {
+    this.clearCooldown();
   }
 
   async resendEmail(): Promise<void> {
@@ -63,13 +67,20 @@ export class RegisterSuccess implements OnInit {
   }
 
   private startCooldown(): void {
+    this.clearCooldown();
     this.resendCooldown = RESEND_COOLDOWN_SECONDS;
     this.cooldownHandle = setInterval(() => {
       this.resendCooldown -= 1;
-      if (this.resendCooldown <= 0 && this.cooldownHandle) {
-        clearInterval(this.cooldownHandle);
-        this.cooldownHandle = null;
+      if (this.resendCooldown <= 0) {
+        this.clearCooldown();
       }
     }, 1000);
+  }
+
+  private clearCooldown(): void {
+    if (this.cooldownHandle) {
+      clearInterval(this.cooldownHandle);
+      this.cooldownHandle = null;
+    }
   }
 }

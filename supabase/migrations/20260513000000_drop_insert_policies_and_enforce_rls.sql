@@ -6,9 +6,20 @@
 --   1. garante RLS ligada em ambas as tabelas
 --   2. remove as policies de INSERT (linha so deve ser criada pela trigger
 --      handle_new_user, com SECURITY DEFINER)
+--
+-- Idempotente: usa `if exists` para nao quebrar em ambientes onde as
+-- tabelas ainda nao foram criadas (a migration base do schema mora fora
+-- deste repositorio).
 
-alter table public.usuario enable row level security;
-alter table public.empresa enable row level security;
+do $$
+begin
+  if to_regclass('public.usuario') is not null then
+    execute 'alter table public.usuario enable row level security';
+    execute 'drop policy if exists "usuario_insert_own" on public.usuario';
+  end if;
 
-drop policy if exists "usuario_insert_own" on public.usuario;
-drop policy if exists "empresa_insert_own" on public.empresa;
+  if to_regclass('public.empresa') is not null then
+    execute 'alter table public.empresa enable row level security';
+    execute 'drop policy if exists "empresa_insert_own" on public.empresa';
+  end if;
+end $$;

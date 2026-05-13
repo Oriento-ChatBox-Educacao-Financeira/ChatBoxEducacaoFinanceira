@@ -104,6 +104,11 @@ export class AuthService {
         this.userSubject.next(null);
         return;
       }
+      // Dedupe: se o usuário em memória já corresponde ao da sessão, não
+      // refazemos a query. O login()/bootstrapSession() já hidrataram.
+      if (this.userSubject.value?.id === session.user.id) {
+        return;
+      }
       this.hydrateUsuario(session.user.id).catch(async (err) => {
         this.logger.warn('Falha ao hidratar usuário após auth change; encerrando sessão', err);
         await this.supabase.client.auth.signOut();
@@ -162,7 +167,7 @@ export class AuthService {
           data: {
             nome: input.nome,
             nome_fantasia: input.nomeFantasia,
-            cnpj: input.cnpj,
+            cnpj: input.cnpj.replace(/\D/g, ''),
             razao_social: input.razaoSocial ?? null,
           },
         },
