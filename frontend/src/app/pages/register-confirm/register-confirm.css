@@ -508,6 +508,10 @@ form {
 }
 
 .login-link__anchor {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
   color: var(--blue-dark);
   font-weight: 700;
   text-decoration: none;

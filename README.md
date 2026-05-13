@@ -86,7 +86,7 @@ ChatBoxEducacaoFinanceira/
 Antes de começar, certifique-se de ter instalado:
 
 - **Java JDK 21** ou superior
-- **Node.js 18** ou superior
+- **Node.js 20** ou superior (exigido pelas dependências do `@supabase/supabase-js`)
 - **npm** ou **yarn**
 - **MySQL 8.0** ou superior
 - **Maven 3.8** ou superior (ou use o wrapper incluído)

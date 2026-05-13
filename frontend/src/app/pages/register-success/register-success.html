@@ -102,10 +102,31 @@
         </div>
 
         <div class="form-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="resendEmail()"
+            [disabled]="resending || resendCooldown > 0 || !email"
+          >
+            @if (resending) {
+              Reenviando...
+            } @else if (resendCooldown > 0) {
+              Reenviar em {{ resendCooldown }}s
+            } @else {
+              Reenviar e-mail de confirmação
+            }
+          </button>
           <button type="button" class="btn-primary" (click)="goToLogin()">
             Voltar para o login
           </button>
         </div>
+
+        @if (resendMessage) {
+          <p class="resend-feedback resend-feedback--ok" role="status">{{ resendMessage }}</p>
+        }
+        @if (resendError) {
+          <p class="resend-feedback resend-feedback--error" role="alert">{{ resendError }}</p>
+        }
       </div>
     </div>
   </main>

@@ -53,19 +53,33 @@ export class RegisterConfirm implements OnInit, OnDestroy {
     private logger: LoggerService,
     private registerState: RegisterStateService,
   ) {
+    const saved = this.registerState.getCredentials();
     this.credentialsForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      confirmarEmail: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required, CustomValidators.senhaForte]],
-      confirmarSenha: ['', [Validators.required]],
-      aceiteTermos: [false, Validators.requiredTrue],
+      email: [saved?.email ?? '', [Validators.required, Validators.email]],
+      confirmarEmail: [saved?.confirmarEmail ?? '', [Validators.required, Validators.email]],
+      senha: [saved?.senha ?? '', [Validators.required, CustomValidators.senhaForte]],
+      confirmarSenha: [saved?.confirmarSenha ?? '', [Validators.required]],
+      aceiteTermos: [saved?.aceiteTermos ?? false, Validators.requiredTrue],
     });
   }
 
   ngOnInit(): void {
     if (!this.registerState.getIdentity()) {
       this.router.navigate(['/register']);
+      return;
     }
+    if (this.credentialsForm.get('senha')?.value) {
+      const event = new Event('input');
+      Object.defineProperty(event, 'target', {
+        value: { value: this.credentialsForm.get('senha')?.value },
+      });
+      this.updatePasswordStrength(event);
+    }
+    this.checkEmailMatch();
+  }
+
+  private persistCredentialsDraft(): void {
+    this.registerState.setCredentials(this.credentialsForm.getRawValue());
   }
 
   ngOnDestroy(): void {
@@ -121,9 +135,16 @@ export class RegisterConfirm implements OnInit, OnDestroy {
   }
 
   checkEmailMatch(): void {
-    const email = this.credentialsForm.get('email')?.value ?? '';
-    const confirmar = this.credentialsForm.get('confirmarEmail')?.value ?? '';
+    const emailCtrl = this.credentialsForm.get('email');
+    const confirmarCtrl = this.credentialsForm.get('confirmarEmail');
+    const email = emailCtrl?.value ?? '';
+    const confirmar = confirmarCtrl?.value ?? '';
     this.emailsMatch = !!email && email === confirmar;
+
+    if (this.emailsMatch && confirmarCtrl?.hasError('emailNaoConfere')) {
+      const { emailNaoConfere: _drop, ...rest } = confirmarCtrl.errors ?? {};
+      confirmarCtrl.setErrors(Object.keys(rest).length ? rest : null);
+    }
   }
 
   onSubmit(): void {
@@ -174,10 +195,12 @@ export class RegisterConfirm implements OnInit, OnDestroy {
   }
 
   goToLogin(): void {
+    this.persistCredentialsDraft();
     this.router.navigate(['/login']);
   }
 
   goBack(): void {
+    this.persistCredentialsDraft();
     this.router.navigate(['/register']);
   }
 

@@ -290,6 +290,42 @@
   opacity: 0.88;
 }
 
+.btn-secondary {
+  padding: 16px 24px;
+  background: transparent;
+  color: var(--blue-dark);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid var(--blue-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resend-feedback {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.resend-feedback--ok {
+  color: #1f7a3a;
+}
+
+.resend-feedback--error {
+  color: var(--error, #c0392b);
+}
+
 @media (max-width: 820px) {
   .brand-panel {
     display: none;

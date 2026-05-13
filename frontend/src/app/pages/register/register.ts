@@ -1,8 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
 import { CustomValidators } from '../../validators/custom-validators';
 import { RegisterStateService } from '../../services/register-state.service';
 
@@ -13,26 +12,23 @@ import { RegisterStateService } from '../../services/register-state.service';
   templateUrl: './register.html',
   styleUrls: ['./register.css'],
 })
-export class Register implements OnDestroy {
+export class Register {
   registerForm: FormGroup;
-
-  private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private registerState: RegisterStateService,
   ) {
+    const saved = this.registerState.getIdentity();
     this.registerForm = this.fb.group({
-      nome: ['', [Validators.required, Validators.maxLength(150)]],
-      nomeFantasia: ['', [Validators.required, Validators.maxLength(150)]],
-      cnpj: ['', [Validators.required, CustomValidators.cnpj]],
+      nome: [saved?.nome ?? '', [Validators.required, Validators.maxLength(150)]],
+      nomeFantasia: [
+        saved?.nomeFantasia ?? '',
+        [Validators.required, Validators.maxLength(150)],
+      ],
+      cnpj: [saved?.cnpj ?? '', [Validators.required, CustomValidators.cnpj]],
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   onSubmit(): void {

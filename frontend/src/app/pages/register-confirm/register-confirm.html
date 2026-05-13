@@ -50,18 +50,18 @@
   <main class="form-panel">
     <div class="form-panel__inner">
       <!-- Stepper — passo 2 ativo -->
-      <div class="stepper">
-        <div class="stepper__step">
+      <div class="stepper" role="list" aria-label="Etapas do cadastro">
+        <div class="stepper__step" role="listitem">
           <div class="stepper__bubble stepper__bubble--done">1</div>
           <span class="stepper__label">Identificação</span>
         </div>
-        <div class="stepper__divider"></div>
-        <div class="stepper__step">
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem" aria-current="step">
           <div class="stepper__bubble stepper__bubble--active">2</div>
           <span class="stepper__label stepper__label--active">Credenciais</span>
         </div>
-        <div class="stepper__divider"></div>
-        <div class="stepper__step">
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem">
           <div class="stepper__bubble">3</div>
           <span class="stepper__label">Confirmação</span>
         </div>
@@ -156,7 +156,7 @@
             </button>
           </div>
           @if (
-            credentialsForm.get('senha')?.hasError('required') &&
+            credentialsForm.get('senha')?.invalid &&
             credentialsForm.get('senha')?.touched
           ) {
             <p class="field__error">{{ getErrorMessage('senha') }}</p>
@@ -343,9 +343,11 @@
             {{ loading ? 'Aguarde...' : 'Criar uma conta' }}
           </button>
           <p class="login-link">
-            <a (click)="goBack()" class="login-link__anchor">Voltar</a>
+            <button type="button" (click)="goBack()" class="login-link__anchor">Voltar</button>
             &nbsp;ou&nbsp;
-            <a (click)="goToLogin()" class="login-link__anchor">Iniciar sessão</a>
+            <button type="button" (click)="goToLogin()" class="login-link__anchor">
+              Iniciar sessão
+            </button>
           </p>
         </div>
 
