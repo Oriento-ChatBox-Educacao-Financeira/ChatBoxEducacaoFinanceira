@@ -1,202 +1,179 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
-import { tap, catchError, finalize } from 'rxjs/operators';
+import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
+import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
-import { LoginResponse, Usuario, RegisterPayload } from '../models/usuario.model';
+import { Usuario } from '../models/usuario.model';
 import { LoggerService } from './logger.service';
+import { SupabaseClientService } from './supabase.client';
+
+export interface SignUpInput {
+  nome: string;
+  nomeFantasia: string;
+  cnpj: string;
+  razaoSocial?: string;
+  email: string;
+  senha: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private api = environment.authUrl;
-  private accessToken: string | null = null;
-  private refreshTokenValue: string | null = null;
   private userSubject = new BehaviorSubject<Usuario | null>(null);
-  private isInitialized = false;
-  private readonly storageKeys = {
-    accessToken: 'oriento.accessToken',
-    refreshToken: 'oriento.refreshToken',
-    user: 'oriento.usuario',
-  };
+  private accessToken: string | null = null;
 
   user$: Observable<Usuario | null> = this.userSubject.asObservable();
 
   constructor(
-    private http: HttpClient,
+    private supabase: SupabaseClientService,
     private router: Router,
     private logger: LoggerService
   ) {
-    this.loadStoredSession();
-    this.initializeAuth();
+    this.bootstrapSession();
+    this.listenAuthChanges();
   }
 
   /**
-   * Inicializa a autenticação tentando recuperar a sessão
+   * Restaura a sessão persistida pelo supabase-js (localStorage) ao iniciar.
    */
-  private initializeAuth(): void {
-    if (this.isInitialized) {
-      return;
+  private async bootstrapSession(): Promise<void> {
+    const { data } = await this.supabase.client.auth.getSession();
+    if (data.session) {
+      this.accessToken = data.session.access_token;
+      await this.hydrateUsuario(data.session.user.id);
     }
-
-    this.isInitialized = true;
-
-    if (!this.refreshTokenValue) {
-      this.logger.log('Nenhum refresh token armazenado. Usuário não autenticado.');
-      return;
-    }
-
-    this.refreshToken().subscribe({
-      next: () => {
-        this.logger.log('Sessão recuperada com sucesso');
-      },
-      error: (error) => {
-        this.logger.warn('Não foi possível recuperar a sessão automaticamente', error);
-      },
-    });
   }
 
-  private loadStoredSession(): void {
-    const storedAccessToken = localStorage.getItem(this.storageKeys.accessToken);
-    const storedRefreshToken = localStorage.getItem(this.storageKeys.refreshToken);
-    const storedUser = localStorage.getItem(this.storageKeys.user);
-
-    this.accessToken = storedAccessToken;
-    this.refreshTokenValue = storedRefreshToken;
-
-    if (storedUser) {
-      try {
-        const usuario: Usuario = JSON.parse(storedUser);
-        this.userSubject.next(usuario);
-      } catch (error) {
-        this.logger.warn('Não foi possível restaurar os dados do usuário armazenado', error);
-        localStorage.removeItem(this.storageKeys.user);
+  /**
+   * Escuta eventos do supabase-js e mantém o token e o usuário em memória.
+   */
+  private listenAuthChanges(): void {
+    this.supabase.client.auth.onAuthStateChange((_event, session) => {
+      this.accessToken = session?.access_token ?? null;
+      if (!session) {
+        this.userSubject.next(null);
+        return;
       }
-    }
-  }
-
-  private handleAuthSuccess(res: LoginResponse): void {
-    this.accessToken = res.accessToken;
-    this.refreshTokenValue = res.refreshToken;
-    this.userSubject.next(res.usuario);
-    this.persistSession(res);
-  }
-
-  private persistSession(res: LoginResponse): void {
-    localStorage.setItem(this.storageKeys.accessToken, res.accessToken);
-    localStorage.setItem(this.storageKeys.refreshToken, res.refreshToken);
-    localStorage.setItem(this.storageKeys.user, JSON.stringify(res.usuario));
-  }
-
-  /**
-   * Registra um novo usuário
-   */
-  register(payload: RegisterPayload): Observable<void> {
-    return this.http.post<void>(`${this.api}/register`, payload, {
-      withCredentials: true,
+      this.hydrateUsuario(session.user.id).catch((err) =>
+        this.logger.warn('Falha ao hidratar usuário após auth change', err)
+      );
     });
   }
 
   /**
-   * Realiza o login e salva o token em memória
+   * Carrega o perfil em public.usuario e emite no userSubject.
    */
-  login(email: string, senha: string): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(`${this.api}/login`, { email, senha }, { withCredentials: true })
-      .pipe(
-        tap((res) => {
-          this.handleAuthSuccess(res);
-          this.logger.log('Login bem-sucedido', { usuario: res.usuario.email });
-        }),
-        catchError((error) => {
-          this.logger.error('Erro ao fazer login', error);
-          return throwError(() => error);
-        })
-      );
-  }
+  private async hydrateUsuario(authUserId: string): Promise<void> {
+    const { data, error } = await this.supabase.client
+      .from('usuario')
+      .select('id_usuario,nome,email')
+      .eq('id_usuario', authUserId)
+      .maybeSingle();
 
-  /**
-   * Faz a renovação do token expirado usando o refresh token
-   */
-  refreshToken(): Observable<LoginResponse> {
-    if (!this.refreshTokenValue) {
-      return throwError(() => new Error('Refresh token indisponível.'));
+    if (error) {
+      this.logger.warn('Erro ao buscar perfil do usuário', error);
+      return;
     }
 
-    return this.http
-      .post<LoginResponse>(
-        `${this.api}/refresh`,
-        { refreshToken: this.refreshTokenValue },
-        { withCredentials: true }
-      )
-      .pipe(
-        tap((res) => {
-          this.handleAuthSuccess(res);
-          this.logger.log('Token renovado com sucesso');
-        }),
-        catchError((err) => {
-          this.logger.warn('Falha ao renovar token', err);
-          this.clearAuthState();
-          return throwError(() => err);
-        })
-      );
+    if (data) {
+      this.userSubject.next({
+        id: data.id_usuario,
+        nome: data.nome,
+        email: data.email,
+        cnpj: '',
+      });
+    }
   }
 
   /**
-   * Realiza o logout no servidor e limpa o estado local
+   * Registra um novo usuário no Supabase Auth.
+   * As linhas em public.usuario e public.empresa são criadas pela trigger
+   * handle_new_user a partir do raw_user_meta_data.
    */
-  logout(): Observable<void> {
-    const performLogout$ = this.refreshTokenValue
-      ? this.http.post<void>(
-          `${this.api}/logout`,
-          { refreshToken: this.refreshTokenValue },
-          { withCredentials: true }
-        )
-      : of(void 0);
-
-    return performLogout$.pipe(
-      tap(() => {
-        this.logger.log('Logout realizado com sucesso');
+  register(input: SignUpInput): Observable<void> {
+    return from(
+      this.supabase.client.auth.signUp({
+        email: input.email,
+        password: input.senha,
+        options: {
+          data: {
+            nome: input.nome,
+            nome_fantasia: input.nomeFantasia,
+            cnpj: input.cnpj,
+            razao_social: input.razaoSocial ?? null,
+          },
+        },
+      })
+    ).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        if (!data.user) throw new Error('Falha ao criar usuário.');
       }),
-      catchError((error) => {
-        this.logger.error('Erro ao fazer logout', error);
-        return of(void 0);
-      }),
-      finalize(() => {
-        this.clearAuthState();
-        this.router.navigate(['/login']);
+      tap(() => this.logger.log('Cadastro criado no Supabase')),
+      catchError((err) => {
+        this.logger.error('Erro no cadastro Supabase', err);
+        return throwError(() => err);
       })
     );
   }
 
   /**
-   * Limpa o estado de autenticação
+   * Realiza o login e atualiza o usuário em memória.
    */
-  private clearAuthState(): void {
-    this.accessToken = null;
-    this.refreshTokenValue = null;
-    this.userSubject.next(null);
-    localStorage.removeItem(this.storageKeys.accessToken);
-    localStorage.removeItem(this.storageKeys.refreshToken);
-    localStorage.removeItem(this.storageKeys.user);
+  login(email: string, senha: string): Observable<Usuario> {
+    return from(
+      this.supabase.client.auth.signInWithPassword({ email, password: senha })
+    ).pipe(
+      switchMap(({ data, error }) => {
+        if (error) return throwError(() => error);
+        if (!data.user) return throwError(() => new Error('Sessão inválida.'));
+        return from(this.hydrateUsuario(data.user.id)).pipe(
+          map(
+            () =>
+              this.userSubject.value ?? {
+                id: data.user!.id,
+                nome: data.user!.email ?? '',
+                email: data.user!.email ?? '',
+                cnpj: '',
+              }
+          )
+        );
+      }),
+      tap(() => this.logger.log('Login bem-sucedido')),
+      catchError((err) => {
+        this.logger.error('Erro ao fazer login', err);
+        return throwError(() => err);
+      })
+    );
   }
 
   /**
-   * Retorna o token de acesso atual
+   * Encerra a sessão e redireciona para a tela de login.
+   */
+  logout(): Observable<void> {
+    return from(this.supabase.client.auth.signOut()).pipe(
+      tap(() => {
+        this.userSubject.next(null);
+        this.router.navigate(['/login']);
+      }),
+      map(() => void 0)
+    );
+  }
+
+  /**
+   * Retorna o token de acesso atual.
    */
   getAccessToken(): string | null {
     return this.accessToken;
   }
 
   /**
-   * Verifica se o usuário está autenticado
+   * Verifica se o usuário está autenticado.
    */
   isAuthenticated(): boolean {
-    return !!this.accessToken;
+    return !!this.userSubject.value;
   }
 
   /**
-   * Retorna o usuário atual
+   * Retorna o usuário atual.
    */
   getCurrentUser(): Usuario | null {
     return this.userSubject.value;
