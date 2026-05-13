@@ -49,76 +49,80 @@
   <!-- PAINEL DIREITO -->
   <main class="form-panel">
     <div class="form-panel__inner">
-      <!-- Stepper -->
-      <div class="stepper">
-        <div class="stepper__step">
+      <!-- Stepper — passo 1 ativo -->
+      <div class="stepper" role="list" aria-label="Etapas do cadastro">
+        <div class="stepper__step" role="listitem" aria-current="step">
           <div class="stepper__bubble stepper__bubble--active">1</div>
-          <span class="stepper__label stepper__label--active">Detalhes da conta</span>
+          <span class="stepper__label stepper__label--active">Identificação</span>
         </div>
-        <div class="stepper__divider"></div>
-        <div class="stepper__step">
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem">
           <div class="stepper__bubble">2</div>
-          <span class="stepper__label">Verificação</span>
+          <span class="stepper__label">Credenciais</span>
+        </div>
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem">
+          <div class="stepper__bubble">3</div>
+          <span class="stepper__label">Confirmação</span>
         </div>
       </div>
 
       <!-- Cabeçalho -->
       <div class="form-header">
         <h2>Crie sua conta</h2>
-        <p>Insira suas credenciais para iniciar sua jornada nas finanças.</p>
+        <p>Comece informando os dados da sua empresa.</p>
       </div>
 
       <!-- Formulário -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-        <!-- Nome Completo + Nome Fantasia -->
-        <div class="field-row">
-          <div
-            class="field"
-            [class.field--error]="
-              registerForm.get('razaoSocial')?.invalid && registerForm.get('razaoSocial')?.touched
-            "
-          >
-            <label for="razaoSocial" class="field__label">NOME COMPLETO</label>
-            <div class="field__input-wrap">
-              <input
-                type="text"
-                id="razaoSocial"
-                formControlName="razaoSocial"
-                class="field__input"
-                placeholder="Digite o nome completo"
-              />
-              <img src="/register/icon-profile.svg" alt="" class="field__icon" />
-            </div>
-            @if (
-              registerForm.get('razaoSocial')?.invalid && registerForm.get('razaoSocial')?.touched
-            ) {
-              <p class="field__error">{{ getErrorMessage('razaoSocial') }}</p>
-            }
+        <!-- Nome Completo -->
+        <div
+          class="field"
+          [class.field--error]="
+            registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched
+          "
+        >
+          <label for="nome" class="field__label">NOME COMPLETO</label>
+          <div class="field__input-wrap">
+            <input
+              type="text"
+              id="nome"
+              formControlName="nome"
+              class="field__input"
+              placeholder="Digite o nome completo"
+            />
+            <img src="/register/icon-profile.svg" alt="" class="field__icon" />
           </div>
+          @if (
+            registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched
+          ) {
+            <p class="field__error">{{ getErrorMessage('nome') }}</p>
+          }
+        </div>
 
-          <div
-            class="field"
-            [class.field--error]="
-              registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
-            "
-          >
-            <label for="nomeFantasia" class="field__label">NOME FANTASIA</label>
-            <div class="field__input-wrap">
-              <input
-                type="text"
-                id="nomeFantasia"
-                formControlName="nomeFantasia"
-                class="field__input"
-                placeholder="Nome da empresa"
-              />
-              <img src="/register/icon-empresa.svg" alt="" class="field__icon" />
-            </div>
-            @if (
-              registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
-            ) {
-              <p class="field__error">{{ getErrorMessage('nomeFantasia') }}</p>
-            }
+        <!-- Nome Fantasia -->
+        <div
+          class="field"
+          [class.field--error]="
+            registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
+          "
+        >
+          <label for="nomeFantasia" class="field__label">NOME FANTASIA</label>
+          <div class="field__input-wrap">
+            <input
+              type="text"
+              id="nomeFantasia"
+              formControlName="nomeFantasia"
+              class="field__input"
+              placeholder="Nome da empresa"
+            />
+            <img src="/register/icon-empresa.svg" alt="" class="field__icon" />
           </div>
+          @if (
+            registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
+          ) {
+            <p class="field__error">{{ getErrorMessage('nomeFantasia') }}</p>
+          }
         </div>
 
         <!-- CNPJ -->
@@ -144,115 +148,18 @@
           }
         </div>
 
-        <!-- E-mail -->
-        <div
-          class="field"
-          [class.field--error]="
-            registerForm.get('email')?.invalid && registerForm.get('email')?.touched
-          "
-        >
-          <label for="email" class="field__label">E-MAIL PROFISSIONAL</label>
-          <div class="field__input-wrap">
-            <input
-              type="email"
-              id="email"
-              formControlName="email"
-              class="field__input"
-              placeholder="nome@empresa.com"
-            />
-            <img src="/register/icon-email.svg" alt="" class="field__icon" />
-          </div>
-          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-            <p class="field__error">{{ getErrorMessage('email') }}</p>
-          }
-        </div>
-
-        <!-- Senha -->
-        <div
-          class="field"
-          [class.field--error]="
-            registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched
-          "
-        >
-          <label for="senha" class="field__label">SENHA DE SEGURANÇA</label>
-          <div class="field__input-wrap">
-            <input
-              type="password"
-              id="senha"
-              formControlName="senha"
-              class="field__input"
-              placeholder="Digite sua senha"
-              (input)="updatePasswordStrength($event)"
-            />
-            <img src="/register/icon-password.svg" alt="" class="field__icon" />
-          </div>
-          @if (registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched) {
-            <p class="field__error">{{ getErrorMessage('senha') }}</p>
-          }
-
-          <!-- Barra de resistência -->
-          <div class="strength-bar">
-            <div class="strength-bar__tracks">
-              <div
-                [class]="
-                  'strength-bar__track strength-bar__track--' +
-                  strengthColor +
-                  (passwordStrength >= 1 ? ' strength-bar__track--active' : '')
-                "
-              ></div>
-              <div
-                [class]="
-                  'strength-bar__track strength-bar__track--' +
-                  strengthColor +
-                  (passwordStrength >= 2 ? ' strength-bar__track--active' : '')
-                "
-              ></div>
-              <div
-                [class]="
-                  'strength-bar__track strength-bar__track--' +
-                  strengthColor +
-                  (passwordStrength >= 3 ? ' strength-bar__track--active' : '')
-                "
-              ></div>
-              <div
-                [class]="
-                  'strength-bar__track strength-bar__track--' +
-                  strengthColor +
-                  (passwordStrength >= 4 ? ' strength-bar__track--active' : '')
-                "
-              ></div>
-            </div>
-            @if (passwordStrength > 0) {
-              <span class="strength-bar__label" [class]="'strength-bar__label--' + strengthColor">
-                RESISTÊNCIA: {{ strengthLabel }}
-              </span>
-            }
-          </div>
-        </div>
-
-        <!-- Termos -->
-        <div class="terms-row">
-          <input type="checkbox" id="terms" formControlName="aceiteTermos" class="terms-checkbox" />
-          <label for="terms" class="terms-label">
-            Concordo com os <a href="#" class="terms-link">Termos de Serviço</a> e
-            <a href="#" class="terms-link">Política de Privacidade</a>, incluindo as diretrizes
-            editoriais do Oriento.
-          </label>
-        </div>
-
         <!-- Ações -->
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="loading || registerForm.invalid">
-            {{ loading ? 'Aguarde...' : 'Avançar' }}
+          <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+            Avançar
           </button>
           <p class="login-link">
-            Já tem uma conta? <a (click)="goToLogin()" class="login-link__anchor">Iniciar sessão</a>
+            Já tem uma conta?
+            <button type="button" (click)="goToLogin()" class="login-link__anchor">
+              Iniciar sessão
+            </button>
           </p>
         </div>
-
-        @if (errorMessage) {
-          <p class="error-text">{{ errorMessage }}</p>
-        }
       </form>
     </div>
   </main>

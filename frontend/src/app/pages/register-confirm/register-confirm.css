@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap');
-
 * {
   margin: 0;
   padding: 0;
@@ -190,6 +188,11 @@
   color: var(--white);
 }
 
+.stepper__bubble--done {
+  background: var(--gold);
+  color: var(--blue-dark);
+}
+
 .stepper__label {
   font-size: 14px;
   font-weight: 500;
@@ -286,6 +289,31 @@ form {
   flex-shrink: 0;
 }
 
+.field__input--with-toggle {
+  padding-right: 92px;
+}
+
+.field__toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue-dark);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Inter', sans-serif;
+}
+
+.field__toggle:hover {
+  text-decoration: underline;
+}
+
 .field--error .field__label {
   color: var(--error);
 }
@@ -300,31 +328,76 @@ form {
   font-weight: 400;
 }
 
-/* ── BARRA DE CORRESPONDÊNCIA ── */
+/* ── BARRA DE FORÇA / CORRESPONDÊNCIA ── */
 .strength-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 0 4px;
-  margin-top: 4px;
+  margin-top: 6px;
   min-height: 20px;
 }
 
 .strength-bar__tracks {
   display: flex;
   gap: 4px;
+  flex: 1;
 }
 
 .strength-bar__track {
-  width: 32px;
-  height: 4px;
+  flex: 1;
+  max-width: 56px;
+  height: 5px;
   background: #e1e3e4;
   border-radius: 9999px;
-  transition: background 0.3s;
+  transform-origin: left center;
+  transition:
+    background 0.3s ease,
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
 }
 
+/* Cores aplicadas apenas quando o segmento está ativo */
+.strength-bar__track--active.strength-bar__track--weak {
+  background: #dc2626;
+}
+
+.strength-bar__track--active.strength-bar__track--fair {
+  background: #f59e0b;
+}
+
+.strength-bar__track--active.strength-bar__track--good {
+  background: #3b82f6;
+}
+
+.strength-bar__track--active.strength-bar__track--strong {
+  background: #14ae5c;
+  box-shadow: 0 0 6px rgba(20, 174, 92, 0.35);
+}
+
+/* Animação de "preenchimento" no segmento que acabou de ativar */
+@keyframes strength-fill {
+  0%   { transform: scaleX(0.2); opacity: 0.4; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+
+.strength-bar__track--active {
+  animation: strength-fill 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.strength-bar__tracks .strength-bar__track:nth-child(1).strength-bar__track--active { animation-delay: 0s; }
+.strength-bar__tracks .strength-bar__track:nth-child(2).strength-bar__track--active { animation-delay: 0.05s; }
+.strength-bar__tracks .strength-bar__track:nth-child(3).strength-bar__track--active { animation-delay: 0.10s; }
+.strength-bar__tracks .strength-bar__track:nth-child(4).strength-bar__track--active { animation-delay: 0.15s; }
+
+/* Correspondência de senhas */
 .strength-bar__track--match {
   background: #14ae5c;
+}
+
+.strength-bar__track--no-match {
+  background: #dc2626;
 }
 
 .strength-bar__label {
@@ -332,22 +405,67 @@ form {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  animation: strength-fade-in 0.25s ease-out;
 }
 
-.strength-bar__label--match {
+@keyframes strength-fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.strength-bar__label--weak    { color: #dc2626; }
+.strength-bar__label--fair    { color: #f59e0b; }
+.strength-bar__label--good    { color: #3b82f6; }
+.strength-bar__label--strong  { color: #14ae5c; }
+.strength-bar__label--match   { color: #14ae5c; }
+.strength-bar__label--no-match { color: #dc2626; }
+
+/* ── CRITÉRIOS DA SENHA ── */
+.password-criteria {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.password-criteria li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--error);
+  line-height: 16px;
+  transition: color 0.2s ease;
+}
+
+.password-criteria__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(220, 38, 38, 0.12);
+  color: var(--error);
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.password-criteria li.password-criteria__item--ok {
   color: #14ae5c;
 }
 
-.strength-bar__label--no-match {
-  color: var(--error);
-}
-
-.strength-bar__track--no-match {
-  background: #dc2626;
-}
-
-.strength-bar__label--no-match {
-  color: #dc2626;
+.password-criteria li.password-criteria__item--ok .password-criteria__icon {
+  background: rgba(20, 174, 92, 0.15);
+  color: #14ae5c;
 }
 
 /* ── AÇÕES ── */
@@ -390,6 +508,10 @@ form {
 }
 
 .login-link__anchor {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
   color: var(--blue-dark);
   font-weight: 700;
   text-decoration: none;

@@ -6,6 +6,27 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="logo-oriento.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    />
+    <!--
+      Config Supabase em runtime. O pipeline de deploy deve substituir os
+      placeholders abaixo (sed/envsubst) pelos valores reais do ambiente,
+      mantendo o bundle desacoplado de um projeto Supabase especifico.
+      Se ficar vazio, SupabaseClientService cai nos valores de environment.ts.
+    -->
+    <script>
+      window.__ORIENTO_SUPABASE_CONFIG__ = {
+        url: '__SUPABASE_URL__',
+        anonKey: '__SUPABASE_ANON_KEY__',
+      };
+      if (window.__ORIENTO_SUPABASE_CONFIG__.url.startsWith('__')) {
+        delete window.__ORIENTO_SUPABASE_CONFIG__;
+      }
+    </script>
   </head>
   <body>
     <app-root></app-root>
