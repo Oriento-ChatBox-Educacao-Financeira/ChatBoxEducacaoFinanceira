@@ -57,8 +57,8 @@ export class RegisterConfirm implements OnInit, OnDestroy {
     this.credentialsForm = this.fb.group({
       email: [saved?.email ?? '', [Validators.required, Validators.email]],
       confirmarEmail: [saved?.confirmarEmail ?? '', [Validators.required, Validators.email]],
-      senha: [saved?.senha ?? '', [Validators.required, CustomValidators.senhaForte]],
-      confirmarSenha: [saved?.confirmarSenha ?? '', [Validators.required]],
+      senha: ['', [Validators.required, CustomValidators.senhaForte]],
+      confirmarSenha: ['', [Validators.required]],
       aceiteTermos: [saved?.aceiteTermos ?? false, Validators.requiredTrue],
     });
   }
@@ -68,18 +68,16 @@ export class RegisterConfirm implements OnInit, OnDestroy {
       this.router.navigate(['/register']);
       return;
     }
-    if (this.credentialsForm.get('senha')?.value) {
-      const event = new Event('input');
-      Object.defineProperty(event, 'target', {
-        value: { value: this.credentialsForm.get('senha')?.value },
-      });
-      this.updatePasswordStrength(event);
+    const senha = this.credentialsForm.get('senha')?.value;
+    if (senha) {
+      this.updatePasswordStrengthFromValue(senha);
     }
     this.checkEmailMatch();
   }
 
   private persistCredentialsDraft(): void {
-    this.registerState.setCredentials(this.credentialsForm.getRawValue());
+    const { email, confirmarEmail, aceiteTermos } = this.credentialsForm.getRawValue();
+    this.registerState.setCredentials({ email, confirmarEmail, aceiteTermos });
   }
 
   ngOnDestroy(): void {
@@ -89,7 +87,10 @@ export class RegisterConfirm implements OnInit, OnDestroy {
 
   updatePasswordStrength(event: Event): void {
     const valor = (event.target as HTMLInputElement).value;
+    this.updatePasswordStrengthFromValue(valor);
+  }
 
+  private updatePasswordStrengthFromValue(valor: string): void {
     this.passwordCriteria = {
       tamanho: valor.length >= 8,
       maiuscula: /[A-Z]/.test(valor),

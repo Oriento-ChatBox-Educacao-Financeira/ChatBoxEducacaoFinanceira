@@ -9,8 +9,6 @@ export interface RegisterIdentity {
 export interface RegisterCredentials {
   email: string;
   confirmarEmail: string;
-  senha: string;
-  confirmarSenha: string;
   aceiteTermos: boolean;
 }
 
@@ -33,8 +31,10 @@ export class RegisterStateService {
   }
 
   /**
-   * Armazena os dados de credenciais preenchidos na Tela 2 para permitir
-   * voltar à Tela 1 e retomar o cadastro sem perder o que já foi digitado.
+   * Armazena os dados não-sensíveis da Tela 2 (e-mail e aceite) para permitir
+   * voltar à Tela 1 e retomar o cadastro sem redigitá-los.
+   * Senha/confirmarSenha NÃO são persistidas para evitar exposição via
+   * XSS/extensões inspecionando o sessionStorage.
    */
   setCredentials(data: RegisterCredentials): void {
     this.write(CREDENTIALS_KEY, data);

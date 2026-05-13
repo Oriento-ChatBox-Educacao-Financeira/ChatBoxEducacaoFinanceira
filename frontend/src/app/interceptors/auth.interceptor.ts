@@ -7,41 +7,26 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { environment } from '../../environments/environment';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService) {}
 
   /**
-   * Intercepta requisições HTTP e adiciona o token de autenticação do Supabase
-   * (Authorization: Bearer ...) apenas para chamadas ao próprio Supabase.
+   * Anexa o JWT do Supabase como Authorization: Bearer em todas as requisições
+   * que tenham token disponível. A renovação é gerenciada pelo supabase-js.
    *
-   * O backend Spring atual valida JWT assinado com RSA via
-   * `NimbusJwtDecoder.withPublicKey(...)` e não aceita o JWT HS256 do Supabase;
-   * por isso o token NÃO é anexado às requisições para `environment.apiUrl`,
-   * evitando 401 nos endpoints do backend (ex.: /api/oriento/ask).
-   *
-   * Quando o backend for ajustado para aceitar JWKS do Supabase (ou um exchange
-   * token for introduzido), este filtro de URL pode ser removido.
+   * Nota: o backend Spring precisa ser ajustado para validar o JWT do Supabase
+   * (via JWKS/issuer) — caso contrário, endpoints protegidos vão retornar 401
+   * mesmo com o header presente. Acompanhar essa migração em issue dedicada.
    */
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.auth.getAccessToken();
-    if (!token || !this.isSupabaseRequest(req.url)) {
+    if (!token) {
       return next.handle(req);
     }
     return next.handle(
       req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     );
-  }
-
-  private isSupabaseRequest(url: string): boolean {
-    try {
-      const target = new URL(url, window.location.origin);
-      const supabaseHost = new URL(environment.supabase.url).host;
-      return target.host === supabaseHost;
-    } catch {
-      return false;
-    }
   }
 }

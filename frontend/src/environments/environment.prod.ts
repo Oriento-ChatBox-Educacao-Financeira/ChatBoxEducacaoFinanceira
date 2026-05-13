@@ -1,3 +1,7 @@
+// Fallback de configuracao. Em producao, prefira injetar URL/anonKey via
+// `window.__ORIENTO_SUPABASE_CONFIG__` no index.html (substituido pelo pipeline
+// de deploy a partir de env vars). Os valores abaixo so sao usados se o
+// placeholder do index nao for resolvido.
 export const environment = {
   production: true,
   apiUrl: 'https://api.oriento.ai/api',
