@@ -52,89 +52,210 @@
       <!-- Stepper — passo 2 ativo -->
       <div class="stepper">
         <div class="stepper__step">
-          <div class="stepper__bubble">1</div>
-          <span class="stepper__label">Detalhes da conta</span>
+          <div class="stepper__bubble stepper__bubble--done">1</div>
+          <span class="stepper__label">Identificação</span>
         </div>
         <div class="stepper__divider"></div>
         <div class="stepper__step">
           <div class="stepper__bubble stepper__bubble--active">2</div>
-          <span class="stepper__label stepper__label--active">Verificação</span>
+          <span class="stepper__label stepper__label--active">Credenciais</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__step">
+          <div class="stepper__bubble">3</div>
+          <span class="stepper__label">Confirmação</span>
         </div>
       </div>
 
       <!-- Cabeçalho -->
       <div class="form-header">
-        <h2>Crie sua conta</h2>
-        <p>Insira suas credenciais para iniciar sua jornada nas finanças.</p>
+        <h2>Defina seu acesso</h2>
+        <p>Informe o e-mail e a senha que serão usados para entrar na plataforma.</p>
       </div>
 
       <!-- Formulário -->
-      <form [formGroup]="confirmForm" (ngSubmit)="onSubmit()">
-        <!-- Confirmar E-mail -->
+      <form [formGroup]="credentialsForm" (ngSubmit)="onSubmit()">
+        <!-- E-mail + Confirmar E-mail -->
+        <div class="field-row">
+          <div
+            class="field"
+            [class.field--error]="
+              credentialsForm.get('email')?.invalid && credentialsForm.get('email')?.touched
+            "
+          >
+            <label for="email" class="field__label">E-MAIL PROFISSIONAL</label>
+            <div class="field__input-wrap">
+              <input
+                type="email"
+                id="email"
+                formControlName="email"
+                class="field__input"
+                placeholder="nome@empresa.com"
+                (input)="checkEmailMatch()"
+              />
+              <img src="/register/icon-email.svg" alt="" class="field__icon" />
+            </div>
+            @if (credentialsForm.get('email')?.invalid && credentialsForm.get('email')?.touched) {
+              <p class="field__error">{{ getErrorMessage('email') }}</p>
+            }
+          </div>
+
+          <div
+            class="field"
+            [class.field--error]="
+              credentialsForm.get('confirmarEmail')?.invalid &&
+              credentialsForm.get('confirmarEmail')?.touched
+            "
+          >
+            <label for="confirmarEmail" class="field__label">CONFIRME SEU E-MAIL</label>
+            <div class="field__input-wrap">
+              <input
+                type="email"
+                id="confirmarEmail"
+                formControlName="confirmarEmail"
+                class="field__input"
+                placeholder="nome@empresa.com"
+                (input)="checkEmailMatch()"
+              />
+              <img src="/register/icon-email.svg" alt="" class="field__icon" />
+            </div>
+            @if (
+              credentialsForm.get('confirmarEmail')?.invalid &&
+              credentialsForm.get('confirmarEmail')?.touched
+            ) {
+              <p class="field__error">{{ getErrorMessage('confirmarEmail') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Senha + Confirmar Senha -->
+        <div class="field-row">
         <div
           class="field"
           [class.field--error]="
-            (confirmForm.get('confirmarEmail')?.invalid &&
-              confirmForm.get('confirmarEmail')?.touched) ||
-            (confirmForm.hasError('camposNaoConferem') &&
-              confirmForm.get('confirmarEmail')?.touched)
+            credentialsForm.get('senha')?.invalid && credentialsForm.get('senha')?.touched
           "
         >
-          <label for="confirmarEmail" class="field__label">CONFIRME SEU E-MAIL</label>
+          <label for="senha" class="field__label">Senha</label>
           <div class="field__input-wrap">
             <input
-              type="email"
-              id="confirmarEmail"
-              formControlName="confirmarEmail"
-              class="field__input"
-              placeholder="nome@empresa.com"
+              [type]="showSenha ? 'text' : 'password'"
+              id="senha"
+              formControlName="senha"
+              class="field__input field__input--with-toggle"
+              placeholder="Digite sua senha"
+              (input)="updatePasswordStrength($event)"
             />
-            <img src="/register/icon-email.svg" alt="" class="field__icon" />
+            <button
+              type="button"
+              class="field__toggle"
+              (click)="toggleSenha()"
+              [attr.aria-label]="showSenha ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              {{ showSenha ? 'Ocultar' : 'Mostrar' }}
+            </button>
           </div>
           @if (
-            confirmForm.get('confirmarEmail')?.hasError('required') &&
-            confirmForm.get('confirmarEmail')?.touched
+            credentialsForm.get('senha')?.hasError('required') &&
+            credentialsForm.get('senha')?.touched
           ) {
-            <p class="field__error">Campo obrigatório.</p>
+            <p class="field__error">{{ getErrorMessage('senha') }}</p>
           }
-          @if (
-            confirmForm.get('confirmarEmail')?.hasError('email') &&
-            confirmForm.get('confirmarEmail')?.touched
-          ) {
-            <p class="field__error">Digite um e-mail válido.</p>
-          }
-          @if (
-            confirmForm.hasError('camposNaoConferem') && confirmForm.get('confirmarEmail')?.touched
-          ) {
-            <p class="field__error">Os e-mails não coincidem.</p>
-          }
+
+          <!-- Barra de força -->
+          <div class="strength-bar">
+            <div class="strength-bar__tracks">
+              <div
+                [class]="
+                  'strength-bar__track strength-bar__track--' +
+                  strengthColor +
+                  (passwordStrength >= 1 ? ' strength-bar__track--active' : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track strength-bar__track--' +
+                  strengthColor +
+                  (passwordStrength >= 2 ? ' strength-bar__track--active' : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track strength-bar__track--' +
+                  strengthColor +
+                  (passwordStrength >= 3 ? ' strength-bar__track--active' : '')
+                "
+              ></div>
+              <div
+                [class]="
+                  'strength-bar__track strength-bar__track--' +
+                  strengthColor +
+                  (passwordStrength >= 4 ? ' strength-bar__track--active' : '')
+                "
+              ></div>
+            </div>
+            @if (passwordStrength > 0) {
+              <span class="strength-bar__label" [class]="'strength-bar__label--' + strengthColor">
+                senha: {{ strengthLabel }}
+              </span>
+            }
+          </div>
+
+          <!-- Critérios da senha -->
+          <ul class="password-criteria">
+            <li [class.password-criteria__item--ok]="passwordCriteria.tamanho">
+              <span class="password-criteria__icon">{{ passwordCriteria.tamanho ? '✓' : '✕' }}</span>
+              Mínimo de 8 caracteres
+            </li>
+            <li [class.password-criteria__item--ok]="passwordCriteria.maiuscula">
+              <span class="password-criteria__icon">{{ passwordCriteria.maiuscula ? '✓' : '✕' }}</span>
+              Pelo menos uma letra maiúscula
+            </li>
+            <li [class.password-criteria__item--ok]="passwordCriteria.minuscula">
+              <span class="password-criteria__icon">{{ passwordCriteria.minuscula ? '✓' : '✕' }}</span>
+              Pelo menos uma letra minúscula
+            </li>
+            <li [class.password-criteria__item--ok]="passwordCriteria.numero">
+              <span class="password-criteria__icon">{{ passwordCriteria.numero ? '✓' : '✕' }}</span>
+              Pelo menos um número
+            </li>
+            <li [class.password-criteria__item--ok]="passwordCriteria.especial">
+              <span class="password-criteria__icon">{{ passwordCriteria.especial ? '✓' : '✕' }}</span>
+              Pelo menos um caractere especial
+            </li>
+          </ul>
         </div>
 
         <!-- Confirmar Senha -->
         <div
           class="field"
           [class.field--error]="
-            (confirmForm.get('confirmarSenha')?.invalid &&
-              confirmForm.get('confirmarSenha')?.touched) ||
-            (confirmForm.hasError('senhasNaoConferem') &&
-              confirmForm.get('confirmarSenha')?.touched)
+            credentialsForm.get('confirmarSenha')?.invalid &&
+            credentialsForm.get('confirmarSenha')?.touched
           "
         >
           <label for="confirmarSenha" class="field__label">CONFIRME SUA SENHA</label>
           <div class="field__input-wrap">
             <input
-              type="password"
+              [type]="showConfirmarSenha ? 'text' : 'password'"
               id="confirmarSenha"
               formControlName="confirmarSenha"
-              class="field__input"
+              class="field__input field__input--with-toggle"
               placeholder="Digite sua senha"
               (input)="checkPasswordMatch()"
             />
-            <img src="/register/icon-password.svg" alt="" class="field__icon" />
+            <button
+              type="button"
+              class="field__toggle"
+              (click)="toggleConfirmarSenha()"
+              [attr.aria-label]="showConfirmarSenha ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              {{ showConfirmarSenha ? 'Ocultar' : 'Mostrar' }}
+            </button>
           </div>
           @if (
-            confirmForm.get('confirmarSenha')?.hasError('required') &&
-            confirmForm.get('confirmarSenha')?.touched
+            credentialsForm.get('confirmarSenha')?.hasError('required') &&
+            credentialsForm.get('confirmarSenha')?.touched
           ) {
             <p class="field__error">Campo obrigatório.</p>
           }
@@ -145,7 +266,7 @@
               <div
                 [class]="
                   'strength-bar__track' +
-                  (confirmForm.get('confirmarSenha')?.value
+                  (credentialsForm.get('confirmarSenha')?.value
                     ? passwordsMatch
                       ? ' strength-bar__track--match'
                       : ' strength-bar__track--no-match'
@@ -155,7 +276,7 @@
               <div
                 [class]="
                   'strength-bar__track' +
-                  (confirmForm.get('confirmarSenha')?.value
+                  (credentialsForm.get('confirmarSenha')?.value
                     ? passwordsMatch
                       ? ' strength-bar__track--match'
                       : ' strength-bar__track--no-match'
@@ -165,7 +286,7 @@
               <div
                 [class]="
                   'strength-bar__track' +
-                  (confirmForm.get('confirmarSenha')?.value
+                  (credentialsForm.get('confirmarSenha')?.value
                     ? passwordsMatch
                       ? ' strength-bar__track--match'
                       : ' strength-bar__track--no-match'
@@ -175,7 +296,7 @@
               <div
                 [class]="
                   'strength-bar__track' +
-                  (confirmForm.get('confirmarSenha')?.value
+                  (credentialsForm.get('confirmarSenha')?.value
                     ? passwordsMatch
                       ? ' strength-bar__track--match'
                       : ' strength-bar__track--no-match'
@@ -183,7 +304,7 @@
                 "
               ></div>
             </div>
-            @if (confirmForm.get('confirmarSenha')?.value) {
+            @if (credentialsForm.get('confirmarSenha')?.value) {
               <span
                 [class]="
                   'strength-bar__label strength-bar__label--' +
@@ -195,18 +316,35 @@
             }
           </div>
         </div>
+        </div>
+
+        <!-- Termos -->
+        <div class="terms-row">
+          <input
+            type="checkbox"
+            id="terms"
+            formControlName="aceiteTermos"
+            class="terms-checkbox"
+          />
+          <label for="terms" class="terms-label">
+            Concordo com os <a href="#" class="terms-link">Termos de Serviço</a> e
+            <a href="#" class="terms-link">Política de Privacidade</a>, incluindo as diretrizes
+            editoriais do Oriento.
+          </label>
+        </div>
 
         <!-- Ações -->
         <div class="form-actions">
           <button
             type="submit"
             class="btn-primary"
-            [disabled]="loading || confirmForm.invalid || !passwordsMatch"
+            [disabled]="loading || credentialsForm.invalid || !passwordsMatch || !emailsMatch"
           >
             {{ loading ? 'Aguarde...' : 'Criar uma conta' }}
           </button>
           <p class="login-link">
-            Já tem uma conta?
+            <a (click)="goBack()" class="login-link__anchor">Voltar</a>
+            &nbsp;ou&nbsp;
             <a (click)="goToLogin()" class="login-link__anchor">Iniciar sessão</a>
           </p>
         </div>

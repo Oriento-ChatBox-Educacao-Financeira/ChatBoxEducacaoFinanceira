@@ -1,0 +1,112 @@
+<div class="register-wrapper">
+  <!-- PAINEL ESQUERDO -->
+  <aside class="brand-panel">
+    <div class="brand-panel__glow brand-panel__glow--bottom"></div>
+
+    <div class="brand-panel__top">
+      <div class="brand-logo-row">
+        <div class="brand-icon">
+          <span>O</span>
+        </div>
+        <span class="brand-name">ORIENTO</span>
+      </div>
+
+      <div class="brand-headline">
+        <h1>
+          Construa seu <br />
+          legado <br />
+          financeiro com <br />
+          precisão.
+        </h1>
+        <p>
+          Junte-se a uma rede de elite de profissionais financeiros que usam insights editoriais
+          baseados em IA para dominar os mercados.
+        </p>
+      </div>
+    </div>
+
+    <div class="brand-testimonial">
+      <blockquote>
+        "Desde que começamos a usar o Oriento, nosso atendimento se tornou muito mais rápido,
+        inteligente e eficiente. O chatbot entrega orientações financeiras precisas em segundos, e
+        nossos usuários realmente gostam da experiência. É como ter um assistente financeiro premium
+        disponível 24 horas por dia."
+      </blockquote>
+      <div class="testimonial-author">
+        <img
+          src="/profile/lucelho-testimonial.jpeg"
+          alt="Lucelho Silva"
+          class="testimonial-avatar"
+        />
+        <div>
+          <strong>Lucelho Silva</strong>
+          <span>CEO Elkys</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- PAINEL DIREITO -->
+  <main class="form-panel">
+    <div class="form-panel__inner">
+      <!-- Stepper — passo 3 ativo -->
+      <div class="stepper">
+        <div class="stepper__step">
+          <div class="stepper__bubble stepper__bubble--done">1</div>
+          <span class="stepper__label">Identificação</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__step">
+          <div class="stepper__bubble stepper__bubble--done">2</div>
+          <span class="stepper__label">Credenciais</span>
+        </div>
+        <div class="stepper__divider"></div>
+        <div class="stepper__step">
+          <div class="stepper__bubble stepper__bubble--active">3</div>
+          <span class="stepper__label stepper__label--active">Confirmação</span>
+        </div>
+      </div>
+
+      <!-- Conteúdo -->
+      <div class="success-card">
+        <div class="success-card__icon">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 6h16c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2zm0 2v.01L12 13l8-4.99V8H4zm0 2.24V16h16v-5.76l-8 5-8-5z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+
+        <div class="success-card__text">
+          <h2>Verifique seu e-mail</h2>
+          <p>
+            Enviamos um link de confirmação para
+            @if (email) {
+              <strong>{{ email }}</strong>
+            } @else {
+              <strong>o e-mail informado</strong>
+            }.
+            Clique no link para ativar sua conta e começar a usar o Oriento.
+          </p>
+          <p class="success-card__hint">
+            Não recebeu? Cheque a caixa de spam ou tente novamente em alguns minutos.
+          </p>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-primary" (click)="goToLogin()">
+            Voltar para o login
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

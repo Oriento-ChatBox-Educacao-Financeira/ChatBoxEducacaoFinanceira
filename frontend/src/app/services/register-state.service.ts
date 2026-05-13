@@ -1,26 +1,33 @@
 import { Injectable } from '@angular/core';
 
-export interface RegisterData {
+export interface RegisterIdentity {
+  nome: string;
   nomeFantasia: string;
-  razaoSocial?: string;
   cnpj: string;
-  email: string;
-  senha: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class RegisterStateService {
-  private data: RegisterData | null = null;
+  private identity: RegisterIdentity | null = null;
 
-  setData(data: RegisterData): void {
-    this.data = data;
+  /**
+   * Armazena os dados de identificação preenchidos na Tela 1.
+   */
+  setIdentity(data: RegisterIdentity): void {
+    this.identity = data;
   }
 
-  getData(): RegisterData | null {
-    return this.data;
+  /**
+   * Retorna os dados preenchidos na Tela 1, ou null se nada foi salvo.
+   */
+  getIdentity(): RegisterIdentity | null {
+    return this.identity;
   }
 
+  /**
+   * Limpa o estado intermediário do cadastro.
+   */
   clear(): void {
-    this.data = null;
+    this.identity = null;
   }
 }
