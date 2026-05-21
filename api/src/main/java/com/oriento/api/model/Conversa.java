@@ -11,7 +11,7 @@ public class Conversa {
 
     @Id
     @Column(name = "id_conversa")
-    private UUID idConversa; 
+    private UUID idConversa;
 
     @Column(name = "id_usuario", nullable = false)
     private UUID idUsuario;
