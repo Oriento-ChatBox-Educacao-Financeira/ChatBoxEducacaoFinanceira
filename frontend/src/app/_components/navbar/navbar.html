@@ -1,34 +1,155 @@
-<nav class="sidebar" [class.closed]="!isSidebarOpen">
-  <div class="sidebar-header">
-    <h2 class="sidebar-title">DASHBOARDS</h2>
-    <i class="ph ph-caret-double-right" (click)="toggleSidebar()"></i>
+<nav class="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <span class="sidebar-logo__brand">ORIENTO</span>
+    <span class="sidebar-logo__sub">Sabedoria Financeira</span>
   </div>
 
+  <!-- Novo Lançamento -->
+  <div class="sidebar-new">
+    <button class="sidebar-new__btn" (click)="novoLancamento()">
+      <img src="/sidebar/icon-mais.svg" alt="" class="sidebar-new__icon" />
+      Novo Lançamento
+    </button>
+  </div>
+
+  <!-- Menu principal -->
   <ul class="sidebar-menu">
-    <li class="menu-item active">
-      <i class="ph ph-layout"></i>
-      <span>Painel</span>
+    <!-- Dashboard (expansível) -->
+    <li class="menu-item" [class.menu-item--open]="isDashboardOpen">
+      <div class="menu-item__row" (click)="toggleDashboard()">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-dashboard.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label" [class.menu-item__label--active]="isDashboardOpen"
+            >Dashboard</span
+          >
+        </div>
+        <img
+          src="/sidebar/icon-setaMenu.svg"
+          alt=""
+          class="menu-item__chevron"
+          [class.menu-item__chevron--open]="isDashboardOpen"
+        />
+      </div>
+
+      <!-- Submenu -->
+      @if (isDashboardOpen) {
+        <ul class="submenu">
+          <li
+            class="submenu__item"
+            [class.submenu__item--active]="activeRoute === 'visao-geral'"
+            (click)="navigate('visao-geral')"
+          >
+            Visão geral
+          </li>
+          <li
+            class="submenu__item"
+            [class.submenu__item--active]="activeRoute === 'dre'"
+            (click)="navigate('dre')"
+          >
+            DRE
+          </li>
+          <li
+            class="submenu__item"
+            [class.submenu__item--active]="activeRoute === 'fluxo-caixa'"
+            (click)="navigate('fluxo-caixa')"
+          >
+            Fluxo de Caixa
+          </li>
+          <li
+            class="submenu__item"
+            [class.submenu__item--active]="activeRoute === 'balanco'"
+            (click)="navigate('balanco')"
+          >
+            Balanço Patrimonial
+          </li>
+        </ul>
+      }
     </li>
-    <li class="menu-item">
-      <i class="ph ph-chart-bar"></i>
-      <span>Relatórios</span>
+
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'chat'"
+      (click)="navigate('chat')"
+    >
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-chat.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Chat</span>
+        </div>
+      </div>
     </li>
-    <li class="menu-item">
-      <i class="ph ph-users"></i>
-      <span>Usuários</span>
+
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'relatorios'"
+      (click)="navigate('relatorios')"
+    >
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-relatorio.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Relatórios</span>
+        </div>
+      </div>
     </li>
-    <li class="menu-item">
-      <i class="ph ph-gear-six"></i>
-      <span>Configurações</span>
+
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'notificacoes'"
+      (click)="navigate('notificacoes')"
+    >
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-notificacao.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Notificações</span>
+        </div>
+      </div>
     </li>
-    <li class="menu-item">
-      <i class="ph ph-sign-out"></i>
-      <span>Sair</span>
+
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'perfil'"
+      (click)="navigate('perfil')"
+    >
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-profile.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Perfil</span>
+        </div>
+      </div>
+    </li>
+
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'configuracoes'"
+      (click)="navigate('configuracoes')"
+    >
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-config.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Configurações</span>
+        </div>
+      </div>
     </li>
   </ul>
 
-  <div class="sidebar-profile">
-    <img src="profile/image-ilustrativa.JPG" alt="Perfil" class="profile-img" />
-    <span class="profile-name">Alchaar</span>
+  <!-- Rodapé -->
+  <div class="sidebar-footer">
+    <li class="menu-item" (click)="navigate('suporte')">
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-suporte.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Suporte</span>
+        </div>
+      </div>
+    </li>
+    <li class="menu-item" (click)="sair()">
+      <div class="menu-item__row">
+        <div class="menu-item__left">
+          <img src="/sidebar/icon-exit.svg" alt="" class="menu-item__icon" />
+          <span class="menu-item__label">Sair</span>
+        </div>
+      </div>
+    </li>
   </div>
 </nav>

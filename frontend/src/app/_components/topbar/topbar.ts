@@ -1,17 +1,23 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-topbar',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
 export class Topbar {
-  @Output() openMenuClick = new EventEmitter<void>();
+  @Input() userName = 'Alexander Fiscal';
 
-  constructor() {}
+  searchQuery = '';
 
-  onMenuButtonClick() {
-    this.openMenuClick.emit();
+  constructor(private router: Router) {}
+
+  abrirNotificacoes(): void {
+    this.router.navigate(['/dashboard/notificacoes']);
   }
 }
