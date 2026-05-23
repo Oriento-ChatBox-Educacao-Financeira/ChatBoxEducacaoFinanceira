@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
+
+// Rotas já implementadas dentro de /dashboard. Conforme as próximas telas
+// forem entrando, é só adicionar aqui que a sidebar passa a navegar.
+const ROTAS_IMPLEMENTADAS = new Set(['dre']);
 
 @Component({
   selector: 'app-navbar',
@@ -9,11 +14,18 @@ import { Router } from '@angular/router';
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })
-export class Navbar {
+export class Navbar implements OnInit {
   isDashboardOpen = true;
-  activeRoute = 'fluxo-caixa';
+  activeRoute = '';
 
   constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    this.atualizarRotaAtiva(this.router.url);
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => this.atualizarRotaAtiva(e.urlAfterRedirects));
+  }
 
   toggleDashboard(): void {
     this.isDashboardOpen = !this.isDashboardOpen;
@@ -21,15 +33,21 @@ export class Navbar {
 
   navigate(route: string): void {
     this.activeRoute = route;
-    this.router.navigate(['/dashboard', route]);
+    if (ROTAS_IMPLEMENTADAS.has(route)) {
+      this.router.navigate(['/dashboard', route]);
+    }
   }
 
   novoLancamento(): void {
-    // Abre modal ou navega para novo lançamento
-    this.router.navigate(['/dashboard/novo-lancamento']);
+    // TODO: abrir modal ou navegar quando a tela existir
   }
 
   sair(): void {
     this.router.navigate(['/login']);
+  }
+
+  private atualizarRotaAtiva(url: string): void {
+    const match = url.match(/^\/dashboard\/([^/?#]+)/);
+    this.activeRoute = match ? match[1] : '';
   }
 }

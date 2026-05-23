@@ -18,6 +18,6 @@ export class Topbar {
   constructor(private router: Router) {}
 
   abrirNotificacoes(): void {
-    this.router.navigate(['/dashboard/notificacoes']);
+    // TODO: navegar quando a tela de notificações existir
   }
 }
