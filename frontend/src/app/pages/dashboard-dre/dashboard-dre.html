@@ -1,0 +1,237 @@
+<app-main-navbar>
+  <div class="dre-page">
+    <div class="dre-content">
+      <!-- KPI CARDS NO TOPO -->
+      <div class="dre-kpis">
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <span class="kpi-card__label">RECEITA BRUTA</span>
+            <i class="ph ph-trend-up kpi-card__ph-icon"></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value">R$ 2.45M</span>
+
+            <div class="kpi-card__badge kpi-card__badge--gold">
+              <i class="ph ph-arrow-up kpi-card__badge-ph"></i>
+              <span>+12.5% vs ano ant.</span>
+            </div>
+          </div>
+
+          <div class="kpi-card__glow"></div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <span class="kpi-card__label">
+              DESPESAS<br />
+              OPERACIONAIS
+            </span>
+
+            <i class="ph ph-notepad kpi-card__ph-icon"></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value">R$ 1.12M</span>
+
+            <div class="kpi-card__badge kpi-card__badge--neutral">
+              <i class="ph ph-arrow-down kpi-card__badge-ph"></i>
+              <span>-3.2% vs ano ant.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-card--highlight">
+          <div class="kpi-card__header">
+            <span class="kpi-card__label kpi-card__label--blue"> LUCRO LÍQUIDO </span>
+
+            <i class="ph ph-bank kpi-card__ph-icon kpi-card__ph-icon--blue"></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value kpi-card__value--blue"> R$ 980K </span>
+
+            <span class="kpi-card__sub">Consolidado</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card__header">
+            <span class="kpi-card__label">
+              MARGEM DE<br />
+              LUCRO
+            </span>
+
+            <i class="ph ph-circle-half-tilt kpi-card__ph-icon kpi-card__ph-icon--gold"></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value">40%</span>
+
+            <div class="kpi-card__progress-wrap">
+              <div class="kpi-card__progress">
+                <div class="kpi-card__progress-fill" style="width: 40%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTEÚDO -->
+
+      <!-- TABELA DRE -->
+      <div class="dre-charts">
+        <!-- GRÁFICO MAIOR -->
+        <div class="chart-card chart-card--large">
+          <div class="chart-card__header">
+            <div class="chart-card__header-left">
+              <span class="chart-card__title"> Evolução de Resultado </span>
+
+              <span class="chart-card__subtitle"> Receitas vs Despesas (Mensal) </span>
+            </div>
+
+            <div class="chart-card__legend">
+              <div class="chart-card__legend-item">
+                <span class="chart-card__legend-dot chart-card__legend-dot--blue"></span>
+                <span>Receita</span>
+              </div>
+
+              <div class="chart-card__legend-item">
+                <span class="chart-card__legend-dot chart-card__legend-dot--gray"></span>
+                <span>Despesa</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card__body">
+            <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
+              <line
+                x1="0"
+                y1="0"
+                x2="580"
+                y2="0"
+                stroke="rgba(196,198,211,0.10)"
+                stroke-width="1"
+              />
+
+              <line
+                x1="0"
+                y1="64"
+                x2="580"
+                y2="64"
+                stroke="rgba(196,198,211,0.10)"
+                stroke-width="1"
+              />
+
+              <line
+                x1="0"
+                y1="128"
+                x2="580"
+                y2="128"
+                stroke="rgba(196,198,211,0.10)"
+                stroke-width="1"
+              />
+
+              <line
+                x1="0"
+                y1="192"
+                x2="580"
+                y2="192"
+                stroke="rgba(196,198,211,0.10)"
+                stroke-width="1"
+              />
+
+              <polyline
+                points="48,200 144,140 240,160 336,100 432,120 528,60"
+                fill="none"
+                stroke="#002162"
+                stroke-width="3"
+                stroke-linejoin="round"
+              />
+
+              <polyline
+                points="48,220 144,190 240,200 336,160 432,175 528,140"
+                fill="none"
+                stroke="#E1E3E4"
+                stroke-width="3"
+                stroke-linejoin="round"
+              />
+            </svg>
+
+            <div class="chart-card__months">
+              <span>Jan</span>
+              <span>Fev</span>
+              <span>Mar</span>
+              <span>Abr</span>
+              <span>Mai</span>
+              <span>Jun</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABELA DRE -->
+        <div class="chart-card chart-card--dre">
+          <div class="chart-card__header">
+            <span class="chart-card__title">Estrutura DRE</span>
+
+            <a class="chart-card__link">Ver completo</a>
+          </div>
+
+          <div class="dre-table">
+            <div class="dre-table__header">
+              <span>Descrição</span>
+              <span>Valor (R$)</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--bold">
+              <span>Receita Bruta</span>
+              <span>2.450.000</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--sub">
+              <div class="dre-table__sub-label">
+                <span class="dre-table__dot"></span>
+                <span>(-) Deduções e Impostos</span>
+              </div>
+
+              <span class="dre-table__value--muted">(350.000)</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--bold dre-table__row--separator">
+              <span>Receita Líquida</span>
+              <span>2.100.000</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--sub">
+              <div class="dre-table__sub-label">
+                <span class="dre-table__dot"></span>
+                <span>(-) Custo das Mercadorias (CMV)</span>
+              </div>
+
+              <span class="dre-table__value--muted">(450.000)</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--blue dre-table__row--separator">
+              <span>Lucro Bruto</span>
+              <span>1.650.000</span>
+            </div>
+
+            <div class="dre-table__row dre-table__row--sub">
+              <div class="dre-table__sub-label">
+                <span class="dre-table__dot"></span>
+                <span>(-) Despesas Operacionais</span>
+              </div>
+
+              <span class="dre-table__value--muted">(670.000)</span>
+            </div>
+
+            <div class="dre-table__total">
+              <span>Lucro Líquido do Exercício</span>
+              <span>980.000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-main-navbar>
