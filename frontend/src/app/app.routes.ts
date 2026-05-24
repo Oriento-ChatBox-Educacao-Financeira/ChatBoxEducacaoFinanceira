@@ -24,9 +24,36 @@ export const routes: Routes = [
   },
 
   {
+    path: 'dashboard/visao-geral',
+    loadComponent: () =>
+      import('./pages/dashboard-visao-geral/dashboard-visao-geral').then(
+        (m) => m.DashboardVisaoGeral,
+      ),
+    // canActivate: [AuthGuard],
+  },
+
+  {
     path: 'dashboard/dre',
     loadComponent: () => import('./pages/dashboard-dre/dashboard-dre').then((m) => m.DashboardDre),
-    canActivate: [AuthGuard],
+    // canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'dashboard/fluxo-caixa',
+    loadComponent: () =>
+      import('./pages/dashboard-fluxo-de-caixa/dashboard-fluxo-de-caixa').then(
+        (m) => m.DashboardFluxoCaixa,
+      ),
+    // canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'dashboard/balanco-patrimonial',
+    loadComponent: () =>
+      import('./pages/dashboard-balanco/dashboard-balanco').then(
+        (m) => m.DashboardBalancoPatrimonial,
+      ),
+    // canActivate: [AuthGuard],
   },
 
   { path: '**', redirectTo: '/login' },
