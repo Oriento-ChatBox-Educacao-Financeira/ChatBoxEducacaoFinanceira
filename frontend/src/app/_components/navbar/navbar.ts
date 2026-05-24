@@ -3,9 +3,13 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 
-// Rotas já implementadas dentro de /dashboard. Conforme as próximas telas
-// forem entrando, é só adicionar aqui que a sidebar passa a navegar.
-const ROTAS_IMPLEMENTADAS = new Set(['dre', 'fluxo-caixa', 'balanco-patrimonial', 'visao-geral']);
+const ROTAS_IMPLEMENTADAS = new Set([
+  'dre',
+  'fluxo-caixa',
+  'balanco-patrimonial',
+  'visao-geral',
+  'chat',
+]);
 
 @Component({
   selector: 'app-navbar',
@@ -22,9 +26,12 @@ export class Navbar implements OnInit {
 
   ngOnInit(): void {
     this.atualizarRotaAtiva(this.router.url);
+
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe((e) => this.atualizarRotaAtiva(e.urlAfterRedirects));
+      .subscribe((e) => {
+        this.atualizarRotaAtiva(e.urlAfterRedirects);
+      });
   }
 
   toggleDashboard(): void {
@@ -32,14 +39,31 @@ export class Navbar implements OnInit {
   }
 
   navigate(route: string): void {
+    // Atualiza item ativo
     this.activeRoute = route;
-    if (ROTAS_IMPLEMENTADAS.has(route)) {
-      this.router.navigate(['/dashboard', route]);
+
+    // CHAT
+    if (route === 'chat') {
+      this.isDashboardOpen = false;
+
+      this.router.navigate(['/chat']);
+      return;
     }
+
+    // DASHBOARD
+    if (ROTAS_IMPLEMENTADAS.has(route)) {
+      this.isDashboardOpen = true;
+
+      this.router.navigate(['/dashboard', route]);
+      return;
+    }
+
+    // OUTRAS ROTAS
+    this.isDashboardOpen = false;
   }
 
   novoLancamento(): void {
-    // TODO: abrir modal ou navegar quando a tela existir
+    // TODO
   }
 
   sair(): void {
@@ -47,7 +71,24 @@ export class Navbar implements OnInit {
   }
 
   private atualizarRotaAtiva(url: string): void {
-    const match = url.match(/^\/dashboard\/([^/?#]+)/);
-    this.activeRoute = match ? match[1] : '';
+    // CHAT
+    if (url.startsWith('/chat')) {
+      this.activeRoute = 'chat';
+      this.isDashboardOpen = false;
+      return;
+    }
+
+    // DASHBOARD
+    const dashboardMatch = url.match(/^\/dashboard\/([^/?#]+)/);
+
+    if (dashboardMatch) {
+      this.activeRoute = dashboardMatch[1];
+      this.isDashboardOpen = true;
+      return;
+    }
+
+    // OUTRAS ROTAS
+    this.activeRoute = '';
+    this.isDashboardOpen = false;
   }
 }

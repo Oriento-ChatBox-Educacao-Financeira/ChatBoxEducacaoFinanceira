@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
+import { ChatWidget } from "../../_components/chat-widget/chat-widget";
 
 @Component({
   selector: 'app-dashboard-visao-geral',
   standalone: true,
-  imports: [CommonModule, MainNavbar],
+  imports: [CommonModule, MainNavbar, ChatWidget],
   templateUrl: './dashboard-visao-geral.html',
   styleUrl: './dashboard-visao-geral.css',
 })

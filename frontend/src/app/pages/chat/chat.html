@@ -1,0 +1,215 @@
+<app-main-navbar>
+  <div class="chat-page">
+    <!-- HEADER -->
+    <div class="chat-page__header">
+      <div>
+        <span class="chat-page__eyebrow">ASSISTENTE FINANCEIRO</span>
+
+        <h1 class="chat-page__title">Oriento AI</h1>
+
+        <p class="chat-page__subtitle">
+          Análises financeiras inteligentes, projeções e suporte estratégico em tempo real.
+        </p>
+      </div>
+
+      <div class="chat-page__header-actions">
+        <button class="outline-button">
+          <i class="ph ph-clock-counter-clockwise"></i>
+          Histórico
+        </button>
+
+        <button class="primary-button">
+          <i class="ph ph-plus"></i>
+          Nova conversa
+        </button>
+      </div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="chat-layout">
+      <!-- CHAT -->
+      <section class="chat-content">
+        <!-- MESSAGES -->
+        <div class="chat-messages">
+          <!-- USER -->
+          <div class="message-row user">
+            <div class="user-bubble">
+              Estou procurando diversificar minha carteira. Você pode analisar as tendências atuais
+              do mercado de ações de energia sustentável e sugerir uma estratégia de entrada de
+              baixo risco?
+            </div>
+
+            <span class="message-time">VOCÊ • 10:24</span>
+          </div>
+
+          <!-- BOT -->
+          <div class="message-row bot">
+            <div class="bot-avatar">
+              <i class="ph ph-wechat-logo"></i>
+            </div>
+
+            <div class="bot-content">
+              <div class="bot-card">
+                <!-- TITLE -->
+                <div class="bot-card__title">
+                  <div class="bot-card__title-icon">
+                    <i class="ph ph-chart-line-up"></i>
+                  </div>
+
+                  <span>Análise de Energia Sustentável</span>
+                </div>
+
+                <!-- TEXT -->
+                <div class="bot-card__text">
+                  O setor de energia sustentável está passando por uma mudança significativa em
+                  direção à
+                  <strong>infraestrutura distribuída</strong>. Com base em dados fiscais recentes,
+                  observamos um aumento de 14% na alocação de capital de longo prazo no mercado
+                  europeu, especificamente para soluções de armazenamento em escala de rede.
+                </div>
+
+                <!-- KPI -->
+                <div class="insights-grid">
+                  <div class="insight-card">
+                    <span class="insight-card__label"> PREVISÃO DE CRESCIMENTO </span>
+
+                    <span class="insight-card__value"> +22.4% </span>
+
+                    <span class="insight-card__description"> CAGR estimado do setor até 2027 </span>
+                  </div>
+
+                  <div class="insight-card">
+                    <span class="insight-card__label"> AVALIAÇÃO DE RISCO </span>
+
+                    <span class="insight-card__value"> Moderado </span>
+
+                    <span class="insight-card__description">
+                      Sensibilidade alta às políticas fiscais
+                    </span>
+                  </div>
+                </div>
+
+                <!-- STRATEGY -->
+                <div class="strategy-section">
+                  <span class="strategy-section__title"> Estratégia Recomendada </span>
+
+                  <div class="strategy-list">
+                    <div class="strategy-item">
+                      <span class="strategy-dot"></span>
+
+                      <span>
+                        Utilize
+                        <strong>DCA (Dollar Cost Averaging)</strong>
+                        em uma janela de 6 meses para mitigar volatilidade.
+                      </span>
+                    </div>
+
+                    <div class="strategy-item">
+                      <span class="strategy-dot"></span>
+
+                      <span>
+                        Foque em empresas de infraestrutura energética em vez de manufatura pesada.
+                      </span>
+                    </div>
+
+                    <div class="strategy-item">
+                      <span class="strategy-dot"></span>
+
+                      <span>
+                        Mantenha uma reserva de caixa de 15% para entradas oportunistas.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ACTIONS -->
+              <div class="message-actions">
+                <button class="message-action">
+                  <i class="ph ph-copy"></i>
+                  Copiar
+                </button>
+
+                <button class="message-action">
+                  <i class="ph ph-arrows-clockwise"></i>
+                  Regenerar
+                </button>
+
+                <button class="message-action icon">
+                  <i class="ph ph-thumbs-up"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="chat-input-area">
+          <div class="chat-input-wrapper">
+            <textarea
+              [(ngModel)]="message"
+              placeholder="Digite sua pergunta..."
+              rows="1"
+            ></textarea>
+
+            <button class="send-button">
+              <i class="ph ph-paper-plane-right"></i>
+            </button>
+          </div>
+
+          <div class="chat-input-footer">
+            <span> O Oriento pode cometer erros. Revise informações importantes. </span>
+
+            <button class="human-support-button">
+              <i class="ph ph-user"></i>
+              Atendimento Humano
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SIDEBAR -->
+      <aside class="chat-sidebar">
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <span>Conversas recentes</span>
+          </div>
+
+          <div class="conversation-list">
+            <div class="conversation-item" *ngFor="let conversation of conversations">
+              <div class="conversation-item__icon">
+                <i class="ph ph-chat-circle-dots"></i>
+              </div>
+
+              <div class="conversation-item__content">
+                <span class="conversation-item__title">
+                  {{ conversation.title }}
+                </span>
+
+                <span class="conversation-item__date">
+                  {{ conversation.date }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card__header">
+            <span>Sugestões rápidas</span>
+          </div>
+
+          <div class="quick-actions">
+            <button
+              class="quick-action"
+              *ngFor="let suggestion of suggestions"
+              (click)="sendSuggestion(suggestion)"
+            >
+              {{ suggestion }}
+            </button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</app-main-navbar>
