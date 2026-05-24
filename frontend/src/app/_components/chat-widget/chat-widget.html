@@ -1,75 +1,115 @@
-<app-main-navbar>
-  <div class="chat-wrapper" [class.open]="isOpen">
-    <!-- Balão flutuante -->
-    <div *ngIf="!isOpen" class="chatbot-icon floating" (click)="toggleChat()">
-      <i class="ph ph-wechat-logo"></i>
+<div class="chat-widget">
+  <!-- FLOAT BUTTON -->
+  <button *ngIf="!isOpen" class="chat-floating-button" (click)="toggleChat()">
+    <i class="ph ph-finn-the-human"></i>
+  </button>
+
+  <!-- CHAT -->
+  <div *ngIf="isOpen" class="chat-container">
+    <!-- HEADER -->
+    <div class="chat-header">
+      <div class="chat-header__left">
+        <div class="chat-avatar">
+          <i class="ph ph-finn-the-human"></i>
+        </div>
+
+        <div>
+          <span class="chat-header__eyebrow">ASSISTENTE FINANCEIRO</span>
+
+          <h3>Oriento AI</h3>
+        </div>
+      </div>
+
+      <div class="chat-header__actions">
+        <!-- EXPAND -->
+        <button class="header-action" (click)="openFullChat()">
+          <i class="ph ph-arrows-out-simple"></i>
+        </button>
+
+        <!-- CLOSE -->
+        <button class="header-action danger" (click)="toggleChat()">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
     </div>
 
-    <!-- Janela do chat -->
-    <div *ngIf="isOpen" class="chat-container">
-      <div class="chat-header-top">
-        <div class="chatbot-icon small">
-          <i class="ph ph-wechat-logo"></i>
+    <!-- MESSAGES -->
+    <div class="chat-body">
+      <!-- EMPTY STATE -->
+      <div *ngIf="messages.length === 0" class="chat-empty">
+        <div class="chat-empty__icon">
+          <i class="ph ph-question"></i>
         </div>
-        <div class="zoom-icon" (click)="toggleChat()">
-          <i class="ph ph-arrows-in-simple"></i>
-        </div>
+
+        <h2>Como posso ajudar?</h2>
+
+        <p>
+          Faça perguntas sobre fluxo de caixa, DRE, indicadores financeiros, margem operacional e
+          projeções.
+        </p>
       </div>
 
-      <!-- Corpo do chat -->
-      <div class="chat-messages">
-        <!-- Mensagem inicial fixa -->
-        <div *ngIf="messages.length === 0" class="message bot-message">
-          <div class="message-text">
-            Olá, eu sou o Oriento, seu assistente financeiro. Envie uma pergunta ou escolha uma das
-            opções abaixo para começarmos a organizar suas finanças de forma simples e inteligente.
+      <!-- USER -->
+      <div
+        *ngFor="let msg of messages; trackBy: trackByIndex"
+        class="message"
+        [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'"
+      >
+        <!-- USER -->
+        <ng-container *ngIf="msg.sender === 'user'">
+          <div class="message-user-bubble">
+            {{ msg.text }}
           </div>
-        </div>
+        </ng-container>
 
-        <div
-          *ngFor="let msg of messages; trackBy: trackByIndex"
-          class="message"
-          [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'"
-        >
-          <div class="message-text">{{ msg.text }}</div>
-        </div>
+        <!-- BOT -->
+        <ng-container *ngIf="msg.sender === 'bot'">
+          <div class="bot-row">
+            <div class="bot-avatar">
+              <i class="ph ph-finn-the-human"></i>
+            </div>
 
-        <!-- Dashboard financeiro simulado -->
-        <div class="dashboard" *ngIf="messages.length > 0">
-          <div class="dashboard-title">Lucro Líquido ao Longo do Tempo</div>
-          <div class="dashboard-value">R$ 125.000</div>
-          <div class="dashboard-growth">Últimos 12 Meses +15%</div>
-          <div class="dashboard-graph">Gráfico</div>
-          <div class="dashboard-months">
-            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span
-            ><span>Jun</span><span>Jul</span>
+            <div class="bot-bubble">
+              {{ msg.text }}
+            </div>
           </div>
-        </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="chat-suggestions">
+      <button class="suggestion-button" (click)="sendSuggestion('Explicar minha DRE')">
+        Explicar minha DRE
+      </button>
+
+      <button class="suggestion-button" (click)="sendSuggestion('Projetar fluxo de caixa')">
+        Fluxo de caixa
+      </button>
+
+      <button class="suggestion-button" (click)="sendSuggestion('Analisar margem operacional')">
+        Margem operacional
+      </button>
+    </div>
+
+    <!-- INPUT -->
+    <div class="chat-input-area">
+      <div class="chat-input-wrapper">
+        <textarea
+          [(ngModel)]="userInput"
+          placeholder="Digite sua pergunta..."
+          rows="1"
+          (keydown.enter)="sendMessage()"
+        ></textarea>
+
+        <button class="send-button" [disabled]="isSending" (click)="sendMessage()">
+          <i class="ph ph-paper-plane-right"></i>
+        </button>
       </div>
 
-      <!-- Sugestões rápidas -->
-      <div class="chat-suggestions">
-        <div class="actions">
-          <div class="action" (click)="sendSuggestion('Ver perfil mensal')">Ver perfil mensal</div>
-          <div class="action" (click)="sendSuggestion('Explicar DRE')">Explicar DRE</div>
-          <div class="action" (click)="sendSuggestion('Consultoria de caixa')">
-            Consultoria de caixa
-          </div>
-        </div>
-      </div>
+      <div class="chat-footer">
+        <span> O Oriento pode cometer erros. Revise informações importantes. </span>
 
-      <div class="chat-input">
-        <div class="input-wrapper">
-          <input
-            type="text"
-            [(ngModel)]="userInput"
-            placeholder="Digite sua pergunta..."
-            (keydown.enter)="sendMessage()"
-          />
-          <button class="send-button" (click)="sendMessage()">
-            <i class="ph ph-paper-plane-right"></i>
-          </button>
-        </div>
         <button class="human-button">
           <i class="ph ph-user"></i>
           Humano
@@ -77,4 +117,4 @@
       </div>
     </div>
   </div>
-</app-main-navbar>
+</div>
