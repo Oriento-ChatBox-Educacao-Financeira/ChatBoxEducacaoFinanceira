@@ -29,5 +29,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
   },
 
+  {
+    path: 'dashboard/fluxo-caixa',
+    loadComponent: () =>
+      import('./pages/dashboard-fluxo-de-caixa/dashboard-fluxo-de-caixa').then(
+        (m) => m.DashboardFluxoCaixa,
+      ),
+    canActivate: [AuthGuard],
+  },
+
   { path: '**', redirectTo: '/login' },
 ];
