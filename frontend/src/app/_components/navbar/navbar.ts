@@ -5,7 +5,7 @@ import { filter } from 'rxjs';
 
 // Rotas já implementadas dentro de /dashboard. Conforme as próximas telas
 // forem entrando, é só adicionar aqui que a sidebar passa a navegar.
-const ROTAS_IMPLEMENTADAS = new Set(['dre', 'fluxo-caixa']);
+const ROTAS_IMPLEMENTADAS = new Set(['dre', 'fluxo-caixa', 'balanco-patrimonial', 'visao-geral']);
 
 @Component({
   selector: 'app-navbar',
