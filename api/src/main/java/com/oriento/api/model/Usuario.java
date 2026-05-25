@@ -1,41 +1,72 @@
 package com.oriento.api.model;
 
 import com.oriento.api.dto.LoginRequest;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.oriento.api.model.enuns.Nivelmaturidadefinanceira;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Entidade JPA que representa um usuário no banco de dados.
+ * 
+ * Esta entidade armazena todas as informações de um usuário do sistema,
+ * incluindo dados pessoais e credenciais de acesso.
+ * 
+ * Características:
+ * - ID único gerado automaticamente (UUID)
+ * - Email e CNPJ únicos (constraints UNIQUE)
+ * - Senha armazenada como hash BCrypt (nunca em texto plano)
+ * - Suporta login por email ou CNPJ
+ * 
+ * Tabela no banco: usuario
+ */
 @Entity
 @Table(name = "usuario")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_usuario")
+    @Column(name="id_usuario", columnDefinition = "UUID")
     private UUID idUsuario;
 
-    @Column(unique = true)
-    private String cnpj;
-
-    @Column(unique = true)
+    @Column(name = "email",
+            length = 150,
+            unique = true,
+            nullable = false)
     private String email;
 
+    @Column(name = "nome",
+            length = 100,
+            nullable = false)
     private String nome;
 
-    private String razaoSocial;
-
-    private String nomeFantasia;
-
+    @Column(name = "senha_hash",
+            length = 255,
+            nullable = false)
     private String senha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "nivel_maturidade",
+            nullable = false
+    )
+    private Nivelmaturidadefinanceira nivelMaturidadeUser;
+
+    @CreationTimestamp
+    @Column(name = "data_criacao",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    private LocalDateTime datacriacao;
+
+    @Column(name = "ultimo_acesso", nullable = true)
+    private LocalDateTime ultimoacesso;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AIConversation> conversations = new HashSet<>();
@@ -49,12 +80,6 @@ public class Usuario {
     }
     public void setIdUsuario(UUID idUsuario) {
         this.idUsuario = idUsuario;
-    }
-    public String getCnpj() {
-        return cnpj;
-    }
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
     }
     public String getEmail() {
         return email;
@@ -74,18 +99,6 @@ public class Usuario {
     public void setSenha(String senha) {
         this.senha = senha;
     }
-    public String getRazaoSocial() {
-        return razaoSocial;
-    }
-    public void setRazaoSocial(String razaoSocial) {
-        this.razaoSocial = razaoSocial;
-    }
-    public String getNomeFantasia() {
-        return nomeFantasia;
-    }
-    public void setNomeFantasia(String nomeFantasia) {
-        this.nomeFantasia = nomeFantasia;
-    }
     public Set<AIConversation> getConversations() {
         return conversations;
     }
@@ -100,5 +113,22 @@ public class Usuario {
         conversations.remove(conversation);
         conversation.setUsuario(null);
     }
-
+    public Nivelmaturidadefinanceira getNivelMaturidadeUser() {
+        return nivelMaturidadeUser;
+    }
+    public void setNivelMaturidadeUser(Nivelmaturidadefinanceira nivelMaturidadeUser) {
+        this.nivelMaturidadeUser = nivelMaturidadeUser;
+    }
+    public LocalDateTime getData_criacao() {
+        return datacriacao;
+    }
+    public void setData_criacao(LocalDateTime data_criacao) {
+        this.datacriacao = LocalDateTime.now();
+    }
+    public LocalDateTime getUltimo_acesso() {
+        return ultimoacesso;
+    }
+    public void setUltimoacesso(LocalDateTime ultimo_acesso) {
+        this.ultimoacesso = ultimo_acesso;
+    }
 }

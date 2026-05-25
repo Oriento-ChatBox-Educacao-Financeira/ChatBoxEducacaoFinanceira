@@ -1,5 +1,13 @@
 package com.oriento.api.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.oriento.api.dto.LoginRequest;
 import com.oriento.api.dto.LoginResponse;
 import com.oriento.api.dto.RefreshTokenDTO;
@@ -9,18 +17,10 @@ import com.oriento.api.model.Usuario;
 import com.oriento.api.services.AuthService;
 import com.oriento.api.services.JwtService;
 import com.oriento.api.services.RefreshTokenService;
-import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Tag(name = "Autenticação", description = "Endpoints para autenticação e gerenciamento de tokens JWT")
 @RequestMapping("/api/auth")
 public class AuthController {
 

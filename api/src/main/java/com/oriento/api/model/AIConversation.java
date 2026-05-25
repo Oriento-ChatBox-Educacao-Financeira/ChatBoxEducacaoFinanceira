@@ -1,57 +1,40 @@
 package com.oriento.api.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import java.time.Instant;
+import com.oriento.api.model.enuns.StatusConversa;
+import jakarta.persistence.*;
 
-/**
- * Entidade que representa uma conversa com o assistente Gemini.
- *
- * Cada conversa está associada a um único usuário, enquanto
- * um usuário pode possuir várias conversas registradas.
- */
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 @Entity
-@Table(name = "AI_conversation")
+@Table(name = "conversa")
 public class AIConversation {
 
     @Id
-    @Column(name = "conversation_id", nullable = false, updatable = false, length = 60)
-    private String conversationId;
+    @Column(name = "id_conversa", columnDefinition = "UUID")
+    private UUID idConversa;   // ou String, mas UUID é mais adequado
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    @ManyToOne
+    @JoinColumn(name = "id_empresa")
+    private Empresa empresa;
 
-    /**
-     * Construtor padrão exigido pelo JPA.
-     */
-    protected AIConversation() {
-        // Utilizado pelo JPA
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private StatusConversa status;   // enum com os valores possíveis
+
+    @Column(name = "iniciada_em")
+    private OffsetDateTime iniciadaEm;
+
+    public UUID getIdConversa() {
+        return idConversa;
     }
 
-    public AIConversation(String conversationId, Usuario usuario) {
-        this.conversationId = conversationId;
-        this.usuario = usuario;
-    }
-
-    @PrePersist
-    void prePersist() {
-        if (this.createdAt == null) {
-            this.createdAt = Instant.now();
-        }
-    }
-
-    public String getConversationId() {
-        return conversationId;
+    public void setIdConversa(UUID idConversa) {
+        this.idConversa = idConversa;
     }
 
     public Usuario getUsuario() {
@@ -62,8 +45,36 @@ public class AIConversation {
         this.usuario = usuario;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public StatusConversa getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusConversa status) {
+        this.status = status;
+    }
+
+    public OffsetDateTime getIniciadaEm() {
+        return iniciadaEm;
+    }
+
+    public void setIniciadaEm(OffsetDateTime iniciadaEm) {
+        this.iniciadaEm = iniciadaEm;
+    }
+
+    public AIConversation(UUID idConversa, Usuario usuario) {
+        this.idConversa = idConversa;
+        this.usuario = usuario;
+    }
+
+    public AIConversation() {
     }
 
     public boolean pertenceAo(Usuario usuario) {

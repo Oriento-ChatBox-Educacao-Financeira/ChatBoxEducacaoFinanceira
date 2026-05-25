@@ -10,20 +10,14 @@ import java.util.UUID;
 public record UsuarioResponse(
         UUID id,
         String nome,
-        String email,
-        String cnpj,
-        String nomeFantasia,
-        String razaoSocial
+        String email
 ) {
 
     public static UsuarioResponse fromEntity(Usuario usuario) {
         return new UsuarioResponse(
                 usuario.getIdUsuario(),
                 usuario.getNome(),
-                usuario.getEmail(),
-                usuario.getCnpj(),
-                usuario.getNomeFantasia(),
-                usuario.getRazaoSocial()
+                usuario.getEmail()
         );
     }
 }

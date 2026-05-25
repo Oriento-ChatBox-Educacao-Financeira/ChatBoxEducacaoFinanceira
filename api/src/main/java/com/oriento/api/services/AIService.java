@@ -1,22 +1,17 @@
 package com.oriento.api.services;
 
-import com.google.common.collect.ImmutableList;
-import com.google.genai.Chat;
-import com.google.genai.Client;
-import com.google.genai.types.Content;
-import com.google.genai.types.GenerateContentConfig;
-import com.google.genai.types.GenerateContentResponse;
-import com.google.genai.types.Part;
+import com.oriento.api.client.LlmApiClient;
 import com.oriento.api.dto.AskResponse;
+import com.oriento.api.dto.llm.ChatMessage;
 import com.oriento.api.model.AIConversation;
 import com.oriento.api.model.Usuario;
 import com.oriento.api.repositories.AIConversationRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,16 +23,40 @@ public class AIService {
 
     private static final Logger logger = LoggerFactory.getLogger(AIService.class);
 
-    private final Client client;
-    private final AIConversationRepository conversationRepository;
-    private final GenerateContentConfig config;
-    private final Map<String, Chat> chatSessions = new ConcurrentHashMap<>();
+    private static final String SYSTEM_INSTRUCTION = """
+            SYSTEM ROLE:
+            You are a generative AI assistant specialized in *financial education and management for small and medium-sized businesses (SMBs)*. Your primary goal is to help users understand, analyze, and optimize their company's financial performance with accuracy, clarity, and actionable guidance. Your name is Oriento, always refer to yourself as that.
 
-    public AIService(Client client, AIConversationRepository conversationRepository) {
-        this.client = client;
+            BEHAVIOR AND STYLE:
+            - Respond as a **professional and approachable financial advisor** — confident, empathetic, and easy to understand.
+            - Keep answers **concise** (1–3 paragraphs), **contextual**, and **focused on practical financial actions**.
+            - Use **simple and natural Brazilian Portuguese**, appropriate for business users with different levels of financial knowledge.
+            - Maintain a balance between **technical precision** and **accessibility**, explaining terms when needed.
+
+            STRUCTURE AND FORMATTING:
+            - Use **bold** or *italics* to emphasize key ideas or financial terms.
+            - Use bullet points (*) for recommendations, steps, or summaries.
+            - Avoid lengthy enumerations or academic-style formatting.
+            - Keep tone consistent: professional, positive, and mentor-like.
+
+            CONTENT SCOPE:
+            - Focus exclusively on **business finance, accounting, cash flow, budgeting, financial planning, cost reduction, profitability, investments, and business growth**.
+            - If the user asks about topics unrelated to finance (e.g., politics, unrelated technologies, or personal issues), politely redirect to relevant financial topics.
+
+            OBJECTIVE:
+            Your mission is to transform complex financial data and concepts into **clear, actionable insights** that help SMBs make better strategic and operational decisions.
+
+            Always stay within your professional scope and maintain alignment with your role as an *AI financial advisor for businesses*.
+            """;
+
+    private final LlmApiClient llmApiClient;
+    private final AIConversationRepository conversationRepository;
+    private final Map<String, List<ChatMessage>> conversationHistory = new ConcurrentHashMap<>();
+
+    public AIService(LlmApiClient llmApiClient, AIConversationRepository conversationRepository) {
+        this.llmApiClient = llmApiClient;
         this.conversationRepository = conversationRepository;
-        this.config = buildConfig();
-        logger.info("GeminiService inicializado com sucesso");
+        logger.info("AIService inicializado com cliente LLM local");
     }
 
     public AskResponse askOriento(String prompt, String conversationId, Usuario usuario) {
@@ -45,64 +64,35 @@ public class AIService {
         logger.debug("Prompt recebido: {}", prompt);
 
         AIConversation conversation = resolveConversation(conversationId, usuario);
-        String effectiveConversationId = conversation.getConversationId();
+        String effectiveConversationId = String.valueOf(conversation.getIdConversa());
 
-        Chat chatSession = chatSessions.computeIfAbsent(
+        List<ChatMessage> history = conversationHistory.computeIfAbsent(
                 effectiveConversationId,
                 id -> {
                     logger.debug("Criando nova sessão de conversa para o ID {}", id);
-                    return client.chats.create("gemini-2.5-flash", config);
+                    List<ChatMessage> initial = new ArrayList<>();
+                    initial.add(ChatMessage.system(SYSTEM_INSTRUCTION));
+                    return initial;
                 });
 
-        logger.debug("Enviando requisição para o modelo Gemini 2.5 Flash com conversa {}", effectiveConversationId);
-        GenerateContentResponse response = chatSession.sendMessage(prompt);
+        history.add(ChatMessage.user(prompt));
 
-        String resposta = response.text();
+        logger.debug("Enviando requisição para o LLM local com conversa {}", effectiveConversationId);
+        String resposta = llmApiClient.chat(List.copyOf(history));
 
-        ImmutableList<Content> history = chatSession.getHistory(true);
-        logger.trace("Histórico da conversa ({} mensagens)", history != null ? history.size() : 0);
+        history.add(ChatMessage.assistant(resposta));
 
         logger.info("Resposta gerada pelo Oriento com sucesso. Tamanho da resposta: {} caracteres",
                 resposta != null ? resposta.length() : 0);
         logger.debug("Resposta: {}", resposta);
+        logger.trace("Histórico da conversa ({} mensagens)", history.size());
 
         return new AskResponse(effectiveConversationId, resposta);
     }
 
-    private GenerateContentConfig buildConfig() {
-        return GenerateContentConfig.builder()
-                .systemInstruction(
-                        Content.fromParts(
-                                Part.fromText(
-                                        "SYSTEM ROLE:\n"
-                                                + "You are a generative AI assistant specialized in *financial education and management for small and medium-sized businesses (SMBs)*. Your primary goal is to help users understand, analyze, and optimize their company's financial performance with accuracy, clarity, and actionable guidance. Your name is Oriento, always refer to yourself as that.\n\n"
-
-                                                + "BEHAVIOR AND STYLE:\n"
-                                                + "- Respond as a **professional and approachable financial advisor** — confident, empathetic, and easy to understand.\n"
-                                                + "- Keep answers **concise** (1–3 paragraphs), **contextual**, and **focused on practical financial actions**.\n"
-                                                + "- Use **simple and natural Brazilian Portuguese**, appropriate for business users with different levels of financial knowledge.\n"
-                                                + "- Maintain a balance between **technical precision** and **accessibility**, explaining terms when needed.\n\n"
-
-                                                + "STRUCTURE AND FORMATTING:\n"
-                                                + "- Use **bold** or *italics* to emphasize key ideas or financial terms.\n"
-                                                + "- Use bullet points (*) for recommendations, steps, or summaries.\n"
-                                                + "- Avoid lengthy enumerations or academic-style formatting.\n"
-                                                + "- Keep tone consistent: professional, positive, and mentor-like.\n\n"
-
-                                                + "CONTENT SCOPE:\n"
-                                                + "- Focus exclusively on **business finance, accounting, cash flow, budgeting, financial planning, cost reduction, profitability, investments, and business growth**.\n"
-                                                + "- If the user asks about topics unrelated to finance (e.g., politics, unrelated technologies, or personal issues), politely redirect to relevant financial topics.\n\n"
-
-                                                + "OBJECTIVE:\n"
-                                                + "Your mission is to transform complex financial data and concepts into **clear, actionable insights** that help SMBs make better strategic and operational decisions.\n\n"
-
-                                                + "Always stay within your professional scope and maintain alignment with your role as an *AI financial advisor for businesses*.")))
-                .build();
-    }
-
-    private @NonNull AIConversation resolveConversation(String conversationId, Usuario usuario) {
+    private AIConversation resolveConversation(String conversationId, Usuario usuario) {
         if (!StringUtils.hasText(conversationId)) {
-            String generatedConversationId = UUID.randomUUID().toString();
+            UUID generatedConversationId = UUID.randomUUID();
             AIConversation persistida = conversationRepository.save(
                     new AIConversation(generatedConversationId, usuario));
             logger.debug("Nova conversa {} criada para o usuário {}", generatedConversationId,
@@ -119,5 +109,4 @@ public class AIService {
 
         return existing;
     }
-
 }

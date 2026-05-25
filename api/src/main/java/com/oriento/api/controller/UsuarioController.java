@@ -6,7 +6,6 @@ import com.oriento.api.model.Usuario;
 import com.oriento.api.repositories.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,30 +36,25 @@ public class UsuarioController {
 
     @Transactional
     @PostMapping({"/cadastro", "/register"})
-    public ResponseEntity<UsuarioCriadoResponse> novoUsuario(@Valid @RequestBody @NonNull CriarUsuarioDTO dto) {
-        logger.info("Recebida requisição de cadastro de novo usuário. Email: {}, CNPJ: {}", 
-                maskEmail(dto.email()), maskCnpj(dto.cnpj()));
+    public ResponseEntity<UsuarioCriadoResponse> novoUsuario(@Valid @RequestBody CriarUsuarioDTO dto) {
+        logger.info("Recebida requisição de cadastro de novo usuário. Email: {}",
+                maskEmail(dto.email()));
 
-        var usuarioExisteCNPJ = usuarioRepository.findByCnpj(dto.cnpj());
         var usuarioExisteEMAIL = usuarioRepository.findByEmail(dto.email());
 
-        if(usuarioExisteEMAIL.isPresent() || usuarioExisteCNPJ.isPresent()) {
-            String motivo = usuarioExisteEMAIL.isPresent() ? "email" : "CNPJ";
-            logger.warn("Tentativa de cadastro com {} já cadastrado. Email: {}, CNPJ: {}", 
-                    motivo, maskEmail(dto.email()), maskCnpj(dto.cnpj()));
-            
+        if(usuarioExisteEMAIL.isPresent()) {
+            logger.warn("Tentativa de cadastro já cadastrado. Email: {}"
+                    , maskEmail(dto.email()));
+
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
                     .body(UsuarioCriadoResponse.erroJaCadastrado());
         }
-        
+
         logger.debug("Nenhum usuário duplicado encontrado. Criando novo usuário...");
 
         var usuario = new Usuario();
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
-        usuario.setCnpj(dto.cnpj());
-        usuario.setRazaoSocial(dto.razaoSocial());
-        usuario.setNomeFantasia(dto.nomeFantasia());
 
         usuario.setSenha(passwordEncoder.encode(dto.senha()));
 
@@ -73,7 +67,7 @@ public class UsuarioController {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<UsuarioCriadoResponse> handleValidationException(@NonNull MethodArgumentNotValidException ex) {
+    public ResponseEntity<UsuarioCriadoResponse> handleValidationException( MethodArgumentNotValidException ex) {
         logger.warn("Erro de validação nos dados fornecidos");
 
         var errors = ex.getBindingResult().getFieldErrors();
@@ -89,14 +83,14 @@ public class UsuarioController {
                 .body(UsuarioCriadoResponse.campoInvalido(errorMessage));
     }
 
-    private @NonNull String maskEmail(String email) {
+    private String maskEmail(String email) {
         if (email == null || email.isEmpty()) return "***@***";
         int atIndex = email.indexOf("@");
         if (atIndex <= 1) return "***@***";
         return email.charAt(0) + "***" + email.substring(atIndex);
     }
 
-    private @NonNull String maskCnpj(String cnpj) {
+    private String maskCnpj(String cnpj) {
         if (cnpj == null || cnpj.isEmpty()) return "************";
         if (cnpj.length() < 4) return "************";
         return "********" + cnpj.substring(cnpj.length() - 4);
