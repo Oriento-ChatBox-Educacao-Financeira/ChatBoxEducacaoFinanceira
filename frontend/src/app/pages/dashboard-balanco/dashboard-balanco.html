@@ -1,8 +1,12 @@
 <app-main-navbar>
   <div class="balanco-page">
     <div class="balanco-content">
+      <div *ngIf="semDados && !carregando" class="dre-empty-banner">
+        Você ainda não importou nenhuma planilha financeira.
+        <a routerLink="/upload-planilha">Fazer upload agora</a>.
+      </div>
       <!-- HEADER -->
-      <div class="balanco-header">
+      <div class="balanco-header" *ngIf="!semDados">
         <div class="balanco-header__left">
           <span class="balanco-header__title"> Balanço Patrimonial </span>
 
@@ -29,7 +33,7 @@
       </div>
 
       <!-- KPI CARDS -->
-      <div class="balanco-kpis">
+      <div class="balanco-kpis" *ngIf="!semDados">
         <div
           class="kpi-card"
           [class.kpi-card--highlight]="item.highlight"
@@ -75,10 +79,10 @@
       </div>
 
       <!-- GRID -->
-      <div class="balanco-grid">
+      <div class="balanco-grid" *ngIf="!semDados">
         <!-- SIDEBAR -->
         <div class="balanco-sidebar">
-          <div class="balance-highlight-card">
+          <div class="balance-highlight-card" *ngIf="!semDados">
             <div class="balance-highlight-card__bg"></div>
 
             <div class="balance-highlight-card__circle"></div>
@@ -86,12 +90,12 @@
             <div class="balance-highlight-card__content">
               <span class="balance-highlight-card__label"> Patrimônio Líquido </span>
 
-              <strong class="balance-highlight-card__value"> R$ 7.443.350 </strong>
+              <strong class="balance-highlight-card__value">{{ fmtFull(patrimonioLiquidoTotal) }}</strong>
 
-              <div class="balance-highlight-card__badge">
+              <div class="balance-highlight-card__badge" *ngIf="liquidezAtual != null">
                 <i class="ph ph-chart-pie-slice"></i>
 
-                <span>Índice Liquidez: 1.8</span>
+                <span>Índice Liquidez: {{ liquidezAtual.toFixed(2) }}</span>
               </div>
             </div>
           </div>
@@ -197,38 +201,48 @@
           </div>
 
           <!-- EVOLUÇÃO -->
-          <div class="chart-card">
+          <div class="chart-card" *ngIf="evolucao.length">
             <div class="chart-card__header">
               <div class="chart-card__header-left">
                 <span class="chart-card__title"> Evolução Patrimonial </span>
 
-                <span class="chart-card__subtitle"> Crescimento trimestral consolidado </span>
+                <span class="chart-card__subtitle"> Patrimônio líquido por período (planilha) </span>
               </div>
             </div>
 
             <div class="chart-card__body">
-              <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="580" y2="0" class="chart-line-bg" />
-                <line x1="0" y1="64" x2="580" y2="64" class="chart-line-bg" />
-                <line x1="0" y1="128" x2="580" y2="128" class="chart-line-bg" />
-                <line x1="0" y1="192" x2="580" y2="192" class="chart-line-bg" />
+              <svg class="line-chart" viewBox="0 0 580 240" preserveAspectRatio="xMidYMid meet">
+                <line x1="0" y1="60" x2="580" y2="60" class="chart-line-bg" />
+                <line x1="0" y1="120" x2="580" y2="120" class="chart-line-bg" />
+                <line x1="0" y1="180" x2="580" y2="180" class="chart-line-bg" />
 
-                <polyline
-                  points="48,180 144,150 240,120 336,100 432,85 528,60"
-                  fill="none"
-                  stroke="#002162"
-                  stroke-width="3"
-                  stroke-linejoin="round"
-                />
+                <polyline [attr.points]="patrimonioPath"
+                  fill="none" stroke="#002162" stroke-width="2.5" stroke-linejoin="round"/>
+
+                <g *ngFor="let p of patrimonioPoints">
+                  <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#002162">
+                    <title>{{ p.fullLabel }}</title>
+                  </circle>
+                  <text [attr.x]="p.x" [attr.y]="p.y - 10" text-anchor="middle"
+                        font-size="11" font-weight="600" fill="#002162">{{ p.label }}</text>
+                </g>
+
+                <g font-size="11" fill="#6b7280">
+                  <text *ngFor="let t of rotulosPeriodos; let i = index"
+                        [attr.x]="40 + i * ((580 - 80) / (rotulosPeriodos.length - 1 || 1))"
+                        y="232" text-anchor="middle">{{ t }}</text>
+                </g>
               </svg>
 
-              <div class="chart-card__months">
-                <span>T1</span>
-                <span>T2</span>
-                <span>T3</span>
-                <span>T4</span>
-                <span>T1</span>
-                <span>T2</span>
+              <div class="overview-data-table">
+                <div class="overview-data-table__row overview-data-table__row--head" style="grid-template-columns: 1fr 2fr;">
+                  <span>Período</span>
+                  <span>Patrimônio Líquido</span>
+                </div>
+                <div class="overview-data-table__row" *ngFor="let r of evolucao" style="grid-template-columns: 1fr 2fr;">
+                  <span>{{ r.periodo }}</span>
+                  <span>{{ fmtFull(r.valor) }}</span>
+                </div>
               </div>
             </div>
           </div>

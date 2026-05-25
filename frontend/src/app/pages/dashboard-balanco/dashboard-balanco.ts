@@ -1,115 +1,172 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
-import { ChatWidget } from "../../_components/chat-widget/chat-widget";
+import { ChatWidget } from '../../_components/chat-widget/chat-widget';
+import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard-balanco-patrimonial',
   standalone: true,
-  imports: [CommonModule, MainNavbar, ChatWidget],
+  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget],
   templateUrl: './dashboard-balanco.html',
   styleUrl: './dashboard-balanco.css',
 })
-export class DashboardBalancoPatrimonial {
-  periodoAtivo = 'T3 2023';
+export class DashboardBalancoPatrimonial implements OnInit {
+  carregando = true;
+  semDados = true;
 
-  periodos = ['T3 2026', 'T2 2026', 'T1 2026', 'T4 2025', 'T3 2025', 'T2 2025'];
+  periodoAtivo = '';
+  periodos: string[] = [];
 
-  kpis = [
-    {
-      label: 'TOTAL DE ATIVOS',
-      value: 'R$ 14.285M',
-      badge: '+4.2% vs trimestre',
-      badgeType: 'green',
-      icon: 'ph ph-bank',
-    },
-    {
-      label: 'TOTAL DE PASSIVOS',
-      value: 'R$ 6.842M',
-      badge: '-0.5% vs trimestre',
-      badgeType: 'neutral',
-      icon: 'ph ph-credit-card',
-    },
-    {
-      label: 'ÍNDICE DE LIQUIDEZ',
-      value: '1.8',
-      sub: 'Capacidade de pagamento saudável',
-      icon: 'ph ph-chart-line-up',
-    },
-    {
-      label: 'PATRIMÔNIO LÍQUIDO',
-      value: 'R$ 7.443M',
-      badge: '+8.1% crescimento',
-      badgeType: 'green',
-      highlight: true,
-      icon: 'ph ph-chart-pie-slice',
-    },
-  ];
+  kpis: { label: string; value: string; sub?: string; highlight?: boolean; badge?: string; badgeType?: string; icon?: string }[] = [];
+  ativos: { nome: string; desc: string; percentual: string; valor: string; color: string }[] = [];
+  recursos: { nome: string; desc: string; percentual: string; valor: string; color: string }[] = [];
 
-  indicadores = [
-    {
-      label: 'Capital de Giro',
-      value: 'R$ 1.92M',
-    },
-    {
-      label: 'Endividamento',
-      value: '47.8%',
-    },
-    {
-      label: 'Liquidez Corrente',
-      value: '1.82',
-    },
-    {
-      label: 'ROE',
-      value: '14.2%',
-    },
-  ];
+  indicadores: { label: string; value: string }[] = [];
 
-  ativos = [
-    {
-      nome: 'Circulante',
-      desc: 'Disponibilidades e CP',
-      percentual: '45%',
-      valor: 'R$ 6.428k',
-      color: '#103688',
-    },
-    {
-      nome: 'Realizável LP',
-      desc: 'Aplicações e Direitos',
-      percentual: '30%',
-      valor: 'R$ 4.285k',
-      color: '#002162',
-    },
-    {
-      nome: 'Permanente',
-      desc: 'Imobilizado e Intangível',
-      percentual: '25%',
-      valor: 'R$ 3.572k',
-      color: '#3C5AAD',
-    },
-  ];
+  patrimonioPath = '';
+  patrimonioPoints: { x: number; y: number; label: string; fullLabel: string }[] = [];
+  rotulosPeriodos: string[] = [];
+  evolucao: { periodo: string; valor: number }[] = [];
+  patrimonioLiquidoTotal = 0;
+  liquidezAtual: number | null = null;
 
-  recursos = [
-    {
-      nome: 'Passivo Circulante',
-      desc: 'Obrigações CP',
-      percentual: '35%',
-      valor: 'R$ 2.394k',
-      color: '#FEB700',
-    },
-    {
-      nome: 'Exigível LP',
-      desc: 'Dívidas Longo Prazo',
-      percentual: '20%',
-      valor: 'R$ 1.368k',
-      color: '#7C5800',
-    },
-    {
-      nome: 'Patrimônio Líquido',
-      desc: 'Capital Próprio',
-      percentual: '45%',
-      valor: 'R$ 3.078k',
-      color: '#191C1D',
-    },
-  ];
+  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void {
+    this.dashboardService.balanco().subscribe({
+      next: (data) => {
+        this.carregando = false;
+        if (!data.hasData || !data.kpis) {
+          this.semDados = true;
+          this.cdr.markForCheck();
+          return;
+        }
+        this.semDados = false;
+        const k = data.kpis;
+        this.patrimonioLiquidoTotal = k.patrimonioLiquido;
+        this.liquidezAtual = k.liquidez;
+
+        this.kpis = [
+          { label: 'TOTAL DE ATIVOS', value: this.fmt(k.totalAtivo) },
+          { label: 'TOTAL DE PASSIVOS', value: this.fmt(k.totalPassivo) },
+          {
+            label: 'ÍNDICE DE LIQUIDEZ',
+            value: k.liquidez != null ? k.liquidez.toFixed(2) : '—',
+            sub: 'Capacidade de pagamento',
+          },
+          {
+            label: 'PATRIMÔNIO LÍQUIDO',
+            value: this.fmt(k.patrimonioLiquido),
+            highlight: true,
+          },
+        ];
+
+        const totalAtivo = k.totalAtivo || 1;
+        const totalRecursos = k.totalPassivo + k.patrimonioLiquido || 1;
+
+        const corA = ['#103688', '#002162', '#3C5AAD'];
+        this.ativos = (data.ativos ?? []).map((a, i) => ({
+          nome: a.nome,
+          desc: a.desc,
+          percentual: `${((a.valor / totalAtivo) * 100).toFixed(0)}%`,
+          valor: this.fmt(a.valor),
+          color: corA[i] ?? '#103688',
+        }));
+
+        const corP = ['#FEB700', '#7C5800', '#191C1D'];
+        this.recursos = (data.recursos ?? []).map((r, i) => ({
+          nome: r.nome,
+          desc: r.desc,
+          percentual: `${((r.valor / totalRecursos) * 100).toFixed(0)}%`,
+          valor: this.fmt(r.valor),
+          color: corP[i] ?? '#191C1D',
+        }));
+
+        const evol = data.evolucao ?? [];
+        this.rotulosPeriodos = evol.map((e) => e.rotulo);
+        this.periodos = evol.map((e) => e.rotulo).slice(-3).reverse();
+        this.periodoAtivo = this.periodos[0] ?? '';
+        this.buildPatrimonioChart(evol.map((e) => e.patrimonio));
+
+        this.indicadores = [
+          {
+            label: 'Capital de Giro',
+            value: this.fmt((data.ativos?.[0]?.valor ?? 0) - (data.recursos?.[0]?.valor ?? 0)),
+          },
+          {
+            label: 'Endividamento',
+            value: k.totalAtivo
+              ? `${((k.totalPassivo / k.totalAtivo) * 100).toFixed(1)}%`
+              : '—',
+          },
+          {
+            label: 'Liquidez Corrente',
+            value: k.liquidez != null ? k.liquidez.toFixed(2) : '—',
+          },
+          {
+            label: 'ROE',
+            value: k.patrimonioLiquido
+              ? `${(((data.kpis?.totalAtivo ?? 0) / k.patrimonioLiquido) * 100).toFixed(1)}%`
+              : '—',
+          },
+        ];
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.carregando = false;
+        this.semDados = true;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private fmt(v: number): string {
+    if (Math.abs(v) >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(2)}M`;
+    if (Math.abs(v) >= 1_000) return `R$ ${(v / 1_000).toFixed(0)}K`;
+    return `R$ ${v.toFixed(2)}`;
+  }
+
+  fmtCompact(v: number): string {
+    const abs = Math.abs(v);
+    if (abs >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+    if (abs >= 1_000) return `${(v / 1_000).toFixed(0)}K`;
+    return `${v.toFixed(0)}`;
+  }
+
+  fmtFull(v: number): string {
+    return v.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0,
+    });
+  }
+
+  private buildPatrimonioChart(valores: number[]): void {
+    if (!valores.length) {
+      this.patrimonioPoints = [];
+      this.patrimonioPath = '';
+      this.evolucao = [];
+      return;
+    }
+    const W = 580;
+    const H = 220;
+    const padX = 40;
+    const padTop = 24;
+    const padBottom = 28;
+    const max = Math.max(...valores, 1);
+    const stepX = valores.length === 1 ? 0 : (W - padX * 2) / (valores.length - 1);
+    this.patrimonioPoints = valores.map((v, i) => ({
+      x: padX + i * stepX,
+      y: padTop + (1 - v / max) * (H - padTop - padBottom),
+      label: this.fmtCompact(v),
+      fullLabel: this.fmtFull(v),
+    }));
+    this.patrimonioPath = this.patrimonioPoints.map((p) => `${p.x},${p.y}`).join(' ');
+    this.evolucao = valores.map((v, i) => ({
+      periodo: this.rotulosPeriodos[i] ?? `P${i + 1}`,
+      valor: v,
+    }));
+  }
 }

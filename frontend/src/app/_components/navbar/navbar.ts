@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, computed } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { UiStateService } from '../../services/ui-state.service';
+import { NotificacaoService } from '../../services/notificacao.service';
 
 const ROTAS_IMPLEMENTADAS = new Set([
   'dre',
@@ -22,7 +24,13 @@ export class Navbar implements OnInit {
   isDashboardOpen = true;
   activeRoute = '';
 
-  constructor(private router: Router) {}
+  readonly collapsed = computed(() => this.ui.sidebarCollapsed());
+
+  constructor(
+    private router: Router,
+    private ui: UiStateService,
+    public notif: NotificacaoService,
+  ) {}
 
   ngOnInit(): void {
     this.atualizarRotaAtiva(this.router.url);
@@ -34,36 +42,39 @@ export class Navbar implements OnInit {
       });
   }
 
+  toggleSidebar(): void {
+    this.ui.toggleSidebar();
+  }
+
   toggleDashboard(): void {
+    if (this.collapsed()) {
+      this.ui.toggleSidebar();
+      this.isDashboardOpen = true;
+      return;
+    }
     this.isDashboardOpen = !this.isDashboardOpen;
   }
 
   navigate(route: string): void {
-    // Atualiza item ativo
     this.activeRoute = route;
 
-    // CHAT
     if (route === 'chat') {
       this.isDashboardOpen = false;
-
       this.router.navigate(['/chat']);
       return;
     }
 
-    // DASHBOARD
     if (ROTAS_IMPLEMENTADAS.has(route)) {
       this.isDashboardOpen = true;
-
       this.router.navigate(['/dashboard', route]);
       return;
     }
 
-    // OUTRAS ROTAS
     this.isDashboardOpen = false;
   }
 
   novoLancamento(): void {
-    // TODO
+    this.router.navigate(['/upload-planilha']);
   }
 
   sair(): void {
@@ -71,14 +82,12 @@ export class Navbar implements OnInit {
   }
 
   private atualizarRotaAtiva(url: string): void {
-    // CHAT
     if (url.startsWith('/chat')) {
       this.activeRoute = 'chat';
       this.isDashboardOpen = false;
       return;
     }
 
-    // DASHBOARD
     const dashboardMatch = url.match(/^\/dashboard\/([^/?#]+)/);
 
     if (dashboardMatch) {
@@ -87,7 +96,6 @@ export class Navbar implements OnInit {
       return;
     }
 
-    // OUTRAS ROTAS
     this.activeRoute = '';
     this.isDashboardOpen = false;
   }

@@ -1,8 +1,12 @@
 <app-main-navbar>
   <div class="overview-page">
     <div class="overview-content">
+      <div *ngIf="semDados && !carregando" class="dre-empty-banner">
+        Você ainda não importou nenhuma planilha financeira.
+        <a routerLink="/upload-planilha">Fazer upload agora</a>.
+      </div>
       <!-- HEADER -->
-      <div class="overview-header">
+      <div class="overview-header" *ngIf="!semDados">
         <div class="overview-header__left">
           <span class="overview-header__title"> Visão Geral </span>
 
@@ -11,13 +15,13 @@
           </span>
         </div>
 
-        <div class="overview-period">
-          <span>Maio 2026</span>
+        <div class="overview-period" *ngIf="periodoAtual">
+          <span>{{ periodoAtual }}</span>
         </div>
       </div>
 
       <!-- KPI CARDS -->
-      <div class="overview-kpis">
+      <div class="overview-kpis" *ngIf="!semDados">
         <div class="overview-kpi-card" *ngFor="let item of kpis">
           <div class="overview-kpi-card__header">
             <span>{{ item.label }}</span>
@@ -44,7 +48,7 @@
       </div>
 
       <!-- GRID -->
-      <div class="overview-grid">
+      <div class="overview-grid" *ngIf="!semDados">
         <!-- LEFT -->
         <div class="overview-main">
           <!-- DRE -->
@@ -71,64 +75,54 @@
                   <div
                     class="overview-bar-chart__bar overview-bar-chart__bar--blue"
                     [style.height]="item.receita"
-                  ></div>
+                    [title]="'Receita: ' + fmtFull(item.receitaValor)"
+                  >
+                    <span class="overview-bar-chart__label">{{ item.receitaLabel }}</span>
+                  </div>
 
                   <div
                     class="overview-bar-chart__bar overview-bar-chart__bar--gray"
                     [style.height]="item.despesa"
-                  ></div>
+                    [title]="'Despesa: ' + fmtFull(item.despesaValor)"
+                  >
+                    <span class="overview-bar-chart__label overview-bar-chart__label--dark">
+                      {{ item.despesaLabel }}
+                    </span>
+                  </div>
                 </div>
 
                 <span>{{ item.mes }}</span>
               </div>
             </div>
-          </div>
 
-          <!-- INSIGHT -->
-          <div class="overview-insight-card">
-            <div class="overview-insight-card__icon">
-              <i class="ph ph-sparkle"></i>
-            </div>
-
-            <div class="overview-insight-card__content">
-              <span class="overview-insight-card__title"> ORIENTO Insight </span>
-
-              <p class="overview-insight-card__text">
-                Olá! Notei que seu superávit projetado para os próximos 30 dias é de
-                <strong>R$ 440.500</strong>. Gostaria de ver sugestões de investimento?
-              </p>
-
-              <div class="overview-insight-card__actions">
-                <button class="overview-btn overview-btn--gold">Ver Sugestões</button>
-
-                <button class="overview-btn">Dispensar</button>
+            <!-- TABELA DE DADOS -->
+            <div class="overview-data-table" *ngIf="dre.length">
+              <div class="overview-data-table__row overview-data-table__row--head">
+                <span>Mês</span>
+                <span>Receita</span>
+                <span>Despesa</span>
+                <span>Resultado</span>
+              </div>
+              <div class="overview-data-table__row" *ngFor="let item of dre">
+                <span>{{ item.mes }}</span>
+                <span>{{ fmtFull(item.receitaValor) }}</span>
+                <span>{{ fmtFull(item.despesaValor) }}</span>
+                <span
+                  [class.overview-data-table__pos]="item.receitaValor - item.despesaValor >= 0"
+                  [class.overview-data-table__neg]="item.receitaValor - item.despesaValor < 0"
+                >
+                  {{ fmtFull(item.receitaValor - item.despesaValor) }}
+                </span>
               </div>
             </div>
           </div>
+
         </div>
 
         <!-- RIGHT -->
         <div class="overview-sidebar">
-          <!-- SAÚDE -->
-          <div class="overview-card overview-card--center">
-            <div class="overview-card__header">
-              <span class="overview-card__title"> Saúde Financeira </span>
-            </div>
-
-            <div class="health-score">
-              <div class="health-score__circle">
-                <div class="health-score__inner">
-                  <strong>88</strong>
-                  <span>/ 100</span>
-                </div>
-              </div>
-
-              <div class="health-score__badge">Excelente</div>
-            </div>
-          </div>
-
-          <!-- VENCIMENTOS -->
-          <div class="overview-card overview-card--gray">
+          <!-- VENCIMENTOS: só aparece quando há dados reais (planilha não fornece hoje) -->
+          <div class="overview-card overview-card--gray" *ngIf="vencimentos.length">
             <div class="overview-card__header">
               <span class="overview-card__title"> Próximos Vencimentos </span>
             </div>

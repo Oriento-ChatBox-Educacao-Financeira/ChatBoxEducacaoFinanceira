@@ -1,180 +1,129 @@
 <app-main-navbar>
   <div class="dre-page">
     <div class="dre-content">
-      <!-- KPI CARDS NO TOPO -->
-      <div class="dre-kpis">
-        <div class="kpi-card">
+
+      <!-- BANNER SEM DADOS -->
+      <div *ngIf="semDados && !carregando" class="dre-empty-banner">
+        Você ainda não importou nenhuma planilha financeira.
+        <a routerLink="/upload-planilha">Fazer upload agora</a>.
+      </div>
+
+      <!-- KPI CARDS NO TOPO (dinâmico) -->
+      <div class="dre-kpis" *ngIf="!semDados && kpis.length">
+        <div class="kpi-card"
+             *ngFor="let item of kpis"
+             [class.kpi-card--highlight]="item.highlight">
           <div class="kpi-card__header">
-            <span class="kpi-card__label">RECEITA BRUTA</span>
-            <i class="ph ph-trend-up kpi-card__ph-icon"></i>
+            <span class="kpi-card__label" [class.kpi-card__label--blue]="item.highlight">
+              {{ item.label }}
+            </span>
           </div>
 
           <div class="kpi-card__body">
-            <span class="kpi-card__value">R$ 2.45M</span>
-
-            <div class="kpi-card__badge kpi-card__badge--gold">
-              <i class="ph ph-arrow-up kpi-card__badge-ph"></i>
-              <span>+12.5% vs ano ant.</span>
-            </div>
-          </div>
-
-          <div class="kpi-card__glow"></div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-card__header">
-            <span class="kpi-card__label">
-              DESPESAS<br />
-              OPERACIONAIS
+            <span class="kpi-card__value" [class.kpi-card__value--blue]="item.highlight">
+              {{ item.value }}
             </span>
 
-            <i class="ph ph-notepad kpi-card__ph-icon"></i>
-          </div>
-
-          <div class="kpi-card__body">
-            <span class="kpi-card__value">R$ 1.12M</span>
-
-            <div class="kpi-card__badge kpi-card__badge--neutral">
-              <i class="ph ph-arrow-down kpi-card__badge-ph"></i>
-              <span>-3.2% vs ano ant.</span>
+            <div *ngIf="item.badge" class="kpi-card__badge"
+                 [class.kpi-card__badge--gold]="item.badgeType === 'gold'"
+                 [class.kpi-card__badge--neutral]="item.badgeType === 'neutral'">
+              <span>{{ item.badge }}</span>
             </div>
-          </div>
-        </div>
 
-        <div class="kpi-card kpi-card--highlight">
-          <div class="kpi-card__header">
-            <span class="kpi-card__label kpi-card__label--blue"> LUCRO LÍQUIDO </span>
+            <span *ngIf="item.sub" class="kpi-card__sub">{{ item.sub }}</span>
 
-            <i class="ph ph-bank kpi-card__ph-icon kpi-card__ph-icon--blue"></i>
-          </div>
-
-          <div class="kpi-card__body">
-            <span class="kpi-card__value kpi-card__value--blue"> R$ 980K </span>
-
-            <span class="kpi-card__sub">Consolidado</span>
-          </div>
-        </div>
-
-        <div class="kpi-card">
-          <div class="kpi-card__header">
-            <span class="kpi-card__label">
-              MARGEM DE<br />
-              LUCRO
-            </span>
-
-            <i class="ph ph-circle-half-tilt kpi-card__ph-icon kpi-card__ph-icon--gold"></i>
-          </div>
-
-          <div class="kpi-card__body">
-            <span class="kpi-card__value">40%</span>
-
-            <div class="kpi-card__progress-wrap">
+            <div *ngIf="item.progress != null" class="kpi-card__progress-wrap">
               <div class="kpi-card__progress">
-                <div class="kpi-card__progress-fill" style="width: 40%"></div>
+                <div class="kpi-card__progress-fill" [style.width.%]="item.progress"></div>
               </div>
             </div>
           </div>
+
+          <div class="kpi-card__glow" *ngIf="item.highlight"></div>
         </div>
       </div>
 
       <!-- CONTEÚDO -->
-
-      <!-- TABELA DRE -->
-      <div class="dre-charts">
+      <div class="dre-charts" *ngIf="!semDados">
         <!-- GRÁFICO MAIOR -->
-        <div class="chart-card chart-card--large">
+        <div class="chart-card chart-card--large" *ngIf="meses.length">
           <div class="chart-card__header">
             <div class="chart-card__header-left">
-              <span class="chart-card__title"> Evolução de Resultado </span>
-
-              <span class="chart-card__subtitle"> Receitas vs Despesas (Mensal) </span>
+              <span class="chart-card__title">Evolução de Resultado</span>
+              <span class="chart-card__subtitle">Receitas vs Despesas (mensal — planilha)</span>
             </div>
+          </div>
 
-            <div class="chart-card__legend">
-              <div class="chart-card__legend-item">
-                <span class="chart-card__legend-dot chart-card__legend-dot--blue"></span>
-                <span>Receita</span>
-              </div>
-
-              <div class="chart-card__legend-item">
-                <span class="chart-card__legend-dot chart-card__legend-dot--gray"></span>
-                <span>Despesa</span>
-              </div>
+          <div class="chart-card__header-legend">
+            <div class="legend-item">
+              <span class="legend-dot legend-dot--blue"></span>
+              <span>Receitas</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-dot--gray"></span>
+              <span>Despesas</span>
             </div>
           </div>
 
           <div class="chart-card__body">
-            <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
-              <line
-                x1="0"
-                y1="0"
-                x2="580"
-                y2="0"
-                stroke="rgba(196,198,211,0.10)"
-                stroke-width="1"
-              />
+            <svg class="line-chart" viewBox="0 0 580 240" preserveAspectRatio="xMidYMid meet">
+              <line x1="0" y1="60" x2="580" y2="60" stroke="rgba(196,198,211,0.15)" stroke-width="1"/>
+              <line x1="0" y1="120" x2="580" y2="120" stroke="rgba(196,198,211,0.15)" stroke-width="1"/>
+              <line x1="0" y1="180" x2="580" y2="180" stroke="rgba(196,198,211,0.15)" stroke-width="1"/>
 
-              <line
-                x1="0"
-                y1="64"
-                x2="580"
-                y2="64"
-                stroke="rgba(196,198,211,0.10)"
-                stroke-width="1"
-              />
+              <polyline [attr.points]="receitaPath"
+                fill="none" stroke="#002162" stroke-width="2.5" stroke-linejoin="round"/>
+              <polyline [attr.points]="despesaPath"
+                fill="none" stroke="#9CA3AF" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="4 4"/>
 
-              <line
-                x1="0"
-                y1="128"
-                x2="580"
-                y2="128"
-                stroke="rgba(196,198,211,0.10)"
-                stroke-width="1"
-              />
+              <g *ngFor="let p of receitaPoints">
+                <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#002162">
+                  <title>{{ 'Receita: ' + p.fullLabel }}</title>
+                </circle>
+                <text [attr.x]="p.x" [attr.y]="p.y - 10" text-anchor="middle"
+                      font-size="11" font-weight="600" fill="#002162">{{ p.label }}</text>
+              </g>
 
-              <line
-                x1="0"
-                y1="192"
-                x2="580"
-                y2="192"
-                stroke="rgba(196,198,211,0.10)"
-                stroke-width="1"
-              />
+              <g *ngFor="let p of despesaPoints">
+                <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#6b7280">
+                  <title>{{ 'Despesa: ' + p.fullLabel }}</title>
+                </circle>
+                <text [attr.x]="p.x" [attr.y]="p.y + 16" text-anchor="middle"
+                      font-size="11" font-weight="600" fill="#6b7280">{{ p.label }}</text>
+              </g>
 
-              <polyline
-                points="48,200 144,140 240,160 336,100 432,120 528,60"
-                fill="none"
-                stroke="#002162"
-                stroke-width="3"
-                stroke-linejoin="round"
-              />
-
-              <polyline
-                points="48,220 144,190 240,200 336,160 432,175 528,140"
-                fill="none"
-                stroke="#E1E3E4"
-                stroke-width="3"
-                stroke-linejoin="round"
-              />
+              <g font-size="11" fill="#6b7280">
+                <text *ngFor="let m of meses; let i = index"
+                      [attr.x]="40 + i * ((580 - 80) / (meses.length - 1 || 1))"
+                      y="232" text-anchor="middle">{{ m }}</text>
+              </g>
             </svg>
 
-            <div class="chart-card__months">
-              <span>Jan</span>
-              <span>Fev</span>
-              <span>Mar</span>
-              <span>Abr</span>
-              <span>Mai</span>
-              <span>Jun</span>
+            <!-- Tabela complementar -->
+            <div class="overview-data-table" *ngIf="resultadoMensal.length">
+              <div class="overview-data-table__row overview-data-table__row--head">
+                <span>Mês</span>
+                <span>Receita</span>
+                <span>Despesa</span>
+                <span>Resultado</span>
+              </div>
+              <div class="overview-data-table__row" *ngFor="let r of resultadoMensal">
+                <span>{{ r.mes }}</span>
+                <span>{{ fmtFull(r.receita) }}</span>
+                <span>{{ fmtFull(r.despesa) }}</span>
+                <span [class.overview-data-table__pos]="r.resultado >= 0"
+                      [class.overview-data-table__neg]="r.resultado < 0">
+                  {{ fmtFull(r.resultado) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- TABELA DRE -->
+        <!-- TABELA DRE (dinâmica) -->
         <div class="chart-card chart-card--dre">
           <div class="chart-card__header">
             <span class="chart-card__title">Estrutura DRE</span>
-
-            <a class="chart-card__link">Ver completo</a>
           </div>
 
           <div class="dre-table">
@@ -183,52 +132,28 @@
               <span>Valor (R$)</span>
             </div>
 
-            <div class="dre-table__row dre-table__row--bold">
-              <span>Receita Bruta</span>
-              <span>2.450.000</span>
-            </div>
-
-            <div class="dre-table__row dre-table__row--sub">
-              <div class="dre-table__sub-label">
-                <span class="dre-table__dot"></span>
-                <span>(-) Deduções e Impostos</span>
+            <ng-container *ngFor="let item of dreItems">
+              <div class="dre-table__total" *ngIf="item.total">
+                <span>{{ item.label }}</span>
+                <span>{{ formatValor(item.valor) }}</span>
               </div>
 
-              <span class="dre-table__value--muted">(350.000)</span>
-            </div>
+              <div *ngIf="!item.total"
+                   class="dre-table__row"
+                   [class.dre-table__row--bold]="item.bold"
+                   [class.dre-table__row--sub]="item.sub"
+                   [class.dre-table__row--blue]="item.blue">
+                <div *ngIf="item.sub" class="dre-table__sub-label">
+                  <span class="dre-table__dot"></span>
+                  <span>{{ item.label }}</span>
+                </div>
+                <span *ngIf="!item.sub">{{ item.label }}</span>
 
-            <div class="dre-table__row dre-table__row--bold dre-table__row--separator">
-              <span>Receita Líquida</span>
-              <span>2.100.000</span>
-            </div>
-
-            <div class="dre-table__row dre-table__row--sub">
-              <div class="dre-table__sub-label">
-                <span class="dre-table__dot"></span>
-                <span>(-) Custo das Mercadorias (CMV)</span>
+                <span [class.dre-table__value--muted]="item.sub">
+                  {{ formatValor(item.valor) }}
+                </span>
               </div>
-
-              <span class="dre-table__value--muted">(450.000)</span>
-            </div>
-
-            <div class="dre-table__row dre-table__row--blue dre-table__row--separator">
-              <span>Lucro Bruto</span>
-              <span>1.650.000</span>
-            </div>
-
-            <div class="dre-table__row dre-table__row--sub">
-              <div class="dre-table__sub-label">
-                <span class="dre-table__dot"></span>
-                <span>(-) Despesas Operacionais</span>
-              </div>
-
-              <span class="dre-table__value--muted">(670.000)</span>
-            </div>
-
-            <div class="dre-table__total">
-              <span>Lucro Líquido do Exercício</span>
-              <span>980.000</span>
-            </div>
+            </ng-container>
           </div>
         </div>
       </div>

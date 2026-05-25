@@ -23,6 +23,8 @@ export const routes: Routes = [
       import('./pages/register-success/register-success').then((m) => m.RegisterSuccess),
   },
 
+  { path: 'dashboard', redirectTo: '/dashboard/visao-geral', pathMatch: 'full' },
+
   {
     path: 'dashboard/visao-geral',
     loadComponent: () =>
@@ -60,6 +62,24 @@ export const routes: Routes = [
     path: 'chat',
     loadComponent: () => import('./pages/chat/chat').then((m) => m.ChatPageComponent),
     // canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'upload-planilha',
+    loadComponent: () =>
+      import('./pages/upload-planilha/upload-planilha').then((m) => m.UploadPlanilhaComponent),
+    // canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'configuracoes',
+    loadComponent: () =>
+      import('./pages/configuracoes/configuracoes').then((m) => m.ConfiguracoesPage),
+  },
+
+  {
+    path: 'perfil',
+    loadComponent: () => import('./pages/perfil/perfil').then((m) => m.PerfilPage),
   },
 
   { path: '**', redirectTo: '/login' },

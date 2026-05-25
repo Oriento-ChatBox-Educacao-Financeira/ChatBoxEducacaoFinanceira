@@ -1,30 +1,54 @@
-<nav class="sidebar">
+<nav class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <!-- Toggle: hambúrguer animado que vira X -->
+  <button
+    class="sidebar-toggle"
+    type="button"
+    (click)="toggleSidebar()"
+    [class.sidebar-toggle--open]="!collapsed()"
+    [attr.aria-label]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+    [title]="collapsed() ? 'Expandir menu' : 'Recolher menu'"
+  >
+    <span class="sidebar-toggle__bars" aria-hidden="true">
+      <span class="sidebar-toggle__bar"></span>
+      <span class="sidebar-toggle__bar"></span>
+      <span class="sidebar-toggle__bar"></span>
+    </span>
+  </button>
+
   <!-- Logo -->
   <div class="sidebar-logo">
-    <span class="sidebar-logo__brand">ORIENTO</span>
-    <span class="sidebar-logo__sub">Sabedoria Financeira</span>
+    <span class="sidebar-logo__brand">{{ collapsed() ? 'O' : 'ORIENTO' }}</span>
+    <span class="sidebar-logo__sub" *ngIf="!collapsed()">Sabedoria Financeira</span>
   </div>
 
   <!-- Novo Lançamento -->
   <div class="sidebar-new">
-    <button class="sidebar-new__btn" (click)="novoLancamento()">
+    <button
+      class="sidebar-new__btn"
+      (click)="novoLancamento()"
+      [title]="collapsed() ? 'Novo Lançamento' : ''"
+    >
       <img src="/sidebar/icon-mais.svg" alt="" class="sidebar-new__icon" />
-      Novo Lançamento
+      <span *ngIf="!collapsed()">Novo Lançamento</span>
     </button>
   </div>
 
   <!-- Menu principal -->
   <ul class="sidebar-menu">
     <!-- Dashboard (expansível) -->
-    <li class="menu-item" [class.menu-item--open]="isDashboardOpen">
-      <div class="menu-item__row" (click)="toggleDashboard()">
+    <li class="menu-item" [class.menu-item--open]="isDashboardOpen && !collapsed()">
+      <div class="menu-item__row" (click)="toggleDashboard()" [title]="collapsed() ? 'Dashboard' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-dashboard.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label" [class.menu-item__label--active]="isDashboardOpen"
+          <span
+            *ngIf="!collapsed()"
+            class="menu-item__label"
+            [class.menu-item__label--active]="isDashboardOpen"
             >Dashboard</span
           >
         </div>
         <img
+          *ngIf="!collapsed()"
           src="/sidebar/icon-setaMenu.svg"
           alt=""
           class="menu-item__chevron"
@@ -33,7 +57,7 @@
       </div>
 
       <!-- Submenu -->
-      @if (isDashboardOpen) {
+      @if (isDashboardOpen && !collapsed()) {
         <ul class="submenu">
           <li
             class="submenu__item"
@@ -72,10 +96,10 @@
       [class.menu-item--active]="activeRoute === 'chat'"
       (click)="navigate('chat')"
     >
-      <div class="menu-item__row">
+      <div class="menu-item__row" [title]="collapsed() ? 'Chat' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-chat.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Chat</span>
+          <span *ngIf="!collapsed()" class="menu-item__label">Chat</span>
         </div>
       </div>
     </li>
@@ -85,69 +109,31 @@
       [class.menu-item--active]="activeRoute === 'relatorios'"
       (click)="navigate('relatorios')"
     >
-      <div class="menu-item__row">
+      <div class="menu-item__row" [title]="collapsed() ? 'Relatórios' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-relatorio.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Relatórios</span>
+          <span *ngIf="!collapsed()" class="menu-item__label">Relatórios</span>
         </div>
       </div>
     </li>
 
-    <li
-      class="menu-item"
-      [class.menu-item--active]="activeRoute === 'notificacoes'"
-      (click)="navigate('notificacoes')"
-    >
-      <div class="menu-item__row">
-        <div class="menu-item__left">
-          <img src="/sidebar/icon-notificacao.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Notificações</span>
-        </div>
-      </div>
-    </li>
-
-    <li
-      class="menu-item"
-      [class.menu-item--active]="activeRoute === 'perfil'"
-      (click)="navigate('perfil')"
-    >
-      <div class="menu-item__row">
-        <div class="menu-item__left">
-          <img src="/sidebar/icon-profile.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Perfil</span>
-        </div>
-      </div>
-    </li>
-
-    <li
-      class="menu-item"
-      [class.menu-item--active]="activeRoute === 'configuracoes'"
-      (click)="navigate('configuracoes')"
-    >
-      <div class="menu-item__row">
-        <div class="menu-item__left">
-          <img src="/sidebar/icon-config.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Configurações</span>
-        </div>
-      </div>
-    </li>
   </ul>
 
   <!-- Rodapé -->
   <ul class="sidebar-footer">
     <li class="menu-item" (click)="navigate('suporte')">
-      <div class="menu-item__row">
+      <div class="menu-item__row" [title]="collapsed() ? 'Suporte' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-suporte.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Suporte</span>
+          <span *ngIf="!collapsed()" class="menu-item__label">Suporte</span>
         </div>
       </div>
     </li>
     <li class="menu-item" (click)="sair()">
-      <div class="menu-item__row">
+      <div class="menu-item__row" [title]="collapsed() ? 'Sair' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-exit.svg" alt="" class="menu-item__icon" />
-          <span class="menu-item__label">Sair</span>
+          <span *ngIf="!collapsed()" class="menu-item__label">Sair</span>
         </div>
       </div>
     </li>

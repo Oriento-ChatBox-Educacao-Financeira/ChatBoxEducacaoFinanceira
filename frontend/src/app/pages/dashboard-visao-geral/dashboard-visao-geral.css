@@ -5,11 +5,13 @@
 
 .overview-content {
   width: 100%;
-  padding: 32px 0;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--sp-5) 0;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--sp-5);
 }
 
 /* HEADER */
@@ -28,7 +30,7 @@
 }
 
 .overview-header__title {
-  font-size: 30px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--blue-dark);
 }
@@ -63,13 +65,13 @@
   background: white;
   border-radius: 8px;
 
-  padding: 24px;
+  padding: 18px 20px;
 
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 
-  box-shadow: 0px 12px 32px -4px rgba(25, 28, 29, 0.06);
+  box-shadow: 0px 8px 22px -4px rgba(25, 28, 29, 0.06);
 }
 
 .overview-kpi-card__header {
@@ -80,21 +82,26 @@
 
 .overview-kpi-card__header span {
   color: var(--text-mid);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .overview-kpi-card__header i {
-  font-size: 20px;
+  font-size: 18px;
   color: rgba(68, 70, 81, 0.5);
 }
 
 .overview-kpi-card__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .overview-kpi-card__body strong {
-  font-size: 30px;
+  font-size: var(--fs-lg);
+  font-weight: 700;
   color: var(--text-dark);
 }
 
@@ -144,13 +151,13 @@
 .overview-card {
   background: white;
   border-radius: 8px;
-  padding: 24px;
+  padding: 18px 20px;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 18px;
 
-  box-shadow: 0px 12px 32px -4px rgba(25, 28, 29, 0.06);
+  box-shadow: 0px 8px 22px -4px rgba(25, 28, 29, 0.06);
 }
 
 .overview-card--gray {
@@ -168,7 +175,7 @@
 }
 
 .overview-card__title {
-  font-size: 18px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text-dark);
 }
@@ -202,12 +209,12 @@
 }
 
 .overview-bar-chart {
-  height: 280px;
+  height: 240px;
 
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 16px;
+  gap: 14px;
 }
 
 .overview-bar-chart__group {
@@ -216,22 +223,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .overview-bar-chart__bars {
   width: 100%;
-  height: 220px;
+  height: 200px;
 
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 8px;
+  gap: 6px;
 }
 
 .overview-bar-chart__bar {
-  width: 32px;
+  position: relative;
+  width: 26px;
   border-radius: 4px 4px 0 0;
+  cursor: default;
+  transition: filter 0.15s;
+}
+
+.overview-bar-chart__bar:hover {
+  filter: brightness(1.1);
 }
 
 .overview-bar-chart__bar--blue {
@@ -242,8 +256,62 @@
   background: #e1e3e4;
 }
 
+.overview-bar-chart__label {
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.overview-bar-chart__label--dark {
+  color: var(--text-mid);
+}
+
 .overview-bar-chart__group span {
   color: var(--text-mid);
+  font-size: 12px;
+}
+
+/* TABELA DE DADOS DO GRÁFICO */
+.overview-data-table {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.overview-data-table__row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr;
+  gap: 8px;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(225, 227, 228, 0.5);
+  color: var(--text-mid);
+}
+
+.overview-data-table__row:last-child {
+  border-bottom: none;
+}
+
+.overview-data-table__row--head {
+  font-weight: 700;
+  color: var(--text-dark);
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.overview-data-table__pos {
+  color: #047857;
+  font-weight: 600;
+}
+
+.overview-data-table__neg {
+  color: var(--error);
+  font-weight: 600;
 }
 
 /* HEALTH */
@@ -256,8 +324,8 @@
 }
 
 .health-score__circle {
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
 
   background: conic-gradient(#feb700 0% 88%, #f3f4f5 88% 100%);
@@ -268,8 +336,8 @@
 }
 
 .health-score__inner {
-  width: 150px;
-  height: 150px;
+  width: 122px;
+  height: 122px;
 
   background: white;
   border-radius: 50%;
@@ -281,7 +349,8 @@
 }
 
 .health-score__inner strong {
-  font-size: 42px;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
   color: var(--blue-dark);
 }
 
@@ -398,7 +467,7 @@
 }
 
 .overview-insight-card__title {
-  font-size: 18px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--blue-dark);
 }
@@ -442,13 +511,38 @@
 
 /* RESPONSIVO */
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .overview-kpis {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-4);
   }
-
   .overview-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-kpi-card,
+  .overview-card,
+  .overview-insight-card {
+    padding: var(--sp-4);
+  }
+  .overview-bar-chart {
+    height: 200px;
+  }
+  .overview-bar-chart__bars {
+    height: 160px;
+  }
+  .overview-bar-chart__bar {
+    width: 18px;
+  }
+  .health-score__circle {
+    width: 160px;
+    height: 160px;
+  }
+  .health-score__inner {
+    width: 120px;
+    height: 120px;
   }
 }
 
@@ -456,13 +550,34 @@
   .overview-kpis {
     grid-template-columns: 1fr;
   }
-
   .overview-header {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .overview-insight-card {
     flex-direction: column;
+  }
+  .overview-insight-card__icon {
+    width: 48px;
+    height: 48px;
+    min-width: auto;
+  }
+  .overview-payment-item {
+    padding: var(--sp-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-bar-chart {
+    gap: 6px;
+  }
+  .overview-bar-chart__bar {
+    width: 12px;
+  }
+  .overview-insight-card__actions {
+    flex-direction: column;
+  }
+  .overview-btn {
+    width: 100%;
   }
 }

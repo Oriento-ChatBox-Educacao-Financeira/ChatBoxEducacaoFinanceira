@@ -58,10 +58,10 @@
 /* CONTAINER */
 
 .chat-container {
-  width: 420px;
-  height: 760px;
+  width: min(380px, calc(100vw - 48px));
+  height: min(620px, calc(100vh - 48px));
 
-  border-radius: 30px;
+  border-radius: 22px;
 
   overflow: hidden;
 
@@ -94,9 +94,9 @@
 /* HEADER */
 
 .chat-header {
-  height: 88px;
+  height: 64px;
 
-  padding: 0 20px;
+  padding: 0 16px;
 
   background: rgba(255, 255, 255, 0.85);
 
@@ -118,10 +118,10 @@
 }
 
 .chat-avatar {
-  width: 52px;
-  height: 52px;
+  width: 38px;
+  height: 38px;
 
-  border-radius: 16px;
+  border-radius: 12px;
 
   background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
 
@@ -131,7 +131,7 @@
   align-items: center;
   justify-content: center;
 
-  font-size: 24px;
+  font-size: 18px;
 }
 
 .chat-header__eyebrow {
@@ -144,9 +144,9 @@
 }
 
 .chat-header h3 {
-  margin-top: 4px;
+  margin: 2px 0 0;
 
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
 
   color: var(--primary-blue);
@@ -158,11 +158,11 @@
 }
 
 .header-action {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
 
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
 
   background: #eef2ff;
 
@@ -172,7 +172,7 @@
   align-items: center;
   justify-content: center;
 
-  font-size: 18px;
+  font-size: 14px;
 
   cursor: pointer;
 
@@ -192,14 +192,15 @@
 
 .chat-body {
   flex: 1;
+  min-height: 0;
 
   overflow-y: auto;
 
-  padding: 24px 20px;
+  padding: 16px;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 }
 
 .chat-body::-webkit-scrollbar {
@@ -220,12 +221,12 @@
 }
 
 .chat-empty__icon {
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
 
-  margin: 0 auto 18px;
+  margin: 0 auto 12px;
 
-  border-radius: 22px;
+  border-radius: 16px;
 
   background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
 
@@ -235,24 +236,25 @@
   align-items: center;
   justify-content: center;
 
-  font-size: 34px;
+  font-size: 24px;
 }
 
 .chat-empty h2 {
-  font-size: 24px;
+  margin: 0;
+  font-size: 17px;
   font-weight: 700;
 
   color: var(--primary-blue);
 }
 
 .chat-empty p {
-  margin-top: 10px;
+  margin-top: 8px;
 
-  line-height: 1.6;
+  line-height: 1.55;
 
   color: var(--text-secondary);
 
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* USER */
@@ -383,7 +385,7 @@
 /* INPUT */
 
 .chat-input-area {
-  padding: 16px 20px 20px;
+  padding: 12px 16px 14px;
 
   background: rgba(255, 255, 255, 0.92);
 
@@ -404,18 +406,18 @@
 .chat-input-wrapper textarea {
   width: 100%;
 
-  min-height: 62px;
-  max-height: 140px;
+  min-height: 48px;
+  max-height: 120px;
 
   resize: none;
   overflow-y: auto;
 
   border: 1px solid var(--border-color);
-  border-radius: 22px;
+  border-radius: 16px;
 
   background: white;
 
-  padding: 18px 72px 18px 18px;
+  padding: 12px 56px 12px 14px;
 
   outline: none;
 
@@ -438,14 +440,14 @@
 .send-button {
   position: absolute;
 
-  right: 10px;
-  bottom: 10px;
+  right: 8px;
+  bottom: 8px;
 
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
 
   border: none;
-  border-radius: 14px;
+  border-radius: 10px;
 
   background: var(--primary-blue);
   color: white;
@@ -454,7 +456,7 @@
   align-items: center;
   justify-content: center;
 
-  font-size: 18px;
+  font-size: 14px;
 
   cursor: pointer;
 
@@ -500,12 +502,12 @@
 }
 
 .human-button {
-  height: 38px;
+  height: 30px;
 
-  padding: 0 14px;
+  padding: 0 12px;
 
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
 
   background: var(--primary-gold);
   color: var(--primary-blue);
@@ -542,20 +544,39 @@ i[class^='ph'] {
 /* MOBILE */
 
 @media (max-width: 768px) {
+  .chat-widget {
+    right: var(--sp-3);
+    bottom: var(--sp-3);
+  }
+  .chat-floating-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    font-size: 24px;
+  }
   .chat-suggestions {
-    padding-inline: 16px;
+    padding-inline: var(--sp-4);
   }
-
   .chat-input-area {
-    padding: 14px 16px 18px;
+    padding: var(--sp-3) var(--sp-4) var(--sp-4);
   }
-
   .chat-footer {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .human-button {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-widget {
+    right: 12px;
+    bottom: 12px;
+  }
+  .chat-container {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+    border-radius: 18px;
   }
 }

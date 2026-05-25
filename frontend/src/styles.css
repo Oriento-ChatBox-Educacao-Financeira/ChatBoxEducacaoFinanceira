@@ -1,6 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+/* =====================================================
+ * Design tokens + responsividade global
+ * Breakpoints (padrao de mercado):
+ *   xs  < 480px  (celular pequeno - mínimo 360)
+ *   sm  < 640px  (celular)
+ *   md  < 768px  (tablet retrato)
+ *   lg  < 1024px (tablet paisagem)
+ *   xl  < 1280px (laptop)
+ *   2xl < 1536px (desktop)
+ *   ultra >= 1920 (ultrawide / tv)
+ * ===================================================== */
 
 :root {
+  /* paleta */
   --blue-dark: #002162;
   --blue-mid: #103688;
   --gold: #ffb800;
@@ -9,16 +20,186 @@
   --bg: #f8f9fa;
   --text-dark: #191c1d;
   --text-mid: #444651;
-  --text-muted: rgba(116, 118, 131, 0.5);
+  --text-muted: rgba(116, 118, 131, 0.7);
   --input-bg: #f3f4f5;
   --border: rgba(196, 198, 211, 0.3);
   --error: #dc2626;
+
+  /* tipografia fluida (clamp = mínimo, ideal, máximo) */
+  --fs-xs: clamp(0.72rem, 0.68rem + 0.18vw, 0.78rem);
+  --fs-sm: clamp(0.82rem, 0.78rem + 0.2vw, 0.9rem);
+  --fs-base: clamp(0.92rem, 0.88rem + 0.22vw, 1rem);
+  --fs-md: clamp(1rem, 0.94rem + 0.3vw, 1.1rem);
+  --fs-lg: clamp(1.12rem, 1rem + 0.6vw, 1.35rem);
+  --fs-xl: clamp(1.3rem, 1.1rem + 1vw, 1.65rem);
+  --fs-2xl: clamp(1.55rem, 1.25rem + 1.5vw, 2rem);
+
+  /* espaçamento */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 2.5rem;
+  --sp-8: 3rem;
+
+  /* layout */
+  --sidebar-w: 220px;
+  --sidebar-w-collapsed: 68px;
+  --sidebar-current: var(--sidebar-w);
+  --topbar-h: 60px;
+  --container-max: 1440px;
+
+  /* radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-dark);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* container utilitário para páginas */
+.container-app {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--sp-4);
+  padding-right: var(--sp-4);
+}
+
+/* Tabela complementar de gráficos (usada em vários dashboards) */
+.overview-data-table {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+.overview-data-table__row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1.2fr 1.2fr;
+  gap: 8px;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(225, 227, 228, 0.5);
+  color: var(--text-mid);
+}
+.overview-data-table__row:last-child {
+  border-bottom: none;
+}
+.overview-data-table__row--head {
+  font-weight: 700;
+  color: var(--text-dark);
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+.overview-data-table__pos {
+  color: #047857;
+  font-weight: 600;
+}
+.overview-data-table__neg {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* Legenda compacta de gráficos */
+.chart-card__header-legend {
+  display: flex;
+  gap: 16px;
+  padding: 0 4px 8px;
+  font-size: 12px;
+  color: var(--text-mid);
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.legend-dot--blue { background: #002162; }
+.legend-dot--gray { background: #9ca3af; }
+.legend-dot--gold { background: #feb700; }
+
+/* Banner de estado vazio (usado nos dashboards) */
+.dre-empty-banner {
+  margin: var(--sp-4) 0;
+  padding: var(--sp-3) var(--sp-4);
+  background: #fff8e1;
+  border: 1px solid #f0c674;
+  border-radius: var(--r-md);
+  color: #5a4400;
+  font-size: var(--fs-sm);
+}
+.dre-empty-banner a {
+  color: #2e6dff;
+  text-decoration: underline;
+  margin-left: 0.25rem;
+}
+
+/* ---------------------------------------------------
+ * Ajustes globais por breakpoint
+ * --------------------------------------------------- */
+
+/* Aplicado pela navbar via body class quando a sidebar está recolhida */
+body.sidebar-collapsed {
+  --sidebar-current: var(--sidebar-w-collapsed);
+}
+
+/* tablet retrato */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w: 0px;
+    --sidebar-w-collapsed: 0px;
+    --sidebar-current: 0px;
+    --topbar-h: 56px;
+  }
+}
+
+/* celular */
+@media (max-width: 480px) {
+  html, body {
+    font-size: 15px;
+  }
+}
+
+/* ultrawide / TV: contém para não esticar demais */
+@media (min-width: 1920px) {
+  :root {
+    --container-max: 1600px;
+  }
 }
