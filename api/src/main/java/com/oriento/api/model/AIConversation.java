@@ -17,8 +17,8 @@ import java.time.Instant;
  * um usuário pode possuir várias conversas registradas.
  */
 @Entity
-@Table(name = "gemini_conversation")
-public class GeminiConversation {
+@Table(name = "AI_conversation")
+public class AIConversation {
 
     @Id
     @Column(name = "conversation_id", nullable = false, updatable = false, length = 60)
@@ -34,11 +34,11 @@ public class GeminiConversation {
     /**
      * Construtor padrão exigido pelo JPA.
      */
-    protected GeminiConversation() {
+    protected AIConversation() {
         // Utilizado pelo JPA
     }
 
-    public GeminiConversation(String conversationId, Usuario usuario) {
+    public AIConversation(String conversationId, Usuario usuario) {
         this.conversationId = conversationId;
         this.usuario = usuario;
     }
