@@ -147,7 +147,8 @@ public class AuthService {
         // ETAPA 4: Login bem-sucedido
         // Limpa qualquer histórico de tentativas falhas anteriores
         limparTentativasFalhas(identifier);
-        
+        //Adiciona na tabela Ultimo acesso a data e hora do login - Novo passo adicionado AQUI
+        usuario.get().setUltimoacesso(LocalDateTime.now());
         // Registra auditoria de sucesso
         auditarLoginSucesso(usuario.get(), clientIp);
 

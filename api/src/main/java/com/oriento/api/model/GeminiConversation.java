@@ -21,7 +21,7 @@ import java.time.Instant;
 public class GeminiConversation {
 
     @Id
-    @Column(name = "conversation_id", nullable = false, updatable = false, length = 60)
+    @Column(name = "conversiaton_id", nullable = false, updatable = false, length = 60)
     private String conversationId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

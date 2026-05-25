@@ -1,17 +1,15 @@
 package com.oriento.api.model;
 
 import com.oriento.api.dto.LoginRequest;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.oriento.api.model.enuns.Nivelmaturidadefinanceira;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -38,7 +36,7 @@ public class Usuario {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_usuario")
+    @Column(name="id_usuario", columnDefinition = "UUID")
     private UUID idUsuario;
     
     /**
@@ -54,12 +52,20 @@ public class Usuario {
      * Deve ser único no banco de dados (constraint UNIQUE).
      * Pode ser usado para login junto com a senha.
      */
-    @Column(unique = true)
+    @Column(name = "email",
+            length = 150,
+            unique = true,
+            nullable = false)
     private String email;
 
     /**
      * Nome do usuário (pessoa física).
+     * VARCHAR(100) , pode possuir no maximo 100 caracteres
+     * NOT NULL este campo não pode ser Nulo
      */
+    @Column(name = "nome",
+            length = 100,
+            nullable = false)
     private String nome;
     
     /**
@@ -78,7 +84,27 @@ public class Usuario {
      * IMPORTANTE: A senha nunca deve ser armazenada em texto plano.
      * Sempre use BCryptPasswordEncoder para criptografar antes de salvar.
      */
+    @Column(name = "senha_hash",
+            length = 255,
+            nullable = false)
     private String senha;
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "nivel_maturidade_financeira",
+            nullable = false,
+            columnDefinition = "VARCHAR(20) DEFAULT 'BASICO'"
+    )
+    private Nivelmaturidadefinanceira nivelMaturidadeUser = Nivelmaturidadefinanceira.BASICO;
+
+    @CreationTimestamp
+    @Column(name = "data_criacao",
+            nullable = false,
+            updatable = false,
+            columnDefinition = "TIMESTAMP DEFAULT NOW()")
+    private LocalDateTime datacriacao;
+
+    @Column(name = "ultimo_acesso", nullable = true)
+    private LocalDateTime ultimoacesso;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<GeminiConversation> conversations = new HashSet<>();
@@ -155,4 +181,27 @@ public class Usuario {
         conversation.setUsuario(null);
     }
 
+    public Nivelmaturidadefinanceira getNivelMaturidadeUser() {
+        return nivelMaturidadeUser;
+    }
+
+    public void setNivelMaturidadeUser(Nivelmaturidadefinanceira nivelMaturidadeUser) {
+        this.nivelMaturidadeUser = nivelMaturidadeUser;
+    }
+
+    public LocalDateTime getData_criacao() {
+        return datacriacao;
+    }
+    @PrePersist
+    public void setData_criacao(LocalDateTime data_criacao) {
+        this.datacriacao = LocalDateTime.now();
+    }
+
+    public LocalDateTime getUltimo_acesso() {
+        return ultimoacesso;
+    }
+    //Esse metodo é chamado quando o login é validado
+    public void setUltimoacesso(LocalDateTime ultimo_acesso) {
+        this.ultimoacesso = ultimo_acesso;
+    }
 }
