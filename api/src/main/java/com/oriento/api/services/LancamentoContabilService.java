@@ -39,7 +39,7 @@ public class LancamentoContabilService {
     @Transactional(readOnly = true)
     public List<LancamentoContabil> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando lançamentos da empresa ID: {}", idEmpresa);
-        return lancamentoRepository.findByIdEmpresaId(idEmpresa);
+        return lancamentoRepository.buscarPorEmpresaId(idEmpresa);
     }
 
     @Transactional(readOnly = true)

@@ -45,7 +45,7 @@ public class ItemLancamentoService {
     @Transactional(readOnly = true)
     public List<ItemLancamento> listarPorLancamento(Integer idLancamento) {
         logger.debug("Listando itens do lançamento ID: {}", idLancamento);
-        return itemLancamentoRepository.findByIdLancamentoId(idLancamento);
+        return itemLancamentoRepository.buscarPorLancamentoId(idLancamento);
     }
 
     @Transactional(readOnly = true)

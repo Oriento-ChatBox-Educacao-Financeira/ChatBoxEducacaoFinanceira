@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ParametrosSimulacaoRepository extends JpaRepository<ParametroSimulacao, Integer> {
+public interface ParametroSimulacaoRepository extends JpaRepository<ParametroSimulacao, Integer> {
 
     List<ParametroSimulacao> findBySimulacaoIdSimulacao(Integer idSimulacao);
 }

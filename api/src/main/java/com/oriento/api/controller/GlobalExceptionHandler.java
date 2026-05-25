@@ -1,5 +1,6 @@
 package com.oriento.api.controller;
 
+import com.oriento.api.exception.LlmApiException;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
         logger.warn("Credenciais inválidas: {}", ex.getMessage());
         return buildResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(LlmApiException.class)
+    public ResponseEntity<Map<String, Object>> handleLlmApi(LlmApiException ex) {
+        logger.error("Falha no servidor LLM: {}", ex.getMessage());
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

@@ -2,10 +2,8 @@ package com.oriento.api.model;
 
 import com.oriento.api.model.enuns.OrigemContabil;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "lancamento_contabil")
@@ -17,8 +15,9 @@ public class LancamentoContabil {
     @Column(name = "id_lancamento")
     private Integer idlancamento;
 
+    @ManyToOne
     @JoinColumn(name = "id_empresa", nullable = false)
-    private Empresa idempresa;
+    private Empresa idEmpresa;
 
     @Column(name = "data", nullable = false)
     private LocalDate data;
@@ -37,6 +36,7 @@ public class LancamentoContabil {
     )
     private OrigemContabil origem = OrigemContabil.manual;
 
+    @ManyToOne
     @JoinColumn(name = "id_simulacao", nullable = true)
     private Simulacao idsimualcao;
 
@@ -54,11 +54,11 @@ public class LancamentoContabil {
     }
 
     public Empresa getId_empresa() {
-        return idempresa;
+        return idEmpresa;
     }
 
     public void setId_empresa(Empresa idempresa) {
-        this.idempresa = idempresa;
+        this.idEmpresa = idempresa;
     }
 
     public LocalDate getData() {

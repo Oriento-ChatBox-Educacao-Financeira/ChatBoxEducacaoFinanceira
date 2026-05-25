@@ -34,7 +34,7 @@ public class CentroCustoService {
     @Transactional(readOnly = true)
     public List<CentroCusto> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando centros de custo da empresa ID: {}", idEmpresa);
-        return centroCustoRepository.findByIdEmpresaId(idEmpresa);
+        return centroCustoRepository.buscarPorEmpresaId(idEmpresa);
     }
 
     @Transactional(readOnly = true)

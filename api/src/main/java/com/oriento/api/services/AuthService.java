@@ -121,9 +121,7 @@ public class AuthService {
 
         // ETAPA 2: Busca do usuário no banco de dados
         // Busca por email se informado, caso contrário busca por CNPJ
-        Optional<Usuario> usuario = StringUtils.hasText(loginRequest.email())
-                ? usuarioRepository.findByEmail(loginRequest.email())
-                : usuarioRepository.findByCnpj(loginRequest.cnpj());
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(loginRequest.email());
 
         // Verifica se o usuário existe no sistema
         if (usuario.isEmpty()) {
@@ -284,10 +282,9 @@ public class AuthService {
      * Auditoria: Registra login bem-sucedido
      */
     private void auditarLoginSucesso(Usuario usuario, String clientIp) {
-        logger.info("[AUDITORIA] Login bem-sucedido - Usuário ID: {}, Email: {}, CNPJ: {}, IP: {}, Timestamp: {}",
+        logger.info("[AUDITORIA] Login bem-sucedido - Usuário ID: {}, Email: {}, IP: {}, Timestamp: {}",
                 usuario.getIdUsuario(),
                 maskEmail(usuario.getEmail()),
-                maskCnpj(usuario.getCnpj()),
                 clientIp,
                 LocalDateTime.now());
     }

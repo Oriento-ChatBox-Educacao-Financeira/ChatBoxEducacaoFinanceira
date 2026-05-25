@@ -31,4 +31,52 @@ public class CentroCusto{
             columnDefinition ="BOOLEAN DEFAULT TRUE"
     )
     private Boolean ativo = true;
+
+    public Integer getIdcentrocusto() {
+        return idcentrocusto;
+    }
+
+    public void setIdcentrocusto(Integer idcentrocusto) {
+        this.idcentrocusto = idcentrocusto;
+    }
+
+    public Empresa getId_empresa() {
+        return id_empresa;
+    }
+
+    public void setId_empresa(Empresa id_empresa) {
+        this.id_empresa = id_empresa;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public TipoCentroCusto getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoCentroCusto tipo) {
+        this.tipo = tipo;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
 }

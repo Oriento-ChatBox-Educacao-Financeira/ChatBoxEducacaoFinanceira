@@ -13,6 +13,7 @@ public class Orcamento {
     @Column(name = "id_orcamento")
     private Integer id;
 
+    @ManyToOne
     @JoinColumn(name = "id_empresa",nullable = false)
     private Empresa empresaId;
 
@@ -22,9 +23,11 @@ public class Orcamento {
     @Column(name = "mes",nullable = false)
     private Integer mes;
 
+    @ManyToOne
     @JoinColumn(name = "id_conta", nullable = false)
     private PlanoConta contaId;
 
+    @ManyToOne
     @JoinColumn(name = "id_centro_custo", nullable = false)
     private CentroCusto centroCustoId;
 

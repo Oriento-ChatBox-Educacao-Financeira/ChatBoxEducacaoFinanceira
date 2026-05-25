@@ -34,7 +34,7 @@ public class PlanoContaService {
     @Transactional(readOnly = true)
     public List<PlanoConta> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando planos de conta da empresa ID: {}", idEmpresa);
-        return planoContaRepository.findByIdEmpresaId(idEmpresa);
+        return planoContaRepository.buscarPorEmpresa(idEmpresa);
     }
 
     @Transactional(readOnly = true)

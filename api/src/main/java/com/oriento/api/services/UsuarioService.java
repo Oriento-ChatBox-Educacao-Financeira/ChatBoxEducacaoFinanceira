@@ -14,18 +14,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Serviço responsável pelo CRUD da entidade Usuario.
- *
- * Funcionalidades:
- * - Listar todos os usuários
- * - Buscar usuário por ID
- * - Criar novo usuário (com hash de senha)
- * - Atualizar dados do usuário
- * - Deletar usuário
- *
- * Observação: autenticação e geração de tokens JWT ficam no AuthService.
- */
 @Service
 public class UsuarioService {
 
@@ -41,20 +29,6 @@ public class UsuarioService {
         logger.debug("UsuarioService inicializado com sucesso");
     }
 
-    // ── CREATE ────────────────────────────────────────────────────────────────
-
-    /**
-     * Cria um novo usuário no sistema.
-     *
-     * Regras:
-     * - Email deve ser único
-     * - CNPJ deve ser único (se informado)
-     * - Senha é armazenada como hash BCrypt
-     *
-     * @param request DTO com os dados do novo usuário
-     * @return UsuarioResponse com os dados persistidos
-     * @throws IllegalArgumentException se email ou CNPJ já estiverem cadastrados
-     */
     @Transactional
     public UsuarioResponse criar(UsuarioRequest request) {
         logger.info("Criando novo usuário. Email: {}", maskEmail(request.email()));
@@ -65,21 +39,10 @@ public class UsuarioService {
             throw new IllegalArgumentException("Email já cadastrado: " + request.email());
         }
 
-        // Validação: CNPJ único (se informado)
-        if (request.cnpj() != null && !request.cnpj().isBlank()) {
-            if (usuarioRepository.findByCnpj(request.cnpj()).isPresent()) {
-                logger.warn("Tentativa de cadastro com CNPJ já existente");
-                throw new IllegalArgumentException("CNPJ já cadastrado.");
-            }
-        }
-
         Usuario usuario = new Usuario();
         usuario.setNome(request.nome());
         usuario.setEmail(request.email());
         usuario.setSenha(passwordEncoder.encode(request.senha()));
-        usuario.setCnpj(request.cnpj());
-        usuario.setRazaoSocial(request.razaoSocial());
-        usuario.setNomeFantasia(request.nomeFantasia());
 
         if (request.nivelMaturidadeFinanceira() != null) {
             usuario.setNivelMaturidadeUser(request.nivelMaturidadeFinanceira());
@@ -91,13 +54,6 @@ public class UsuarioService {
         return UsuarioResponse.fromEntity(salvo);
     }
 
-    // ── READ (todos) ──────────────────────────────────────────────────────────
-
-    /**
-     * Lista todos os usuários cadastrados.
-     *
-     * @return Lista de UsuarioResponse
-     */
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listarTodos() {
         logger.debug("Listando todos os usuários");
@@ -108,15 +64,6 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    // ── READ (por ID) ─────────────────────────────────────────────────────────
-
-    /**
-     * Busca um usuário pelo seu ID (UUID).
-     *
-     * @param id UUID do usuário
-     * @return UsuarioResponse com os dados encontrados
-     * @throws IllegalArgumentException se o usuário não for encontrado
-     */
     @Transactional(readOnly = true)
     public UsuarioResponse buscarPorId(UUID id) {
         logger.debug("Buscando usuário por ID: {}", id);
@@ -130,20 +77,6 @@ public class UsuarioService {
         return UsuarioResponse.fromEntity(usuario);
     }
 
-    // ── UPDATE ────────────────────────────────────────────────────────────────
-
-    /**
-     * Atualiza os dados de um usuário existente.
-     *
-     * Regras:
-     * - Não permite alterar o email para um já cadastrado em outro usuário
-     * - Senha só é atualizada se um novo valor for informado
-     *
-     * @param id      UUID do usuário a ser atualizado
-     * @param request DTO com os novos dados
-     * @return UsuarioResponse com os dados atualizados
-     * @throws IllegalArgumentException se o usuário não for encontrado ou email já estiver em uso
-     */
     @Transactional
     public UsuarioResponse atualizar(UUID id, UsuarioRequest request) {
         logger.info("Atualizando usuário ID: {}", id);
@@ -164,9 +97,6 @@ public class UsuarioService {
 
         usuario.setNome(request.nome());
         usuario.setEmail(request.email());
-        usuario.setCnpj(request.cnpj());
-        usuario.setRazaoSocial(request.razaoSocial());
-        usuario.setNomeFantasia(request.nomeFantasia());
 
         // Atualiza senha apenas se um novo valor foi informado
         if (request.senha() != null && !request.senha().isBlank()) {
@@ -184,14 +114,6 @@ public class UsuarioService {
         return UsuarioResponse.fromEntity(atualizado);
     }
 
-    // ── DELETE ────────────────────────────────────────────────────────────────
-
-    /**
-     * Remove um usuário do sistema pelo seu ID.
-     *
-     * @param id UUID do usuário a ser removido
-     * @throws IllegalArgumentException se o usuário não for encontrado
-     */
     @Transactional
     public void deletar(UUID id) {
         logger.info("Deletando usuário ID: {}", id);
@@ -205,9 +127,6 @@ public class UsuarioService {
         logger.info("Usuário deletado com sucesso. ID: {}", id);
     }
 
-    // ── Utilitários ───────────────────────────────────────────────────────────
-
-    /** Mascara email para logs (ex: j***@email.com) */
     private String maskEmail(String email) {
         if (email == null || !email.contains("@")) return "***@***";
         int at = email.indexOf("@");
