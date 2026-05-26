@@ -13,7 +13,7 @@ public class Mensagens {
     private String id; // O Spring converte automaticamente para o ObjectId do Mongo
 
     @Field("conversa_id")
-    private Conversa conversaId; // Chave-ponte que aponta para o seu Postgres
+    private UUID conversaId;
 
     private Integer ordem;
     private String remetente; // "usuario" ou "ia"
@@ -62,11 +62,11 @@ public class Mensagens {
         this.id = id;
     }
 
-    public Conversa getConversaId() {
+    public UUID getConversaId() {
         return conversaId;
     }
 
-    public void setConversaId(Conversa conversaId) {
+    public void setConversaId(UUID conversaId) {
         this.conversaId = conversaId;
     }
 

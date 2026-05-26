@@ -1,6 +1,7 @@
-import { Injectable, NgZone } from '@angular/core';
-import { Observable } from 'rxjs';
-import { SupabaseClientService } from './supabase.client';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { Observable, firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
 
 export interface UploadProgress {
@@ -20,7 +21,11 @@ export interface UploadPlanilhaResponse {
 }
 
 export class PlanilhaDuplicadaError extends Error {
-  constructor(public mensagem: string, public arquivoOriginal?: string, public dataUpload?: string) {
+  constructor(
+    public mensagem: string,
+    public arquivoOriginal?: string,
+    public dataUpload?: string,
+  ) {
     super(mensagem);
     this.name = 'PlanilhaDuplicadaError';
   }
@@ -33,164 +38,76 @@ export interface PlanilhaImportada {
   dataUpload: string;
 }
 
-async function sha256Hex(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
-
 /**
- * Fluxo:
- *  1. Envia o arquivo bruto para o bucket Storage 'planilhas' em <userId>/<timestamp>-<nome>
- *  2. Invoca a Edge Function 'parse-planilha' passando o path
- *  3. A Edge Function baixa o arquivo, parseia (CSV/XLSX) e insere em public.linha_demonstrativo
- *  4. RLS garante que só o dono da empresa enxerga as proprias linhas
+ * Cobre /api/planilhas/* do backend. O backend cuida do parsing
+ * XLSX/CSV, dedupe por chave natural e gera notifica\u00e7\u00e3o autom\u00e1tica
+ * quando faltam tipos de demonstrativo (DRE/BP/FluxoCaixa).
  */
 @Injectable({ providedIn: 'root' })
 export class PlanilhaService {
+  private readonly base = `${environment.apiUrl}/planilhas`;
+
   constructor(
-    private supabase: SupabaseClientService,
+    private http: HttpClient,
     private logger: LoggerService,
-    private zone: NgZone,
   ) {}
 
-  /**
-   * Lista planilhas importadas (agrupa linha_demonstrativo por arquivo_origem).
-   */
   async listar(): Promise<PlanilhaImportada[]> {
-    const { data, error } = await this.supabase.client
-      .from('linha_demonstrativo')
-      .select('arquivo_origem, hash_arquivo, data_upload')
-      .order('data_upload', { ascending: false });
-    if (error) {
-      this.logger.warn('Falha ao listar planilhas', error);
+    try {
+      const data = await firstValueFrom(this.http.get<PlanilhaImportada[]>(this.base));
+      return data ?? [];
+    } catch (err) {
+      this.logger.warn?.('Falha ao listar planilhas', err);
       return [];
     }
-    const map = new Map<string, PlanilhaImportada>();
-    for (const row of data ?? []) {
-      const key = row.arquivo_origem ?? '(sem nome)';
-      const ex = map.get(key);
-      if (ex) {
-        ex.linhas++;
-      } else {
-        map.set(key, {
-          arquivo: key,
-          hash: row.hash_arquivo,
-          linhas: 1,
-          dataUpload: row.data_upload,
-        });
-      }
-    }
-    return Array.from(map.values()).sort(
-      (a, b) => +new Date(b.dataUpload) - +new Date(a.dataUpload),
+  }
+
+  async deletar(arquivo: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete<void>(`${this.base}/${encodeURIComponent(arquivo)}`),
     );
   }
 
-  /**
-   * Deleta todas as linhas de uma planilha (por arquivo_origem) e o arquivo
-   * bruto no Storage. RLS garante que só o dono consegue apagar.
-   */
-  async deletar(arquivo: string): Promise<void> {
-    const { error: delLinhasErr } = await this.supabase.client
-      .from('linha_demonstrativo')
-      .delete()
-      .eq('arquivo_origem', arquivo);
-    if (delLinhasErr) {
-      throw new Error(`Falha ao apagar linhas: ${delLinhasErr.message}`);
-    }
-
-    // Apaga arquivo bruto do Storage (best-effort — caminho contém userId/timestamp-nome)
-    const { data: session } = await this.supabase.client.auth.getSession();
-    const userId = session.session?.user?.id;
-    if (userId) {
-      const { data: files } = await this.supabase.client.storage
-        .from('planilhas')
-        .list(userId, { limit: 1000 });
-      const match = (files ?? []).filter((f) => f.name.endsWith(arquivo));
-      if (match.length > 0) {
-        const paths = match.map((f) => `${userId}/${f.name}`);
-        await this.supabase.client.storage.from('planilhas').remove(paths);
-      }
-    }
-  }
-
-  upload(arquivo: File, idEmpresa?: number): Observable<UploadProgress> {
+  upload(arquivo: File): Observable<UploadProgress> {
     return new Observable<UploadProgress>((sub) => {
-      const emit = (ev: UploadProgress) => this.zone.run(() => sub.next(ev));
-      const fail = (e: unknown) => this.zone.run(() => sub.error(e));
-      const done = () => this.zone.run(() => sub.complete());
+      const formData = new FormData();
+      formData.append('arquivo', arquivo);
 
-      (async () => {
-        try {
-          // 1) Identifica usuario autenticado
-          const { data: session } = await this.supabase.client.auth.getSession();
-          const userId = session.session?.user?.id;
-          if (!userId) {
-            throw new Error('Voce precisa estar autenticado para enviar planilhas.');
-          }
-
-          emit({ status: 'uploading', percent: 5 });
-
-          // 2) Calcula hash SHA-256 do conteúdo para detecção de duplicata
-          const hashArquivo = await sha256Hex(arquivo);
-          emit({ status: 'uploading', percent: 20 });
-
-          // 3) Upload bruto para o Storage
-          const safeName = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-          const path = `${userId}/${Date.now()}-${safeName}`;
-
-          const { error: upErr } = await this.supabase.client.storage
-            .from('planilhas')
-            .upload(path, arquivo, {
-              cacheControl: '3600',
-              upsert: false,
-              contentType: arquivo.type || undefined,
-            });
-          if (upErr) {
-            throw new Error(`Falha no upload: ${upErr.message}`);
-          }
-
-          emit({ status: 'parsing', percent: 60 });
-
-          // 4) Chama a Edge Function de parsing (passa o hash para detecção de duplicata server-side)
-          const { data, error } = await this.supabase.client.functions.invoke<UploadPlanilhaResponse>(
-            'parse-planilha',
-            { body: { path, idEmpresa, hashArquivo } },
-          );
-
-          if (error) {
-            // Edge function retornou 4xx/5xx — tenta extrair payload JSON
-            const ctx = (error as { context?: Response }).context;
-            if (ctx && typeof ctx.json === 'function') {
-              try {
-                const payload = await ctx.json();
-                if (payload?.error === 'duplicada') {
-                  throw new PlanilhaDuplicadaError(
-                    payload.mensagem,
-                    payload.arquivoOriginal,
-                    payload.dataUpload,
-                  );
-                }
-                throw new Error(payload?.error ?? payload?.mensagem ?? error.message);
-              } catch (jsonErr) {
-                if (jsonErr instanceof PlanilhaDuplicadaError) throw jsonErr;
+      const subscription = this.http
+        .post<UploadPlanilhaResponse>(`${this.base}/upload`, formData, {
+          reportProgress: true,
+          observe: 'events',
+        })
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+              if (event.total) {
+                const percent = Math.min(95, Math.round((event.loaded / event.total) * 90));
+                sub.next({ status: 'uploading', percent });
               }
+            } else if (event.type === HttpEventType.Response) {
+              const response = event.body!;
+              sub.next({ status: 'parsing', percent: 95 });
+              sub.next({ status: 'done', percent: 100, response });
+              sub.complete();
             }
-            throw new Error(error.message ?? 'Falha ao processar planilha.');
-          }
-          if (!data) {
-            throw new Error('Resposta vazia do servidor.');
-          }
+          },
+          error: (err) => {
+            const payload = err?.error;
+            if (err?.status === 409 && payload?.error === 'duplicada') {
+              sub.error(
+                new PlanilhaDuplicadaError(
+                  payload.message ?? 'Planilha j\u00e1 importada anteriormente.',
+                  payload.arquivoOriginal,
+                ),
+              );
+              return;
+            }
+            sub.error(new Error(payload?.message ?? err?.message ?? 'Falha no upload.'));
+          },
+        });
 
-          this.logger.log('Upload concluido', data);
-          emit({ status: 'done', percent: 100, response: data });
-          done();
-        } catch (e) {
-          fail(e);
-        }
-      })();
+      return () => subscription.unsubscribe();
     });
   }
 }

@@ -1,10 +1,24 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, throwError } from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Usuario } from '../models/usuario.model';
+import {
+  BehaviorSubject,
+  Observable,
+  catchError,
+  map,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
+
+import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
-import { SupabaseClientService } from './supabase.client';
+import { LoginResponse, Usuario } from '../models/usuario.model';
+
+const ACCESS_TOKEN_KEY = 'oriento.accessToken';
+const REFRESH_TOKEN_KEY = 'oriento.refreshToken';
+const USER_KEY = 'oriento.user';
 
 export interface SignUpInput {
   nome: string;
@@ -15,6 +29,25 @@ export interface SignUpInput {
   senha: string;
 }
 
+interface BackendUsuarioResponse {
+  id: string;
+  nome: string;
+  email: string;
+  empresa: {
+    id: number;
+    cnpj: string;
+    nomeFantasia: string | null;
+    razaoSocial: string | null;
+  } | null;
+}
+
+interface BackendLoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  usuario: BackendUsuarioResponse;
+}
+
 export class EmailAlreadyRegisteredError extends Error {
   constructor() {
     super('E-mail já cadastrado.');
@@ -22,38 +55,33 @@ export class EmailAlreadyRegisteredError extends Error {
   }
 }
 
+/**
+ * Servi\u00e7o de autentica\u00e7\u00e3o que conversa exclusivamente com o backend
+ * Spring (/api/auth). Tokens e snapshot do usu\u00e1rio s\u00e3o persistidos no
+ * localStorage. O componente raiz e o {@code AuthGuard} consomem
+ * {@code user$} e {@code isAuthenticated()} para tomar decis\u00f5es de UI.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private userSubject = new BehaviorSubject<Usuario | null>(null);
-  private accessToken: string | null = null;
-  private authReadySubject = new BehaviorSubject<boolean>(false);
+  private readonly authBase = environment.authUrl;
 
+  private accessToken: string | null = null;
+  private refreshToken: string | null = null;
+
+  private userSubject = new BehaviorSubject<Usuario | null>(null);
   user$: Observable<Usuario | null> = this.userSubject.asObservable();
-  /**
-   * Emite `true` quando a hidratação inicial da sessão termina (com sucesso ou
-   * falha). Guards e telas que decidem rotas no boot devem aguardar isto antes
-   * de chamar `isAuthenticated()`, pois a hidratação é assíncrona.
-   */
+
+  private authReadySubject = new BehaviorSubject<boolean>(false);
   authReady$: Observable<boolean> = this.authReadySubject.asObservable();
 
   constructor(
-    private supabase: SupabaseClientService,
+    private http: HttpClient,
     private router: Router,
-    private logger: LoggerService
+    private logger: LoggerService,
   ) {
-    this.bootstrapSession().catch((err) => {
-      this.logger.error('Erro inesperado em bootstrapSession', err);
-      this.accessToken = null;
-      this.userSubject.next(null);
-      this.authReadySubject.next(true);
-    });
-    this.listenAuthChanges();
+    this.bootstrap();
   }
 
-  /**
-   * Promise que resolve quando a hidratação inicial completa.
-   * Útil para `AuthGuard` que precisa rodar de forma síncrona-aparente.
-   */
   whenReady(): Promise<void> {
     if (this.authReadySubject.value) return Promise.resolve();
     return new Promise<void>((resolve) => {
@@ -67,196 +95,196 @@ export class AuthService {
   }
 
   /**
-   * Restaura a sessão persistida pelo supabase-js (localStorage) ao iniciar.
-   * Se o perfil não puder ser carregado, derruba a sessão para evitar
-   * estado inconsistente (token em memória sem usuário).
+   * L\u00ea o estado persistido em localStorage e tenta hidratar o usu\u00e1rio.
+   * Se o token estiver presente mas o GET /me falhar, derruba a sess\u00e3o
+   * para evitar inconsist\u00eancia.
    */
-  private async bootstrapSession(): Promise<void> {
-    try {
-      const { data, error } = await this.supabase.client.auth.getSession();
-      if (error) {
-        this.logger.warn('Falha ao recuperar sessão Supabase', error);
-        return;
-      }
-      if (!data.session) return;
-
-      this.accessToken = data.session.access_token;
-      try {
-        await this.hydrateUsuario(data.session.user.id);
-      } catch (err) {
-        this.logger.warn('Falha ao hidratar usuário ao iniciar; encerrando sessão', err);
-        await this.supabase.client.auth.signOut();
-        this.accessToken = null;
-        this.userSubject.next(null);
-      }
-    } finally {
+  private bootstrap(): void {
+    if (typeof localStorage === 'undefined') {
       this.authReadySubject.next(true);
+      return;
     }
-  }
-
-  /**
-   * Escuta eventos do supabase-js e mantém o token e o usuário em memória.
-   */
-  private listenAuthChanges(): void {
-    this.supabase.client.auth.onAuthStateChange((_event, session) => {
-      this.accessToken = session?.access_token ?? null;
-      if (!session) {
-        this.userSubject.next(null);
-        return;
+    this.accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+    this.refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    const cachedUser = localStorage.getItem(USER_KEY);
+    if (cachedUser) {
+      try {
+        this.userSubject.next(JSON.parse(cachedUser));
+      } catch {
+        localStorage.removeItem(USER_KEY);
       }
-      // Dedupe: se o usuário em memória já corresponde ao da sessão, não
-      // refazemos a query. O login()/bootstrapSession() já hidrataram.
-      if (this.userSubject.value?.id === session.user.id) {
-        return;
-      }
-      this.hydrateUsuario(session.user.id).catch(async (err) => {
-        this.logger.warn('Falha ao hidratar usuário após auth change; encerrando sessão', err);
-        await this.supabase.client.auth.signOut();
-        this.accessToken = null;
-        this.userSubject.next(null);
-      });
-    });
-  }
-
-  /**
-   * Carrega o perfil em public.usuario (e empresa.cnpj) e emite no userSubject.
-   * Lança em caso de erro ou perfil ausente — o chamador decide como reagir.
-   */
-  private async hydrateUsuario(authUserId: string): Promise<void> {
-    const { data, error } = await this.supabase.client
-      .from('usuario')
-      .select('id_usuario,nome,email,empresa(cnpj,nome_fantasia,razao_social)')
-      .eq('id_usuario', authUserId)
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
-    if (!data) {
-      throw new Error('Perfil de usuário não encontrado.');
     }
 
-    const empresa = Array.isArray((data as any).empresa)
-      ? (data as any).empresa[0]
-      : (data as any).empresa;
+    if (!this.accessToken) {
+      this.authReadySubject.next(true);
+      return;
+    }
 
-    this.userSubject.next({
-      id: data.id_usuario,
-      nome: data.nome,
-      email: data.email,
-      cnpj: empresa?.cnpj ?? '',
-      nomeFantasia: empresa?.nome_fantasia ?? undefined,
-      razaoSocial: empresa?.razao_social ?? undefined,
-    });
-  }
-
-  /**
-   * Registra um novo usuário no Supabase Auth.
-   * As linhas em public.usuario e public.empresa são criadas pela trigger
-   * handle_new_user a partir do raw_user_meta_data.
-   *
-   * Detecta o caso silencioso do Supabase quando "Confirm email" está ligado:
-   * para um e-mail já existente a API responde sem `error` e com `identities: []`.
-   */
-  register(input: SignUpInput): Observable<void> {
-    return from(
-      this.supabase.client.auth.signUp({
-        email: input.email,
-        password: input.senha,
-        options: {
-          data: {
-            nome: input.nome,
-            nome_fantasia: input.nomeFantasia,
-            cnpj: input.cnpj.replace(/\D/g, ''),
-            razao_social: input.razaoSocial ?? null,
-          },
+    this.http
+      .get<BackendUsuarioResponse>(`${this.authBase}/me`)
+      .subscribe({
+        next: (resp) => {
+          this.persistUser(resp);
+          this.authReadySubject.next(true);
         },
+        error: (err) => {
+          this.logger.warn?.('Falha ao hidratar /me; derrubando sess\u00e3o', err);
+          this.clearTokens();
+          this.userSubject.next(null);
+          this.authReadySubject.next(true);
+        },
+      });
+  }
+
+  register(input: SignUpInput): Observable<void> {
+    const payload = {
+      nome: input.nome,
+      email: input.email,
+      senha: input.senha,
+      cnpj: input.cnpj.replace(/\D/g, ''),
+      nomeFantasia: input.nomeFantasia,
+      razaoSocial: input.razaoSocial?.trim() ? input.razaoSocial.trim() : null,
+    };
+    return this.http
+      .post<{ message: string }>(`${this.authBase}/cadastro`, payload, {
+        observe: 'response',
       })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        if (!data.user) throw new Error('Falha ao criar usuário.');
-        if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-          throw new EmailAlreadyRegisteredError();
-        }
-      }),
-      tap(() => this.logger.log('Cadastro criado no Supabase')),
-      catchError((err) => {
-        this.logger.error('Erro no cadastro Supabase', err);
-        return throwError(() => err);
-      })
+      .pipe(
+        map(() => void 0),
+        catchError((err) => {
+          if (err?.status === 409) {
+            return throwError(() => new EmailAlreadyRegisteredError());
+          }
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  login(emailOrCnpj: string, senha: string): Observable<Usuario> {
+    const body = emailOrCnpj.includes('@')
+      ? { email: emailOrCnpj, senha }
+      : { cnpj: emailOrCnpj.replace(/\D/g, ''), senha };
+    return this.http.post<BackendLoginResponse>(`${this.authBase}/login`, body).pipe(
+      tap((resp) => this.persistSession(resp)),
+      map((resp) => this.toUsuario(resp.usuario)),
     );
   }
 
-  /**
-   * Realiza o login e atualiza o usuário em memória.
-   * Falha explicitamente se o perfil não puder ser carregado.
-   */
-  login(email: string, senha: string): Observable<Usuario> {
-    return from(
-      this.supabase.client.auth.signInWithPassword({ email, password: senha })
-    ).pipe(
-      switchMap(({ data, error }) => {
-        if (error) return throwError(() => error);
-        if (!data.user || !data.session) {
-          return throwError(() => new Error('Sessão inválida.'));
-        }
-        // Aplica o token imediatamente para evitar janela de corrida em que
-        // requisições subsequentes sairiam sem Authorization até o callback
-        // de onAuthStateChange rodar.
-        this.accessToken = data.session.access_token;
-        return from(this.hydrateUsuario(data.user.id)).pipe(
-          switchMap(() => {
-            const usuario = this.userSubject.value;
-            if (!usuario) {
-              return throwError(() => new Error('Perfil indisponível após login.'));
-            }
-            return [usuario];
-          })
-        );
-      }),
-      tap(() => this.logger.log('Login bem-sucedido')),
-      catchError((err) => {
-        this.logger.error('Erro ao fazer login', err);
-        return throwError(() => err);
-      })
-    );
-  }
-
-  /**
-   * Encerra a sessão e redireciona para a tela de login.
-   */
   logout(): Observable<void> {
-    return from(this.supabase.client.auth.signOut()).pipe(
+    const refresh = this.refreshToken;
+    const end$ = refresh
+      ? this.http.post<void>(`${this.authBase}/logout`, { refreshToken: refresh }).pipe(
+          catchError(() => of(void 0)),
+        )
+      : of(void 0);
+
+    return end$.pipe(
       tap(() => {
+        this.clearTokens();
         this.userSubject.next(null);
         this.router.navigate(['/login']);
       }),
-      map(() => void 0)
+      map(() => void 0),
     );
   }
 
   /**
-   * Retorna o token de acesso atual.
+   * Tenta renovar o access token usando o refresh em mem\u00f3ria. \u00c9 chamado
+   * pelo {@code AuthInterceptor} quando uma resposta retorna 401.
    */
+  refreshAccessToken(): Observable<string> {
+    if (!this.refreshToken) {
+      return throwError(() => new Error('No refresh token'));
+    }
+    return this.http
+      .post<BackendLoginResponse>(`${this.authBase}/refresh`, {
+        refreshToken: this.refreshToken,
+      })
+      .pipe(
+        tap((resp) => this.persistSession(resp)),
+        map((resp) => resp.accessToken),
+      );
+  }
+
+  trocarSenha(novaSenha: string): Observable<void> {
+    return this.http
+      .patch<void>(`${this.authBase}/senha`, { novaSenha })
+      .pipe(map(() => void 0));
+  }
+
+  /**
+   * Carrega o perfil atual a partir do backend (n\u00e3o usa cache).
+   * \u00datil para refletir mudan\u00e7as de empresa/perfil ap\u00f3s edi\u00e7\u00e3o.
+   */
+  refreshCurrentUser(): Observable<Usuario | null> {
+    if (!this.accessToken) {
+      return of(null);
+    }
+    return this.http.get<BackendUsuarioResponse>(`${this.authBase}/me`).pipe(
+      tap((resp) => this.persistUser(resp)),
+      map(() => this.userSubject.value),
+    );
+  }
+
   getAccessToken(): string | null {
     return this.accessToken;
   }
 
-  /**
-   * Verifica se o usuário está autenticado.
-   * Baseia-se no token (sincronizado em bootstrapSession/login antes da
-   * hidratação do perfil) para que o AuthGuard não derrube o usuário só
-   * porque a busca do perfil ainda não terminou.
-   */
+  getRefreshToken(): string | null {
+    return this.refreshToken;
+  }
+
   isAuthenticated(): boolean {
     return !!this.accessToken;
   }
 
-  /**
-   * Retorna o usuário atual.
-   */
   getCurrentUser(): Usuario | null {
     return this.userSubject.value;
   }
+
+  // ============================================================
+  // Internos
+  // ============================================================
+
+  private persistSession(resp: BackendLoginResponse): void {
+    this.accessToken = resp.accessToken;
+    this.refreshToken = resp.refreshToken;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(ACCESS_TOKEN_KEY, resp.accessToken);
+      localStorage.setItem(REFRESH_TOKEN_KEY, resp.refreshToken);
+    }
+    this.persistUser(resp.usuario);
+  }
+
+  private persistUser(resp: BackendUsuarioResponse): void {
+    const usuario = this.toUsuario(resp);
+    this.userSubject.next(usuario);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(USER_KEY, JSON.stringify(usuario));
+    }
+  }
+
+  private toUsuario(resp: BackendUsuarioResponse): Usuario {
+    return {
+      id: resp.id,
+      nome: resp.nome,
+      email: resp.email,
+      cnpj: resp.empresa?.cnpj ?? '',
+      nomeFantasia: resp.empresa?.nomeFantasia ?? undefined,
+      razaoSocial: resp.empresa?.razaoSocial ?? undefined,
+    };
+  }
+
+  private clearTokens(): void {
+    this.accessToken = null;
+    this.refreshToken = null;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
+  }
 }
+
+// Mant\u00e9m o LoginResponse tipo p\u00fablico para componentes que importam.
+export type { LoginResponse };

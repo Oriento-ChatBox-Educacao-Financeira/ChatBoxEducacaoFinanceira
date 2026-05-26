@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { SupabaseClientService } from './supabase.client';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
 
 export interface DreItem {
@@ -76,44 +76,39 @@ export interface DashboardVisaoGeral {
 }
 
 /**
- * Consume as RPCs do Postgres (Supabase) que agregam os dados da tabela
- * linha_demonstrativo por empresa do usuario autenticado.
+ * Cobre /api/dashboards/* do backend Spring. Tolerante a falhas — qualquer
+ * erro \u00e9 logado e devolve hasData=false para a UI mostrar estado vazio
+ * em vez de quebrar.
  */
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
+  private readonly base = `${environment.apiUrl}/dashboards`;
+
   constructor(
-    private supabase: SupabaseClientService,
+    private http: HttpClient,
     private logger: LoggerService,
   ) {}
 
-  dre(idEmpresa?: number): Observable<DashboardDre> {
-    return this.callRpc<DashboardDre>('dashboard_dre', idEmpresa);
+  dre(): Observable<DashboardDre> {
+    return this.get<DashboardDre>('dre');
   }
 
-  balanco(idEmpresa?: number): Observable<DashboardBalanco> {
-    return this.callRpc<DashboardBalanco>('dashboard_balanco', idEmpresa);
+  balanco(): Observable<DashboardBalanco> {
+    return this.get<DashboardBalanco>('balanco');
   }
 
-  fluxoCaixa(idEmpresa?: number): Observable<DashboardFluxo> {
-    return this.callRpc<DashboardFluxo>('dashboard_fluxo_caixa', idEmpresa);
+  fluxoCaixa(): Observable<DashboardFluxo> {
+    return this.get<DashboardFluxo>('fluxo-caixa');
   }
 
-  visaoGeral(idEmpresa?: number): Observable<DashboardVisaoGeral> {
-    return this.callRpc<DashboardVisaoGeral>('dashboard_visao_geral', idEmpresa);
+  visaoGeral(): Observable<DashboardVisaoGeral> {
+    return this.get<DashboardVisaoGeral>('visao-geral');
   }
 
-  private callRpc<T>(fn: string, idEmpresa?: number): Observable<T> {
-    const params = idEmpresa != null ? { p_id_empresa: idEmpresa } : {};
-    return from(this.supabase.client.rpc(fn, params)).pipe(
-      map(({ data, error }) => {
-        if (error) {
-          this.logger.error(`RPC ${fn} falhou`, error);
-          throw error;
-        }
-        return (data ?? { hasData: false }) as T;
-      }),
+  private get<T extends { hasData: boolean }>(path: string): Observable<T> {
+    return this.http.get<T>(`${this.base}/${path}`).pipe(
       catchError((err) => {
-        this.logger.warn?.(`Fallback ${fn} sem dados: ${err?.message ?? err}`);
+        this.logger.warn?.(`Dashboard ${path} falhou`, err);
         return of({ hasData: false } as T);
       }),
     );

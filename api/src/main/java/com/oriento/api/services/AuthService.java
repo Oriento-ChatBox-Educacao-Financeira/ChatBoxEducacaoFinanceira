@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,8 +146,8 @@ public class AuthService {
         // ETAPA 4: Login bem-sucedido
         // Limpa qualquer histórico de tentativas falhas anteriores
         limparTentativasFalhas(identifier);
-        //Adiciona na tabela Ultimo acesso a data e hora do login - Novo passo adicionado AQUI
-        usuario.get().setUltimoacesso(LocalDateTime.now());
+        usuario.get().setUltimoAcesso(OffsetDateTime.now());
+        usuarioRepository.save(usuario.get());
         // Registra auditoria de sucesso
         auditarLoginSucesso(usuario.get(), clientIp);
 

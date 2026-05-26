@@ -3,22 +3,29 @@ package com.oriento.api.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.oriento.api.dto.AlterarSenhaDTO;
 import com.oriento.api.dto.LoginRequest;
 import com.oriento.api.dto.LoginResponse;
 import com.oriento.api.dto.RefreshTokenDTO;
 import com.oriento.api.dto.UsuarioResponse;
 import com.oriento.api.model.RefreshToken;
 import com.oriento.api.model.Usuario;
+import com.oriento.api.repositories.UsuarioRepository;
 import com.oriento.api.services.AuthService;
+import com.oriento.api.services.CurrentUserService;
 import com.oriento.api.services.JwtService;
 import com.oriento.api.services.RefreshTokenService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,14 +35,23 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final CurrentUserService currentUserService;
+    private final UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public AuthController(AuthService authService,
                           JwtService jwtService,
-                          RefreshTokenService refreshTokenService) {
+                          RefreshTokenService refreshTokenService,
+                          CurrentUserService currentUserService,
+                          UsuarioRepository usuarioRepository,
+                          BCryptPasswordEncoder passwordEncoder) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
-        
+        this.currentUserService = currentUserService;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+
         logger.info("AuthController inicializado com sucesso");
     }
 
@@ -108,4 +124,27 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Retorna o usuário autenticado (e a empresa associada). Usado pelo
+     * frontend para hidratar a sessão no boot ou após refresh do token.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponse> me() {
+        Usuario usuario = currentUserService.obterUsuarioAutenticado();
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuario));
+    }
+
+    /**
+     * Altera a senha do usuário autenticado. Não exige a senha atual (cenário
+     * de "usuário logado já tem prova de identidade"); para o fluxo de senha
+     * esquecida ainda não há endpoint dedicado.
+     */
+    @PatchMapping("/senha")
+    public ResponseEntity<Void> trocarSenha(@Valid @RequestBody AlterarSenhaDTO dto) {
+        Usuario usuario = currentUserService.obterUsuarioAutenticado();
+        usuario.setSenha(passwordEncoder.encode(dto.novaSenha()));
+        usuarioRepository.save(usuario);
+        logger.info("Senha atualizada para usuario ID: {}", usuario.getIdUsuario());
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -24,9 +24,8 @@ export class GeminiService {
    */
   async sendMessage(prompt: string, conversationId?: string): Promise<GeminiResponse> {
     try {
-      const options: { headers: Record<string, string>; withCredentials: boolean; params?: HttpParams } = {
+      const options: { headers: Record<string, string>; params?: HttpParams } = {
         headers: { 'Content-Type': 'text/plain' },
-        withCredentials: true,
       };
 
       if (conversationId) {

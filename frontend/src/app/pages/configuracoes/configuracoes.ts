@@ -1,8 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
-import { SupabaseClientService } from '../../services/supabase.client';
+import { AuthService } from '../../services/auth.service';
 import { PlanilhaService, PlanilhaImportada } from '../../services/planilha.service';
 import { LoggerService } from '../../services/logger.service';
 
@@ -14,19 +15,17 @@ import { LoggerService } from '../../services/logger.service';
   styleUrl: './configuracoes.css',
 })
 export class ConfiguracoesPage implements OnInit {
-  // Senha
   novaSenha = '';
   confirmaSenha = '';
   senhaMsg = signal<{ tipo: 'sucesso' | 'erro'; texto: string } | null>(null);
   trocandoSenha = signal(false);
 
-  // Planilhas
   planilhas = signal<PlanilhaImportada[]>([]);
   carregandoPlanilhas = signal(true);
   deletandoArquivo = signal<string | null>(null);
 
   constructor(
-    private supabase: SupabaseClientService,
+    private auth: AuthService,
     private planilhaService: PlanilhaService,
     private logger: LoggerService,
   ) {}
@@ -44,24 +43,26 @@ export class ConfiguracoesPage implements OnInit {
   async trocarSenha(): Promise<void> {
     this.senhaMsg.set(null);
     if (this.novaSenha.length < 6) {
-      this.senhaMsg.set({ tipo: 'erro', texto: 'A senha precisa ter no mínimo 6 caracteres.' });
+      this.senhaMsg.set({ tipo: 'erro', texto: 'A senha precisa ter no m\u00ednimo 6 caracteres.' });
       return;
     }
     if (this.novaSenha !== this.confirmaSenha) {
-      this.senhaMsg.set({ tipo: 'erro', texto: 'As senhas não coincidem.' });
+      this.senhaMsg.set({ tipo: 'erro', texto: 'As senhas n\u00e3o coincidem.' });
       return;
     }
     this.trocandoSenha.set(true);
-    const { error } = await this.supabase.client.auth.updateUser({ password: this.novaSenha });
-    this.trocandoSenha.set(false);
-    if (error) {
-      this.logger.error('Falha ao trocar senha', error);
-      this.senhaMsg.set({ tipo: 'erro', texto: error.message });
-      return;
+    try {
+      await firstValueFrom(this.auth.trocarSenha(this.novaSenha));
+      this.novaSenha = '';
+      this.confirmaSenha = '';
+      this.senhaMsg.set({ tipo: 'sucesso', texto: 'Senha atualizada com sucesso.' });
+    } catch (err) {
+      this.logger.error('Falha ao trocar senha', err);
+      const msg = err instanceof Error ? err.message : 'Falha ao atualizar a senha.';
+      this.senhaMsg.set({ tipo: 'erro', texto: msg });
+    } finally {
+      this.trocandoSenha.set(false);
     }
-    this.novaSenha = '';
-    this.confirmaSenha = '';
-    this.senhaMsg.set({ tipo: 'sucesso', texto: 'Senha atualizada com sucesso.' });
   }
 
   async deletar(p: PlanilhaImportada): Promise<void> {
