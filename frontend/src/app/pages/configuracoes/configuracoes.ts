@@ -3,6 +3,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
+import { ChatInfoButton } from '../../_components/chat-info-button/chat-info-button';
 import { AuthService } from '../../services/auth.service';
 import { PlanilhaService, PlanilhaImportada } from '../../services/planilha.service';
 import { LoggerService } from '../../services/logger.service';
@@ -10,7 +11,7 @@ import { LoggerService } from '../../services/logger.service';
 @Component({
   selector: 'app-configuracoes',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainNavbar, DatePipe],
+  imports: [CommonModule, FormsModule, MainNavbar, DatePipe, ChatInfoButton],
   templateUrl: './configuracoes.html',
   styleUrl: './configuracoes.css',
 })
@@ -63,6 +64,14 @@ export class ConfiguracoesPage implements OnInit {
     } finally {
       this.trocandoSenha.set(false);
     }
+  }
+
+  perguntasPlanilha(nome: string): string[] {
+    return [
+      `Explique a planilha "${nome}"`,
+      `Identifique problemas em "${nome}"`,
+      `Como "${nome}" impacta meu resultado?`,
+    ];
   }
 
   async deletar(p: PlanilhaImportada): Promise<void> {

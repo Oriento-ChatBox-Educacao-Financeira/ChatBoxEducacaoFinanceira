@@ -5,6 +5,7 @@ import com.oriento.api.repositories.NotificacaoRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,7 +28,13 @@ public class NotificacaoService {
         return repository.findByIdUsuarioOrderByDataCriacaoDesc(idUsuario, PageRequest.of(0, safeLimit));
     }
 
-    @Transactional
+    /**
+     * Criada em uma transa\u00e7\u00e3o pr\u00f3pria ({@link Propagation#REQUIRES_NEW}):
+     * se falhar (ex.: viola\u00e7\u00e3o de FK, problema tempor\u00e1rio do DB), s\u00f3
+     * marca essa transa\u00e7\u00e3o como rollback-only \u2014 a transa\u00e7\u00e3o
+     * principal do chamador (ex.: import de planilha) segue comitando.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Notificacao criar(UUID idUsuario, String tipo, String titulo, String mensagem,
                              String link, String icone) {
         Notificacao n = new Notificacao();

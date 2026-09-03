@@ -3,18 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
 import { ChatWidget } from '../../_components/chat-widget/chat-widget';
+import { ChatInfoButton } from '../../_components/chat-info-button/chat-info-button';
+import { Skeleton } from '../../_components/skeleton/skeleton';
 import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard-fluxo-caixa',
   standalone: true,
-  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget],
+  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget, ChatInfoButton, Skeleton],
   templateUrl: './dashboard-fluxo-de-caixa.html',
   styleUrl: './dashboard-fluxo-de-caixa.css',
 })
 export class DashboardFluxoCaixa implements OnInit {
   carregando = true;
   semDados = true;
+
+  perguntasFluxo: string[] = [
+    'Analise meu fluxo de caixa atual',
+    'Quando devo me preocupar com saldo negativo?',
+    'Sugira melhorias na gestão de caixa',
+  ];
 
   kpis: {
     label: string;

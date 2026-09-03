@@ -11,7 +11,11 @@ const ROTAS_IMPLEMENTADAS = new Set([
   'balanco-patrimonial',
   'visao-geral',
   'chat',
+  'relatorios',
+  'suporte',
 ]);
+
+const ROTAS_TOP_LEVEL = new Set(['chat', 'relatorios', 'suporte']);
 
 @Component({
   selector: 'app-navbar',
@@ -58,9 +62,9 @@ export class Navbar implements OnInit {
   navigate(route: string): void {
     this.activeRoute = route;
 
-    if (route === 'chat') {
+    if (ROTAS_TOP_LEVEL.has(route)) {
       this.isDashboardOpen = false;
-      this.router.navigate(['/chat']);
+      this.router.navigate(['/' + route]);
       return;
     }
 
@@ -84,6 +88,18 @@ export class Navbar implements OnInit {
   private atualizarRotaAtiva(url: string): void {
     if (url.startsWith('/chat')) {
       this.activeRoute = 'chat';
+      this.isDashboardOpen = false;
+      return;
+    }
+
+    if (url.startsWith('/relatorios')) {
+      this.activeRoute = 'relatorios';
+      this.isDashboardOpen = false;
+      return;
+    }
+
+    if (url.startsWith('/suporte')) {
+      this.activeRoute = 'suporte';
       this.isDashboardOpen = false;
       return;
     }

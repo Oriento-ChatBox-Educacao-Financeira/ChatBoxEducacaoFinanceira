@@ -121,7 +121,11 @@
 
   <!-- Rodapé -->
   <ul class="sidebar-footer">
-    <li class="menu-item" (click)="navigate('suporte')">
+    <li
+      class="menu-item"
+      [class.menu-item--active]="activeRoute === 'suporte'"
+      (click)="navigate('suporte')"
+    >
       <div class="menu-item__row" [title]="collapsed() ? 'Suporte' : ''">
         <div class="menu-item__left">
           <img src="/sidebar/icon-suporte.svg" alt="" class="menu-item__icon" />

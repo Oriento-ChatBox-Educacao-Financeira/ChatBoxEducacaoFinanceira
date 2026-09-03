@@ -181,6 +181,12 @@
   min-width: 0;
   flex: 1;
 }
+.planilha-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .planilha-item__icon {
   font-size: 24px;
   color: #103688;

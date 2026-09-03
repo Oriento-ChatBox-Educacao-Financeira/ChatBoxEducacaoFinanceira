@@ -3,18 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
 import { ChatWidget } from '../../_components/chat-widget/chat-widget';
+import { ChatInfoButton } from '../../_components/chat-info-button/chat-info-button';
+import { Skeleton } from '../../_components/skeleton/skeleton';
 import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard-balanco-patrimonial',
   standalone: true,
-  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget],
+  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget, ChatInfoButton, Skeleton],
   templateUrl: './dashboard-balanco.html',
   styleUrl: './dashboard-balanco.css',
 })
 export class DashboardBalancoPatrimonial implements OnInit {
   carregando = true;
   semDados = true;
+
+  perguntasBalanco: string[] = [
+    'Explique meu balanço patrimonial',
+    'Como está minha liquidez corrente?',
+    'Como reduzir meu nível de endividamento?',
+  ];
 
   periodoAtivo = '';
   periodos: string[] = [];

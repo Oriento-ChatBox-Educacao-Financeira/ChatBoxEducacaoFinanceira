@@ -3,18 +3,26 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
 import { ChatWidget } from '../../_components/chat-widget/chat-widget';
+import { ChatInfoButton } from '../../_components/chat-info-button/chat-info-button';
+import { Skeleton } from '../../_components/skeleton/skeleton';
 import { DashboardService } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard-visao-geral',
   standalone: true,
-  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget],
+  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget, ChatInfoButton, Skeleton],
   templateUrl: './dashboard-visao-geral.html',
   styleUrl: './dashboard-visao-geral.css',
 })
 export class DashboardVisaoGeral implements OnInit {
   carregando = true;
   semDados = true;
+
+  perguntasVisao: string[] = [
+    'Resumo da minha saúde financeira',
+    'Quais são meus principais pontos fracos?',
+    'Sugira próximos passos para crescer',
+  ];
 
   periodoAtual = '';
   kpis: { label: string; value: string; sub?: string; badge?: string; icon: string }[] = [];

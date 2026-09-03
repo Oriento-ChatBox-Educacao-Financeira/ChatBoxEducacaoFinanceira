@@ -20,7 +20,8 @@ import java.time.OffsetDateTime;
  * <ul>
  *   <li>{@code id_linha} {@code bigserial} PK.</li>
  *   <li>{@code id_empresa} {@code int4} NOT NULL (FK l\u00f3gica para empresa).</li>
- *   <li>{@code tipo} {@code text} NOT NULL — DRE, BP, FluxoCaixa, CapitalGiro.</li>
+ *   <li>{@code tipo} {@code text} NOT NULL — check constraint do banco
+ *       restringe a {@code DRE}, {@code BP}, {@code FLUXO_CAIXA}, {@code OUTRO}.</li>
  *   <li>{@code codigo_conta} {@code text} nullable (ex.: 3.01.01).</li>
  *   <li>{@code descricao} {@code text} NOT NULL.</li>
  *   <li>{@code periodo} {@code date} NOT NULL (sempre 1o do m\u00eas).</li>

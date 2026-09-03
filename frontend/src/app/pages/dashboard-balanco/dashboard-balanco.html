@@ -1,6 +1,32 @@
 <app-main-navbar>
   <div class="balanco-page">
     <div class="balanco-content">
+      <!-- LOADING SKELETON -->
+      <ng-container *ngIf="carregando">
+        <div class="balanco-header">
+          <div class="balanco-header__left" style="width: 100%; max-width: 380px;">
+            <app-skeleton variant="text" width="55%" height="28px"></app-skeleton>
+            <app-skeleton variant="text" width="90%" height="14px"></app-skeleton>
+          </div>
+          <app-skeleton variant="rect" width="180px" height="40px"></app-skeleton>
+        </div>
+
+        <div class="balanco-kpis">
+          <app-skeleton variant="kpi" count="4"></app-skeleton>
+        </div>
+
+        <div class="balanco-grid">
+          <div class="balanco-sidebar">
+            <app-skeleton variant="card" height="200px"></app-skeleton>
+            <app-skeleton variant="card" height="240px"></app-skeleton>
+          </div>
+          <div class="balanco-main">
+            <app-skeleton variant="chart"></app-skeleton>
+            <app-skeleton variant="chart"></app-skeleton>
+          </div>
+        </div>
+      </ng-container>
+
       <div *ngIf="semDados && !carregando" class="dre-empty-banner">
         Você ainda não importou nenhuma planilha financeira.
         <a routerLink="/upload-planilha">Fazer upload agora</a>.
@@ -8,7 +34,14 @@
       <!-- HEADER -->
       <div class="balanco-header" *ngIf="!semDados">
         <div class="balanco-header__left">
-          <span class="balanco-header__title"> Balanço Patrimonial </span>
+          <span class="balanco-header__title">
+            Balanço Patrimonial
+            <app-chat-info-button
+              titulo="Pergunte sobre seu balanço"
+              contextoLabel="Balanço Patrimonial"
+              [perguntas]="perguntasBalanco"
+            ></app-chat-info-button>
+          </span>
 
           <span class="balanco-header__subtitle">
             Análise estrutural da posição financeira corporativa. Valores consolidados atualizados

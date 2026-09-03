@@ -10,50 +10,9 @@
   backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--sp-5);
   z-index: 99;
-}
-
-/* ── BUSCA ── */
-.topbar__search-wrap {
-  flex: 1;
-  max-width: 480px;
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.topbar__search-icon {
-  position: absolute;
-  left: 12px;
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.topbar__search {
-  width: 100%;
-  padding: 8px 14px 8px 38px;
-  background: #f1f5f9;
-  border: none;
-  border-radius: var(--r-md);
-  font-size: var(--fs-sm);
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  color: var(--text-dark);
-  transition: box-shadow 0.2s;
-}
-
-.topbar__search::placeholder {
-  color: #6b7280;
-}
-
-.topbar__search:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--blue-mid);
 }
 
 /* ── DIREITA ── */
@@ -314,15 +273,6 @@
   margin: 4px 0;
 }
 
-.topbar__avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 9999px;
-  object-fit: cover;
-  background: #e2e8f0;
-  flex-shrink: 0;
-}
-
 .topbar__username {
   color: var(--blue-mid);
   font-size: var(--fs-sm);
@@ -345,9 +295,6 @@
     padding: 0 var(--sp-3);
     gap: var(--sp-3);
   }
-  .topbar__search-wrap {
-    max-width: none;
-  }
   .topbar__username {
     display: none;
   }
@@ -357,9 +304,6 @@
 }
 
 @media (max-width: 480px) {
-  .topbar__search-wrap {
-    display: none;
-  }
   .topbar__icon {
     width: 18px;
     height: 18px;

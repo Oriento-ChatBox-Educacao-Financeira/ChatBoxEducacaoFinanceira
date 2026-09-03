@@ -1,6 +1,30 @@
 <app-main-navbar>
   <div class="overview-page">
     <div class="overview-content">
+      <!-- LOADING SKELETON -->
+      <ng-container *ngIf="carregando">
+        <div class="overview-header">
+          <div class="overview-header__left" style="width: 100%; max-width: 320px;">
+            <app-skeleton variant="text" width="60%" height="28px"></app-skeleton>
+            <app-skeleton variant="text" width="80%" height="14px"></app-skeleton>
+          </div>
+          <app-skeleton variant="rect" width="120px" height="40px"></app-skeleton>
+        </div>
+
+        <div class="overview-kpis">
+          <app-skeleton variant="kpi" count="4"></app-skeleton>
+        </div>
+
+        <div class="overview-grid">
+          <div class="overview-main">
+            <app-skeleton variant="chart"></app-skeleton>
+          </div>
+          <div class="overview-sidebar">
+            <app-skeleton variant="card"></app-skeleton>
+          </div>
+        </div>
+      </ng-container>
+
       <div *ngIf="semDados && !carregando" class="dre-empty-banner">
         Você ainda não importou nenhuma planilha financeira.
         <a routerLink="/upload-planilha">Fazer upload agora</a>.
@@ -8,7 +32,14 @@
       <!-- HEADER -->
       <div class="overview-header" *ngIf="!semDados">
         <div class="overview-header__left">
-          <span class="overview-header__title"> Visão Geral </span>
+          <span class="overview-header__title">
+            Visão Geral
+            <app-chat-info-button
+              titulo="Pergunte sobre sua saúde financeira"
+              contextoLabel="Visão Geral"
+              [perguntas]="perguntasVisao"
+            ></app-chat-info-button>
+          </span>
 
           <span class="overview-header__subtitle">
             Resumo consolidado da sua saúde financeira.

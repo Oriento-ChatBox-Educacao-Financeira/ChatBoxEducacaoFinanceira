@@ -1,6 +1,31 @@
 <app-main-navbar>
   <div class="fluxo-page">
     <div class="fluxo-content">
+      <!-- LOADING SKELETON -->
+      <ng-container *ngIf="carregando">
+        <div class="fluxo-header">
+          <div class="fluxo-header__left" style="width: 100%; max-width: 360px;">
+            <app-skeleton variant="text" width="60%" height="28px"></app-skeleton>
+            <app-skeleton variant="text" width="90%" height="14px"></app-skeleton>
+          </div>
+          <app-skeleton variant="rect" width="120px" height="40px"></app-skeleton>
+        </div>
+
+        <div class="fluxo-kpis">
+          <app-skeleton variant="kpi" count="3"></app-skeleton>
+        </div>
+
+        <div class="fluxo-grid">
+          <div class="fluxo-main">
+            <app-skeleton variant="chart"></app-skeleton>
+            <app-skeleton variant="list-item" count="6"></app-skeleton>
+          </div>
+          <aside class="fluxo-sidebar">
+            <app-skeleton variant="card"></app-skeleton>
+          </aside>
+        </div>
+      </ng-container>
+
       <div *ngIf="semDados && !carregando" class="dre-empty-banner">
         Você ainda não importou nenhuma planilha financeira.
         <a routerLink="/upload-planilha">Fazer upload agora</a>.
@@ -9,7 +34,14 @@
       <!-- HEADER -->
       <div class="fluxo-header" *ngIf="!semDados">
         <div class="fluxo-header__left">
-          <h1 class="fluxo-header__title">Fluxo de Caixa</h1>
+          <h1 class="fluxo-header__title">
+            Fluxo de Caixa
+            <app-chat-info-button
+              titulo="Pergunte sobre seu fluxo de caixa"
+              contextoLabel="Fluxo de Caixa"
+              [perguntas]="perguntasFluxo"
+            ></app-chat-info-button>
+          </h1>
           <p class="fluxo-header__subtitle">
             Entradas e saídas mensais derivadas da DRE da planilha importada.
           </p>

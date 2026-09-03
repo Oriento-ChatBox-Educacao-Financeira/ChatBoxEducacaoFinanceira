@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MainNavbar } from '../../_components/main-navbar/main-navbar';
 import { ChatWidget } from '../../_components/chat-widget/chat-widget';
+import { ChatInfoButton } from '../../_components/chat-info-button/chat-info-button';
+import { Skeleton } from '../../_components/skeleton/skeleton';
 import { DashboardService, DreItem } from '../../services/dashboard.service';
 
 interface ChartPoint {
@@ -26,7 +28,7 @@ interface KpiCard {
 @Component({
   selector: 'app-dashboard-dre',
   standalone: true,
-  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget],
+  imports: [CommonModule, RouterLink, MainNavbar, ChatWidget, ChatInfoButton, Skeleton],
   templateUrl: './dashboard-dre.html',
   styleUrl: './dashboard-dre.css',
 })
@@ -36,6 +38,12 @@ export class DashboardDre implements OnInit {
 
   kpis: KpiCard[] = [];
   dreItems: DreItem[] = [];
+
+  perguntasDre: string[] = [
+    'Explique minha DRE de forma simples',
+    'Como melhorar minha margem operacional?',
+    'Quais despesas posso reduzir agora?',
+  ];
 
   // Gráfico Evolução de Resultado — pontos calculados a partir da DRE
   receitaPath = '';

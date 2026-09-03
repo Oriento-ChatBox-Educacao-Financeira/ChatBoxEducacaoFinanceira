@@ -70,17 +70,22 @@ public class PlanilhaService {
 
     private static final Logger logger = LoggerFactory.getLogger(PlanilhaService.class);
 
-    private static final Set<String> TIPOS_ESPERADOS = Set.of("DRE", "BP", "FluxoCaixa");
+    // Valores aceitos pela constraint Postgres
+    // {@code linha_demonstrativo_tipo_check}: ('DRE','BP','FLUXO_CAIXA','OUTRO').
+    // "Capital de Giro" cai em OUTRO por enquanto (a constraint do banco
+    // n\u00e3o possui tipo dedicado); o DashboardService agrega ambos no
+    // dashboard de fluxo de caixa.
+    private static final Set<String> TIPOS_ESPERADOS = Set.of("DRE", "BP", "FLUXO_CAIXA");
 
     private static final Map<String, String> MARCADORES = Map.of(
             "dre", "DRE",
             "bp", "BP",
             "balan\u00e7o patrimonial", "BP",
             "balanco patrimonial", "BP",
-            "capital de giro", "CapitalGiro",
-            "capital giro", "CapitalGiro",
-            "fluxo de caixa", "FluxoCaixa",
-            "fluxo caixa", "FluxoCaixa"
+            "capital de giro", "OUTRO",
+            "capital giro", "OUTRO",
+            "fluxo de caixa", "FLUXO_CAIXA",
+            "fluxo caixa", "FLUXO_CAIXA"
     );
 
     private final LinhaDemonstrativoRepository linhaRepository;

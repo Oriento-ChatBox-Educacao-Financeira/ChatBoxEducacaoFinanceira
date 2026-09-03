@@ -45,6 +45,9 @@ public class Mensagens {
         public Object entidades_extraidas;
     }
 
+    public Mensagens() {
+    }
+
     public Mensagens(String id) {
         this.id = id;
     }

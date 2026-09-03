@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
@@ -14,6 +14,7 @@ import {
 
 import { environment } from '../../environments/environment';
 import { LoggerService } from './logger.service';
+import { ContextoFinanceiroService } from './contexto-financeiro.service';
 import { LoginResponse, Usuario } from '../models/usuario.model';
 
 const ACCESS_TOKEN_KEY = 'oriento.accessToken';
@@ -78,6 +79,7 @@ export class AuthService {
     private http: HttpClient,
     private router: Router,
     private logger: LoggerService,
+    private injector: Injector,
   ) {
     this.bootstrap();
   }
@@ -130,6 +132,7 @@ export class AuthService {
         error: (err) => {
           this.logger.warn?.('Falha ao hidratar /me; derrubando sess\u00e3o', err);
           this.clearTokens();
+          this.limparCachesAuxiliares();
           this.userSubject.next(null);
           this.authReadySubject.next(true);
         },
@@ -181,11 +184,20 @@ export class AuthService {
     return end$.pipe(
       tap(() => {
         this.clearTokens();
+        this.limparCachesAuxiliares();
         this.userSubject.next(null);
         this.router.navigate(['/login']);
       }),
       map(() => void 0),
     );
+  }
+
+  private limparCachesAuxiliares(): void {
+    try {
+      this.injector.get(ContextoFinanceiroService).limpar();
+    } catch (err) {
+      this.logger.warn?.('Falha ao limpar cache de contexto financeiro no logout', err);
+    }
   }
 
   /**

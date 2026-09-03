@@ -1,15 +1,4 @@
 <header class="topbar">
-  <!-- Busca -->
-  <div class="topbar__search-wrap">
-    <img src="/topbar/icon-pesquisa.svg" alt="" class="topbar__search-icon" />
-    <input
-      type="text"
-      class="topbar__search"
-      placeholder="Pesquise seus dados financeiros..."
-      [(ngModel)]="searchQuery"
-    />
-  </div>
-
   <!-- Direita -->
   <div class="topbar__right">
     <!-- Notificação -->
@@ -69,7 +58,6 @@
         (click)="togglePerfil(); $event.stopPropagation()"
         aria-label="Abrir menu de perfil"
       >
-        <img src="/profile/lucelho-testimonial.jpeg" alt="Foto de perfil" class="topbar__avatar" />
         <span class="topbar__username">{{ userName }}</span>
         <i class="ph ph-caret-down topbar__caret" [class.topbar__caret--up]="perfilAberto"></i>
       </button>

@@ -38,7 +38,7 @@
         <!-- MENSAGENS -->
         <div #scrollEl class="chat-thread">
           <!-- ESTADO VAZIO -->
-          <div class="chat-empty" *ngIf="!messages().length">
+          <div class="chat-empty" *ngIf="!messages().length && !isTyping()">
             <div class="chat-empty__icon">
               <i class="ph ph-sparkle"></i>
             </div>
@@ -61,13 +61,13 @@
             class="msg"
             [class.msg--user]="m.role === 'user'"
             [class.msg--bot]="m.role === 'bot'"
-            *ngFor="let m of messages()"
+            *ngFor="let m of messages(); trackBy: trackByIndex"
           >
             <div class="msg__avatar">
               <i
                 class="ph"
                 [class.ph-user]="m.role === 'user'"
-                [class.ph-sparkle]="m.role === 'bot'"
+                [class.ph-finn-the-human]="m.role === 'bot'"
               ></i>
             </div>
 
@@ -77,41 +77,35 @@
                 <span>{{ m.time }}</span>
               </div>
 
-              <!-- Texto simples -->
-              <div class="msg__bubble" *ngIf="m.text">{{ m.text }}</div>
+              <!-- USER (texto plano) -->
+              <div class="msg__bubble" *ngIf="m.role === 'user'">{{ m.text }}</div>
 
-              <!-- Card rico (bot) -->
-              <article class="bot-card" *ngIf="m.card as c">
-                <header class="bot-card__head">
-                  <div class="bot-card__head-icon">
-                    <i class="ph" [ngClass]="c.icon"></i>
-                  </div>
-                  <h3>{{ c.title }}</h3>
-                </header>
-
-                <p class="bot-card__text" [innerHTML]="c.text"></p>
-
-                <div class="insights" *ngIf="c.insights?.length">
-                  <div class="insight" *ngFor="let i of c.insights">
-                    <span class="insight__label">{{ i.label }}</span>
-                    <span class="insight__value">{{ i.value }}</span>
-                    <span class="insight__desc">{{ i.description }}</span>
-                  </div>
+              <!-- BOT (Markdown sanitizado, com indicador de digitação enquanto pendente) -->
+              <ng-container *ngIf="m.role === 'bot'">
+                <div
+                  class="msg__bubble msg__bubble--bot msg__bubble--typing"
+                  *ngIf="m.pending && !m.text"
+                  aria-label="Oriento está digitando"
+                >
+                  <span class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
                 </div>
 
-                <div class="strategy" *ngIf="c.strategy as s">
-                  <h4>{{ s.title }}</h4>
-                  <ul>
-                    <li *ngFor="let item of s.items">
-                      <span class="strategy__dot"></span>
-                      <span [innerHTML]="item.text"></span>
-                    </li>
-                  </ul>
+                <div
+                  class="msg__bubble msg__bubble--bot"
+                  [class.msg__bubble--streaming]="m.streaming && m.text"
+                  *ngIf="!(m.pending && !m.text)"
+                >
+                  <span [innerHTML]="m.text | markdown"></span>
+                  <span *ngIf="m.streaming" class="bot-cursor" aria-hidden="true">▍</span>
                 </div>
-              </article>
+              </ng-container>
 
-              <!-- Ações na resposta do bot -->
-              <div class="msg__actions" *ngIf="m.role === 'bot'">
+              <!-- Ações na resposta do bot (apenas quando finalizado) -->
+              <div class="msg__actions" *ngIf="m.role === 'bot' && !m.streaming && !m.pending">
                 <button type="button" class="ic-btn" title="Copiar">
                   <i class="ph ph-copy"></i>
                 </button>
@@ -146,7 +140,7 @@
               type="button"
               class="composer__send"
               (click)="enviar()"
-              [disabled]="!message.trim()"
+              [disabled]="!message.trim() || isSending"
               title="Enviar"
             >
               <i class="ph ph-paper-plane-right"></i>
@@ -177,15 +171,30 @@
 
         <div class="aside-section">
           <span class="aside-section__title">Recentes</span>
-          <ul class="conv-list">
-            <li class="conv-item" *ngFor="let c of conversations">
+
+          <ul class="conv-list" *ngIf="conversations().length">
+            <li
+              class="conv-item"
+              *ngFor="let c of conversations(); trackBy: trackByConversa"
+              [class.conv-item--active]="isConversaAtiva(c)"
+              (click)="abrirConversa(c)"
+              role="button"
+              tabindex="0"
+              (keydown.enter)="abrirConversa(c)"
+            >
               <i class="ph ph-chat-circle-dots"></i>
               <div class="conv-item__body">
-                <strong>{{ c.title }}</strong>
-                <span>{{ c.date }}</span>
+                <strong>{{ c.titulo }}</strong>
+                <span>{{ formatarData(c.ultimaInteracao || c.iniciadaEm) }}</span>
               </div>
             </li>
           </ul>
+
+          <div class="aside-empty" *ngIf="!conversations().length">
+            <i class="ph ph-chat-circle-dots"></i>
+            <p>Sem conversas anteriores.</p>
+            <small>Comece uma nova conversa para começar a salvar seu histórico.</small>
+          </div>
         </div>
 
         <div class="aside-section">

@@ -90,15 +90,22 @@
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              class="config-btn config-btn--danger"
-              [disabled]="deletandoArquivo() === p.arquivo"
-              (click)="deletar(p)"
-            >
-              <i class="ph" [class.ph-spinner-gap]="deletandoArquivo() === p.arquivo" [class.ph-trash]="deletandoArquivo() !== p.arquivo"></i>
-              {{ deletandoArquivo() === p.arquivo ? 'Apagando…' : 'Apagar' }}
-            </button>
+            <div class="planilha-item__actions">
+              <app-chat-info-button
+                [titulo]="'Pergunte sobre ' + p.arquivo"
+                [contextoLabel]="'planilha:' + p.arquivo"
+                [perguntas]="perguntasPlanilha(p.arquivo)"
+              ></app-chat-info-button>
+              <button
+                type="button"
+                class="config-btn config-btn--danger"
+                [disabled]="deletandoArquivo() === p.arquivo"
+                (click)="deletar(p)"
+              >
+                <i class="ph" [class.ph-spinner-gap]="deletandoArquivo() === p.arquivo" [class.ph-trash]="deletandoArquivo() !== p.arquivo"></i>
+                {{ deletandoArquivo() === p.arquivo ? 'Apagando…' : 'Apagar' }}
+              </button>
+            </div>
           </li>
         </ul>
       </section>

@@ -34,9 +34,9 @@
     </div>
 
     <!-- MESSAGES -->
-    <div class="chat-body">
+    <div #chatBody class="chat-body">
       <!-- EMPTY STATE -->
-      <div *ngIf="messages.length === 0" class="chat-empty">
+      <div *ngIf="messages().length === 0 && !isTyping()" class="chat-empty">
         <div class="chat-empty__icon">
           <i class="ph ph-question"></i>
         </div>
@@ -49,9 +49,9 @@
         </p>
       </div>
 
-      <!-- USER -->
+      <!-- MESSAGES -->
       <div
-        *ngFor="let msg of messages; trackBy: trackByIndex"
+        *ngFor="let msg of messages(); trackBy: trackByIndex"
         class="message"
         [ngClass]="msg.sender === 'user' ? 'user-message' : 'bot-message'"
       >
@@ -69,8 +69,22 @@
               <i class="ph ph-finn-the-human"></i>
             </div>
 
-            <div class="bot-bubble">
-              {{ msg.text }}
+            <div
+              class="bot-bubble"
+              [class.bot-bubble--typing]="msg.pending && !msg.text"
+              [class.bot-bubble--streaming]="msg.streaming && msg.text"
+            >
+              <ng-container *ngIf="msg.pending && !msg.text; else botContent">
+                <span class="typing-indicator" aria-label="Oriento está digitando">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+              </ng-container>
+              <ng-template #botContent>
+                <span [innerHTML]="msg.text | markdown"></span>
+                <span *ngIf="msg.streaming" class="bot-cursor" aria-hidden="true">▍</span>
+              </ng-template>
             </div>
           </div>
         </ng-container>
@@ -99,7 +113,7 @@
           [(ngModel)]="userInput"
           placeholder="Digite sua pergunta..."
           rows="1"
-          (keydown.enter)="sendMessage()"
+          (keydown.enter)="sendMessage(); $event.preventDefault()"
         ></textarea>
 
         <button class="send-button" [disabled]="isSending" (click)="sendMessage()">

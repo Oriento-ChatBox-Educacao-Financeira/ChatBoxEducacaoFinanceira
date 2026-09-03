@@ -151,7 +151,7 @@ public class DashboardService {
 
     @Transactional(readOnly = true)
     public DashboardFluxoResponse fluxoCaixa(Usuario usuario) {
-        List<LinhaDemonstrativo> linhas = linhasDoUsuarioPorTipos(usuario, List.of("FluxoCaixa", "CapitalGiro"));
+        List<LinhaDemonstrativo> linhas = linhasDoUsuarioPorTipos(usuario, List.of("FLUXO_CAIXA", "OUTRO"));
         if (linhas.isEmpty()) {
             return DashboardFluxoResponse.empty();
         }

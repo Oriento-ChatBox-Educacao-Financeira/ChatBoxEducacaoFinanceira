@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, HostListener, ElementRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { NotificacaoService, Notificacao } from '../../services/notificacao.service';
@@ -8,14 +7,13 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './topbar.html',
   styleUrl: './topbar.css',
 })
 export class Topbar implements OnInit {
   @Input() userName = 'Alexander Fiscal';
 
-  searchQuery = '';
   dropdownAberto = false;
   perfilAberto = false;
 
