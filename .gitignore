@@ -22,10 +22,13 @@ yarn-error.log*
 *.secret.properties
 
 # Python
-assistant-service/.venv/
-assistant-service/__pycache__/
-assistant-service/.pytest_cache/
-assistant-service/.ruff_cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Python environment variables
 assistant-service/.env
 assistant-service/.env.*
 !assistant-service/.env.example
