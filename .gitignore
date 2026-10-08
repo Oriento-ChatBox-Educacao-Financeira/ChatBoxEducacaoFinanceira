@@ -21,6 +21,15 @@ yarn-error.log*
 .env.production.local
 *.secret.properties
 
+# Python
+assistant-service/.venv/
+assistant-service/__pycache__/
+assistant-service/.pytest_cache/
+assistant-service/.ruff_cache/
+assistant-service/.env
+assistant-service/.env.*
+!assistant-service/.env.example
+
 # API (Spring Boot / Java)
 api/target/
 api/.mvn/
