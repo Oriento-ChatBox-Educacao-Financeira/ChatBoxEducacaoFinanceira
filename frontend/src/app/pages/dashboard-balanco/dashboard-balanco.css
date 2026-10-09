@@ -5,11 +5,13 @@
 
 .balanco-content {
   width: 100%;
-  padding: 32px 0;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--sp-5) 0;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--sp-5);
 }
 
 /* HEADER */
@@ -28,7 +30,7 @@
 }
 
 .balanco-header__title {
-  font-size: 28px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--text-dark);
 }
@@ -89,15 +91,15 @@
 
   background: white;
   border-radius: 8px;
-  padding: 24px;
+  padding: 16px 18px;
 
-  min-height: 170px;
+  min-height: 130px;
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 
-  box-shadow: 0px 12px 32px -4px rgba(25, 28, 29, 0.06);
+  box-shadow: 0px 8px 22px -4px rgba(25, 28, 29, 0.06);
 }
 
 .kpi-card--highlight {
@@ -133,7 +135,7 @@
 }
 
 .kpi-card__value {
-  font-size: 30px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--text-dark);
 }
@@ -199,13 +201,13 @@
 .chart-card {
   background: white;
   border-radius: 8px;
-  padding: 24px;
+  padding: 18px 20px;
 
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
 
-  box-shadow: 0px 12px 32px -4px rgba(25, 28, 29, 0.06);
+  box-shadow: 0px 8px 22px -4px rgba(25, 28, 29, 0.06);
 }
 
 .chart-card--gray {
@@ -225,7 +227,7 @@
 }
 
 .chart-card__title {
-  font-size: 18px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--text-dark);
 }
@@ -281,7 +283,8 @@
 }
 
 .balance-highlight-card__value {
-  font-size: 32px;
+  font-size: var(--fs-xl);
+  font-weight: 700;
   color: white;
 }
 
@@ -382,7 +385,8 @@
 }
 
 .donut-chart__center strong {
-  font-size: 28px;
+  font-size: var(--fs-xl);
+  font-weight: 700;
 }
 
 /* LEGEND */
@@ -466,33 +470,77 @@
 
 /* RESPONSIVO */
 
-@media (max-width: 1024px) {
+@media (max-width: 1280px) {
   .balanco-kpis {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-4);
   }
-
   .balanco-grid {
     grid-template-columns: 1fr;
   }
-
   .balance-chart-layout {
     flex-direction: column;
     align-items: center;
   }
 }
 
+@media (max-width: 768px) {
+  .kpi-card,
+  .chart-card,
+  .balance-highlight-card {
+    padding: var(--sp-4);
+    min-height: auto;
+  }
+  .donut-chart {
+    width: 180px;
+    height: 180px;
+    min-width: 180px;
+  }
+  .donut-chart::after {
+    width: 110px;
+    height: 110px;
+  }
+  .line-chart {
+    height: 200px;
+  }
+}
+
 @media (max-width: 640px) {
   .balanco-kpis {
     grid-template-columns: 1fr;
+    gap: var(--sp-3);
   }
-
   .balanco-header {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .period-selector {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .period-selector__item {
+    flex-shrink: 0;
+    padding: var(--sp-2) var(--sp-3);
+  }
+  .balance-legend__item {
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .donut-chart {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+  }
+  .donut-chart::after {
+    width: 90px;
+    height: 90px;
+  }
+  .balanco-content {
+    padding: var(--sp-3) 0;
+    gap: var(--sp-4);
   }
 }

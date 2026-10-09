@@ -43,10 +43,16 @@ public class RefreshTokenService {
         refreshToken.setUsuario(usuario);
         refreshToken.setExpiryDate(Instant.now().plusSeconds(REFRESH_TOKEN_DURATION));
         refreshToken.setToken(UUID.randomUUID().toString());
-        refreshTokenRepository.findByUsuario(usuario).ifPresent(oldToken -> {
-            logger.debug("Removendo refresh token antigo do usuário ID: {}", userId);
-            refreshTokenRepository.delete(oldToken);
-        });
+
+        // Remove qualquer refresh token anterior do usuário (pode haver mais
+        // de um se houver corrida de logins ou estado inconsistente do banco).
+        // Usa delete em bulk + flush para evitar conflitar com o save abaixo
+        // dentro da mesma transação.
+        int removidos = refreshTokenRepository.deleteAllByUsuario(usuario);
+        if (removidos > 0) {
+            logger.debug("Removidos {} refresh token(s) antigo(s) do usuário ID: {}", removidos, userId);
+            refreshTokenRepository.flush();
+        }
 
         refreshToken = refreshTokenRepository.save(refreshToken);
         

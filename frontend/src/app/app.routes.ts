@@ -23,19 +23,21 @@ export const routes: Routes = [
       import('./pages/register-success/register-success').then((m) => m.RegisterSuccess),
   },
 
+  { path: 'dashboard', redirectTo: '/dashboard/visao-geral', pathMatch: 'full' },
+
   {
     path: 'dashboard/visao-geral',
     loadComponent: () =>
       import('./pages/dashboard-visao-geral/dashboard-visao-geral').then(
         (m) => m.DashboardVisaoGeral,
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 
   {
     path: 'dashboard/dre',
     loadComponent: () => import('./pages/dashboard-dre/dashboard-dre').then((m) => m.DashboardDre),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 
   {
@@ -44,7 +46,7 @@ export const routes: Routes = [
       import('./pages/dashboard-fluxo-de-caixa/dashboard-fluxo-de-caixa').then(
         (m) => m.DashboardFluxoCaixa,
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 
   {
@@ -53,13 +55,46 @@ export const routes: Routes = [
       import('./pages/dashboard-balanco/dashboard-balanco').then(
         (m) => m.DashboardBalancoPatrimonial,
       ),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
 
   {
     path: 'chat',
     loadComponent: () => import('./pages/chat/chat').then((m) => m.ChatPageComponent),
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'upload-planilha',
+    loadComponent: () =>
+      import('./pages/upload-planilha/upload-planilha').then((m) => m.UploadPlanilhaComponent),
+    canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'configuracoes',
+    loadComponent: () =>
+      import('./pages/configuracoes/configuracoes').then((m) => m.ConfiguracoesPage),
+    canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'perfil',
+    loadComponent: () => import('./pages/perfil/perfil').then((m) => m.PerfilPage),
+    canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'relatorios',
+    loadComponent: () =>
+      import('./pages/relatorios/relatorios').then((m) => m.RelatoriosPage),
+    canActivate: [AuthGuard],
+  },
+
+  {
+    path: 'suporte',
+    loadComponent: () => import('./pages/suporte/suporte').then((m) => m.SuportePage),
+    canActivate: [AuthGuard],
   },
 
   { path: '**', redirectTo: '/login' },

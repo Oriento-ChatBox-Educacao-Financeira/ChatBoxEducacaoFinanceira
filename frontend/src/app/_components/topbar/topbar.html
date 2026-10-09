@@ -1,32 +1,82 @@
 <header class="topbar">
-
-  <!-- Busca -->
-  <div class="topbar__search-wrap">
-    <img src="/topbar/icon-pesquisa.svg" alt="" class="topbar__search-icon" />
-    <input
-      type="text"
-      class="topbar__search"
-      placeholder="Pesquise seus dados financeiros..."
-      [(ngModel)]="searchQuery"
-    />
-  </div>
-
   <!-- Direita -->
   <div class="topbar__right">
     <!-- Notificação -->
-    <button class="topbar__icon-btn" (click)="abrirNotificacoes()">
-      <img src="/topbar/icon-notificacao.svg" alt="Notificações" class="topbar__icon" />
-    </button>
+    <div class="topbar__notif-wrap">
+      <button class="topbar__icon-btn" (click)="toggleNotificacoes(); $event.stopPropagation()" aria-label="Notificações">
+        <img src="/topbar/icon-notificacao.svg" alt="" class="topbar__icon" />
+        <span class="topbar__badge" *ngIf="notif.naoLidas() > 0">
+          {{ notif.naoLidas() > 9 ? '9+' : notif.naoLidas() }}
+        </span>
+      </button>
+
+      <!-- Dropdown -->
+      <div class="notif-dropdown" *ngIf="dropdownAberto">
+        <div class="notif-dropdown__header">
+          <strong>Notificações</strong>
+          <button
+            type="button"
+            class="notif-dropdown__mark-all"
+            *ngIf="notif.naoLidas() > 0"
+            (click)="marcarTodasLidas(); $event.stopPropagation()"
+          >
+            Marcar todas como lidas
+          </button>
+        </div>
+
+        <div class="notif-dropdown__list">
+          <div class="notif-empty" *ngIf="!notif.notificacoes().length">
+            <i class="ph ph-bell-slash"></i>
+            <span>Nenhuma notificação ainda.</span>
+          </div>
+
+          <button
+            type="button"
+            class="notif-item"
+            [class.notif-item--unread]="!n.lida"
+            *ngFor="let n of notif.notificacoes()"
+            (click)="clicarNotificacao(n)"
+          >
+            <i class="ph notif-item__icon" [ngClass]="n.icone || 'ph-bell'"></i>
+            <div class="notif-item__body">
+              <div class="notif-item__row">
+                <strong>{{ n.titulo }}</strong>
+                <span class="notif-item__time">{{ formatRelativo(n.data_criacao) }}</span>
+              </div>
+              <span class="notif-item__msg">{{ n.mensagem }}</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Perfil -->
-    <div class="topbar__profile">
-      <img
-        src="/profile/lucelho-testimonial.jpeg"
-        alt="Foto de perfil"
-        class="topbar__avatar"
-      />
-      <span class="topbar__username">{{ userName }}</span>
+    <div class="topbar__profile-wrap">
+      <button
+        type="button"
+        class="topbar__profile"
+        (click)="togglePerfil(); $event.stopPropagation()"
+        aria-label="Abrir menu de perfil"
+      >
+        <span class="topbar__username">{{ userName }}</span>
+        <i class="ph ph-caret-down topbar__caret" [class.topbar__caret--up]="perfilAberto"></i>
+      </button>
+
+      <div class="perfil-dropdown" *ngIf="perfilAberto">
+        <button type="button" class="perfil-dropdown__item" (click)="irPara('/perfil')">
+          <i class="ph ph-user"></i>
+          <span>Perfil</span>
+        </button>
+        <button type="button" class="perfil-dropdown__item" (click)="irPara('/configuracoes')">
+          <i class="ph ph-gear"></i>
+          <span>Configurações</span>
+        </button>
+        <div class="perfil-dropdown__divider"></div>
+        <button type="button" class="perfil-dropdown__item perfil-dropdown__item--danger" (click)="sair()">
+          <i class="ph ph-sign-out"></i>
+          <span>Sair</span>
+        </button>
+      </div>
     </div>
   </div>
-
 </header>

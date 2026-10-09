@@ -1,0 +1,35 @@
+<div class="info-wrapper">
+  <button
+    type="button"
+    class="info-btn"
+    [class.info-btn--open]="open()"
+    [title]="titulo"
+    [attr.aria-expanded]="open()"
+    aria-haspopup="menu"
+    (click)="toggle($event)"
+  >
+    <i class="ph ph-info"></i>
+  </button>
+
+  <div *ngIf="open()" class="info-pop" role="menu">
+    <header class="info-pop__head">
+      <i class="ph ph-sparkle"></i>
+      <span>{{ titulo }}</span>
+    </header>
+
+    <button
+      *ngFor="let p of perguntas"
+      type="button"
+      class="info-pop__item"
+      role="menuitem"
+      (click)="selecionar(p)"
+    >
+      <i class="ph ph-arrow-right"></i>
+      <span>{{ p }}</span>
+    </button>
+
+    <div *ngIf="!perguntas.length" class="info-pop__empty">
+      Nenhuma pergunta sugerida disponível.
+    </div>
+  </div>
+</div>

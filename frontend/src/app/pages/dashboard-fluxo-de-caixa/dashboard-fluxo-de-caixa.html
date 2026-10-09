@@ -1,210 +1,290 @@
 <app-main-navbar>
   <div class="fluxo-page">
     <div class="fluxo-content">
+      <!-- LOADING SKELETON -->
+      <ng-container *ngIf="carregando">
+        <div class="fluxo-header">
+          <div class="fluxo-header__left" style="width: 100%; max-width: 360px;">
+            <app-skeleton variant="text" width="60%" height="28px"></app-skeleton>
+            <app-skeleton variant="text" width="90%" height="14px"></app-skeleton>
+          </div>
+          <app-skeleton variant="rect" width="120px" height="40px"></app-skeleton>
+        </div>
+
+        <div class="fluxo-kpis">
+          <app-skeleton variant="kpi" count="3"></app-skeleton>
+        </div>
+
+        <div class="fluxo-grid">
+          <div class="fluxo-main">
+            <app-skeleton variant="chart"></app-skeleton>
+            <app-skeleton variant="list-item" count="6"></app-skeleton>
+          </div>
+          <aside class="fluxo-sidebar">
+            <app-skeleton variant="card"></app-skeleton>
+          </aside>
+        </div>
+      </ng-container>
+
+      <div *ngIf="semDados && !carregando" class="dre-empty-banner">
+        Você ainda não importou nenhuma planilha financeira.
+        <a routerLink="/upload-planilha">Fazer upload agora</a>.
+      </div>
+
+      <!-- HEADER -->
+      <div class="fluxo-header" *ngIf="!semDados">
+        <div class="fluxo-header__left">
+          <h1 class="fluxo-header__title">
+            Fluxo de Caixa
+            <app-chat-info-button
+              titulo="Pergunte sobre seu fluxo de caixa"
+              contextoLabel="Fluxo de Caixa"
+              [perguntas]="perguntasFluxo"
+            ></app-chat-info-button>
+          </h1>
+          <p class="fluxo-header__subtitle">
+            Entradas e saídas mensais derivadas da DRE da planilha importada.
+          </p>
+        </div>
+        <div class="fluxo-header__badge" *ngIf="meses.length">
+          <i class="ph ph-calendar"></i>
+          <span>{{ meses.length }} {{ meses.length === 1 ? 'período' : 'períodos' }}</span>
+        </div>
+      </div>
+
       <!-- KPI CARDS -->
-      <div class="fluxo-kpis">
+      <div class="fluxo-kpis" *ngIf="!semDados">
         <div
           class="kpi-card"
           [class.kpi-card--highlight]="item.highlight"
+          [class.kpi-card--positive]="item.semantic === 'positive'"
+          [class.kpi-card--negative]="item.semantic === 'negative'"
           *ngFor="let item of kpis"
         >
-          <div class="kpi-card__header">
-            <span class="kpi-card__label" [class.kpi-card__label--blue]="item.highlight">
-              {{ item.label }}
-            </span>
-
-            <i
-              [class]="item.icon"
-              class="kpi-card__ph-icon"
-              [class.kpi-card__ph-icon--blue]="item.badgeType === 'blue' || item.highlight"
-              [class.kpi-card__ph-icon--gold]="item.badgeType === 'gold'"
-            ></i>
+          <div class="kpi-card__icon-wrap">
+            <i [class]="item.icon" class="kpi-card__icon"></i>
           </div>
-
-          <div class="kpi-card__body">
-            <span class="kpi-card__value" [class.kpi-card__value--blue]="item.highlight">
-              {{ item.value }}
-            </span>
-
-            <div
-              *ngIf="item.badge"
-              class="kpi-card__badge"
-              [class.kpi-card__badge--gold]="item.badgeType === 'gold'"
-              [class.kpi-card__badge--blue]="item.badgeType === 'blue'"
-              [class.kpi-card__badge--neutral]="item.badgeType === 'neutral'"
-            >
-              <i class="ph ph-trend-up"></i>
-              <span>{{ item.badge }}</span>
-            </div>
-
-            <span *ngIf="item.sub" class="kpi-card__sub">
-              {{ item.sub }}
-            </span>
+          <div class="kpi-card__content">
+            <span class="kpi-card__label">{{ item.label }}</span>
+            <span class="kpi-card__value">{{ item.value }}</span>
+            <span *ngIf="item.sub" class="kpi-card__sub">{{ item.sub }}</span>
           </div>
-
-          <div class="kpi-card__glow"></div>
         </div>
       </div>
 
       <!-- GRID -->
-      <div class="fluxo-grid">
-        <!-- COLUNA SIDEBAR -->
-        <div class="fluxo-sidebar">
-          <!-- VENCIMENTOS -->
-          <div class="chart-card chart-card--gray">
-            <div class="chart-card__header">
-              <span class="chart-card__title"> Vencimentos Hoje </span>
-
-              <i class="ph ph-calendar-x"></i>
-            </div>
-
-            <div class="fluxo-list">
-              <div class="fluxo-list__item" *ngFor="let item of vencimentosHoje">
-                <span>{{ item.descricao }}</span>
-                <strong>{{ item.valor }}</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- SALDO -->
-          <div class="kpi-card kpi-card--highlight">
-            <div class="kpi-card__header">
-              <span class="kpi-card__label kpi-card__label--blue"> SALDO ATUAL </span>
-
-              <i class="ph ph-wallet kpi-card__ph-icon kpi-card__ph-icon--blue"></i>
-            </div>
-
-            <div class="kpi-card__body">
-              <span class="kpi-card__value kpi-card__value--blue"> R$ 2.450M </span>
-
-              <div class="kpi-card__badge kpi-card__badge--gold">
-                <i class="ph ph-trend-up"></i>
-                <span>+12.5% vs mês anterior</span>
-              </div>
-            </div>
-
-            <div class="kpi-card__glow"></div>
-          </div>
-
-          <!-- PROJEÇÃO -->
-          <div class="kpi-card">
-            <div class="kpi-card__header">
-              <span class="kpi-card__label"> PROJEÇÃO 30 DIAS </span>
-
-              <i class="ph ph-chart-line-up kpi-card__ph-icon kpi-card__ph-icon--gold"></i>
-            </div>
-
-            <div class="kpi-card__body">
-              <span class="kpi-card__value"> R$ 2.89M </span>
-
-              <span class="kpi-card__sub"> Superávit previsto: R$ 440K </span>
-            </div>
-          </div>
-        </div>
-
+      <div class="fluxo-grid" *ngIf="!semDados">
         <!-- CONTEÚDO PRINCIPAL -->
         <div class="fluxo-main">
           <!-- GRÁFICO -->
-          <div class="chart-card chart-card--large">
+          <div class="chart-card" *ngIf="meses.length">
             <div class="chart-card__header">
               <div class="chart-card__header-left">
-                <span class="chart-card__title"> Evolução de Entradas e Saídas </span>
-
-                <span class="chart-card__subtitle"> Acompanhamento mensal consolidado </span>
+                <span class="chart-card__title">Evolução de Entradas e Saídas</span>
+                <span class="chart-card__subtitle">
+                  Acompanhamento mensal — fonte: DRE da planilha
+                </span>
               </div>
 
               <div class="chart-card__legend">
-                <div class="chart-card__legend-item">
-                  <span class="chart-card__legend-dot chart-card__legend-dot--blue"></span>
+                <div class="legend-item">
+                  <span class="legend-dot legend-dot--blue"></span>
                   <span>Entradas</span>
                 </div>
-
-                <div class="chart-card__legend-item">
-                  <span class="chart-card__legend-dot chart-card__legend-dot--gold"></span>
+                <div class="legend-item">
+                  <span class="legend-dot legend-dot--gold"></span>
                   <span>Saídas</span>
                 </div>
               </div>
             </div>
 
             <div class="chart-card__body">
-              <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
-                <line x1="0" y1="0" x2="580" y2="0" class="chart-line-bg" />
-                <line x1="0" y1="64" x2="580" y2="64" class="chart-line-bg" />
-                <line x1="0" y1="128" x2="580" y2="128" class="chart-line-bg" />
-                <line x1="0" y1="192" x2="580" y2="192" class="chart-line-bg" />
+              <svg class="line-chart" viewBox="0 0 580 240" preserveAspectRatio="xMidYMid meet">
+                <line x1="0" y1="60" x2="580" y2="60" class="chart-line-bg" />
+                <line x1="0" y1="120" x2="580" y2="120" class="chart-line-bg" />
+                <line x1="0" y1="180" x2="580" y2="180" class="chart-line-bg" />
 
-                <!-- ENTRADAS -->
                 <polyline
-                  points="48,180 144,120 240,140 336,90 432,110 528,70"
+                  [attr.points]="entradasPath"
                   fill="none"
                   stroke="#002162"
-                  stroke-width="3"
+                  stroke-width="2.5"
                   stroke-linejoin="round"
                 />
-
-                <!-- SAÍDAS -->
                 <polyline
-                  points="48,220 144,180 240,190 336,160 432,170 528,140"
+                  [attr.points]="saidasPath"
                   fill="none"
                   stroke="#FEB700"
-                  stroke-width="3"
+                  stroke-width="2.5"
                   stroke-linejoin="round"
                 />
-              </svg>
 
-              <div class="chart-card__months">
-                <span>Jan</span>
-                <span>Fev</span>
-                <span>Mar</span>
-                <span>Abr</span>
-                <span>Mai</span>
-                <span>Jun</span>
+                <g *ngFor="let p of entradasPoints">
+                  <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#002162">
+                    <title>{{ 'Entradas: ' + p.fullLabel }}</title>
+                  </circle>
+                  <text
+                    [attr.x]="p.x"
+                    [attr.y]="p.y - 10"
+                    text-anchor="middle"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#002162"
+                  >
+                    {{ p.label }}
+                  </text>
+                </g>
+
+                <g *ngFor="let p of saidasPoints">
+                  <circle [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="#FEB700">
+                    <title>{{ 'Saídas: ' + p.fullLabel }}</title>
+                  </circle>
+                  <text
+                    [attr.x]="p.x"
+                    [attr.y]="p.y + 16"
+                    text-anchor="middle"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#a07a00"
+                  >
+                    {{ p.label }}
+                  </text>
+                </g>
+
+                <g font-size="11" fill="#6b7280">
+                  <text
+                    *ngFor="let m of meses; let i = index"
+                    [attr.x]="40 + i * ((580 - 80) / (meses.length - 1 || 1))"
+                    y="232"
+                    text-anchor="middle"
+                  >
+                    {{ m }}
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- TABELA DETALHADA -->
+          <div class="chart-card" *ngIf="fluxoMensal.length">
+            <div class="chart-card__header">
+              <span class="chart-card__title">Detalhamento mensal</span>
+            </div>
+
+            <div class="fluxo-table">
+              <div class="fluxo-table__row fluxo-table__row--head">
+                <span>Mês</span>
+                <span>Entradas</span>
+                <span>Saídas</span>
+                <span>Saldo</span>
+              </div>
+              <div class="fluxo-table__row" *ngFor="let r of fluxoMensal">
+                <span class="fluxo-table__mes">{{ r.mes }}</span>
+                <span class="fluxo-table__entrada">{{ fmtFull(r.entrada) }}</span>
+                <span class="fluxo-table__saida">{{ fmtFull(r.saida) }}</span>
+                <span
+                  [class.fluxo-table__pos]="r.saldo >= 0"
+                  [class.fluxo-table__neg]="r.saldo < 0"
+                >
+                  {{ fmtFull(r.saldo) }}
+                </span>
               </div>
             </div>
           </div>
 
           <!-- MOVIMENTAÇÕES -->
-          <div class="chart-card">
+          <div class="chart-card" *ngIf="movimentacoes.length">
             <div class="chart-card__header">
-              <span class="chart-card__title"> Movimentações Recentes </span>
-
-              <a class="chart-card__link"> Ver Extrato Completo </a>
+              <span class="chart-card__title">Movimentações recentes</span>
+              <span class="chart-card__count">{{ movimentacoes.length }} registros</span>
             </div>
 
-            <div class="mov-table">
-              <div class="mov-row" *ngFor="let item of movimentacoes">
-                <div class="mov-row__top">
-                  {{ item.data }}
-                </div>
-
-                <div class="mov-row__middle">
-                  <div>
-                    <strong>{{ item.titulo }}</strong>
-                    <span>{{ item.subtitulo }}</span>
-                  </div>
-
-                  <div class="mov-tag">
-                    {{ item.categoria }}
-                  </div>
-                </div>
-
+            <div class="mov-list">
+              <div class="mov-item" *ngFor="let item of movimentacoes">
                 <div
-                  class="mov-row__value"
-                  [class.mov-row__value--entrada]="item.entrada"
-                  [class.mov-row__value--saida]="!item.entrada"
+                  class="mov-item__icon"
+                  [class.mov-item__icon--in]="item.entrada"
+                  [class.mov-item__icon--out]="!item.entrada"
                 >
                   <i
                     class="ph"
-                    [class.ph-arrow-circle-down]="item.entrada"
-                    [class.ph-arrow-circle-up]="!item.entrada"
+                    [class.ph-arrow-down-right]="item.entrada"
+                    [class.ph-arrow-up-right]="!item.entrada"
                   ></i>
-
-                  <strong>{{ item.valor }}</strong>
+                </div>
+                <div class="mov-item__content">
+                  <strong class="mov-item__title">{{ item.titulo }}</strong>
+                  <span class="mov-item__meta">
+                    {{ item.data }} · {{ item.categoria }}
+                  </span>
+                </div>
+                <div
+                  class="mov-item__value"
+                  [class.mov-item__value--in]="item.entrada"
+                  [class.mov-item__value--out]="!item.entrada"
+                >
+                  {{ item.valor }}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- SIDEBAR -->
+        <aside class="fluxo-sidebar" *ngIf="fluxoMensal.length">
+          <!-- RESUMO TOTAL -->
+          <div class="resumo-card">
+            <h3 class="resumo-card__title">Resumo do período</h3>
+            <div class="resumo-card__item">
+              <span class="resumo-card__label">
+                <span class="resumo-dot resumo-dot--blue"></span>
+                Total de entradas
+              </span>
+              <strong class="resumo-card__value">{{ fmtFull(totalEntradas) }}</strong>
+            </div>
+            <div class="resumo-card__item">
+              <span class="resumo-card__label">
+                <span class="resumo-dot resumo-dot--gold"></span>
+                Total de saídas
+              </span>
+              <strong class="resumo-card__value">{{ fmtFull(totalSaidas) }}</strong>
+            </div>
+            <div class="resumo-card__divider"></div>
+            <div class="resumo-card__item resumo-card__item--total">
+              <span class="resumo-card__label">Saldo do período</span>
+              <strong
+                class="resumo-card__value"
+                [class.resumo-card__value--pos]="totalSaldo >= 0"
+                [class.resumo-card__value--neg]="totalSaldo < 0"
+              >
+                {{ fmtFull(totalSaldo) }}
+              </strong>
+            </div>
+          </div>
+
+          <!-- MELHOR / PIOR MÊS -->
+          <div class="resumo-card resumo-card--alt" *ngIf="melhorMes && piorMes">
+            <h3 class="resumo-card__title">Destaques</h3>
+
+            <div class="destaque destaque--pos">
+              <i class="ph ph-trend-up"></i>
+              <div>
+                <span class="destaque__label">Melhor mês</span>
+                <strong>{{ melhorMes.mes }}</strong>
+                <span class="destaque__value">{{ fmtFull(melhorMes.saldo) }}</span>
+              </div>
+            </div>
+
+            <div class="destaque destaque--neg">
+              <i class="ph ph-trend-down"></i>
+              <div>
+                <span class="destaque__label">Pior mês</span>
+                <strong>{{ piorMes.mes }}</strong>
+                <span class="destaque__value">{{ fmtFull(piorMes.saldo) }}</span>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
