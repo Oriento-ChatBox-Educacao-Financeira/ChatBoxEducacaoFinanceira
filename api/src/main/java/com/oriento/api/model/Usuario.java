@@ -2,6 +2,7 @@ package com.oriento.api.model;
 
 import com.oriento.api.dto.LoginRequest;
 import com.oriento.api.model.enuns.Nivelmaturidadefinanceira;
+import com.oriento.api.model.enuns.RoleUsuario;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -68,6 +69,10 @@ public class Usuario {
     @Column(name = "ultimo_acesso", nullable = true)
     private LocalDateTime ultimoacesso;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 30)
+    private RoleUsuario role = RoleUsuario.ROLE_USER;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AIConversation> conversations = new HashSet<>();
 
@@ -130,5 +135,11 @@ public class Usuario {
     }
     public void setUltimoacesso(LocalDateTime ultimo_acesso) {
         this.ultimoacesso = ultimo_acesso;
+    }
+    public RoleUsuario getRole() {
+        return role;
+    }
+    public void setRole(RoleUsuario role) {
+        this.role = role;
     }
 }
