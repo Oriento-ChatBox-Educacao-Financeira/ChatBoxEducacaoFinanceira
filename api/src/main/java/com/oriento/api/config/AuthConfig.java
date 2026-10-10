@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.oriento.api.security.CustomJwtAuthenticationConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +45,13 @@ public class AuthConfig {
     @Autowired
     private RSAPrivateKey privateKey;
 
+    @Autowired
+    private CustomJwtAuthenticationConverter customJwtAuthenticationConverter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.info("Configurando SecurityFilterChain...");
-        
+
         http
                 // Habilita CORS com configurações padrão e Desabilita CSRF (não necessário para APIs stateless com JWT)
                 .cors(Customizer.withDefaults())
@@ -60,13 +64,15 @@ public class AuthConfig {
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        
+
                         // Todos os outros endpoints requerem autenticação
                         .anyRequest().authenticated())
-                
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+
+                // Registra o conversor customizado que lê a claim "roles" do JWT
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(customJwtAuthenticationConverter)))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        
+
         logger.info("SecurityFilterChain configurado com sucesso");
         return http.build();
     }
