@@ -3,7 +3,9 @@ package com.oriento.api.services;
 import com.oriento.api.dto.LoginRequest;
 import com.oriento.api.dto.LoginResponse;
 import com.oriento.api.dto.UsuarioResponse;
+import com.oriento.api.model.Empresa;
 import com.oriento.api.model.Usuario;
+import com.oriento.api.repositories.EmpresaRepository;
 import com.oriento.api.repositories.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,42 +40,48 @@ public class AuthService {
 
     // Repositório para buscar usuários no banco de dados
     private final UsuarioRepository usuarioRepository;
-    
+
     // Encoder para validação de senhas usando BCrypt
     private final BCryptPasswordEncoder passwordEncoder;
-    
+
     // Serviço para geração de tokens JWT
     private final JwtService jwtService;
-    
+
     // Serviço para gerenciamento de refresh tokens
     private final RefreshTokenService refreshTokenService;
+
+    // Repositório para buscar a empresa associada ao usuário
+    private final EmpresaRepository empresaRepository;
 
     /**
      * Mapa thread-safe para gerenciar tentativas falhas de login.
      * Chave: identificador do usuário (email ou CNPJ)
      * Valor: informações sobre as tentativas falhas
-     * 
+     *
      * Usa ConcurrentHashMap para garantir thread-safety em ambientes multi-threaded
      */
     private final Map<String, FailedLoginAttempt> failedAttempts = new ConcurrentHashMap<>();
 
     /**
      * Construtor do serviço de autenticação.
-     * 
+     *
      * @param usuarioRepository Repositório para acesso aos dados de usuários
      * @param passwordEncoder Encoder BCrypt para validação de senhas
      * @param jwtService Serviço para geração de tokens JWT
      * @param refreshTokenService Serviço para gerenciamento de refresh tokens
+     * @param empresaRepository Repositório para buscar a empresa do usuário
      */
     public AuthService(UsuarioRepository usuarioRepository,
                        BCryptPasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       RefreshTokenService refreshTokenService) {
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
+                       RefreshTokenService refreshTokenService,
+                       EmpresaRepository empresaRepository) {
+        this.usuarioRepository  = usuarioRepository;
+        this.passwordEncoder    = passwordEncoder;
+        this.jwtService         = jwtService;
         this.refreshTokenService = refreshTokenService;
-        
+        this.empresaRepository  = empresaRepository;
+
         logger.debug("AuthService inicializado com sucesso");
     }
 
@@ -153,9 +161,12 @@ public class AuthService {
         logger.info("Login validado com sucesso para usuário ID: {}", usuario.get().getIdUsuario());
 
         // ETAPA 5: Geração de tokens
-        // Gera access token JWT com informações do usuário
-        var accessToken = jwtService.gerarTokenJWT(usuario.get());
-        
+        // Busca a empresa associada ao usuário (pode ser null se ainda não cadastrou empresa)
+        Empresa empresa = empresaRepository.findByUsuario(usuario.get()).orElse(null);
+
+        // Gera access token JWT com claims de contexto do usuário
+        var accessToken = jwtService.gerarTokenJWT(usuario.get(), empresa);
+
         // Cria refresh token para renovação do access token sem necessidade de novo login
         var refreshToken = refreshTokenService.criarRefreshToken(usuario.get().getIdUsuario());
 
