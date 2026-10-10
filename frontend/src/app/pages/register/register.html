@@ -1,205 +1,166 @@
-<form class="register-container" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-  <div class="brand-section">
-    <div class="brand-logo">O</div>
-    <h2 class="brand-title">ORIENTO</h2>
-  </div>
+<div class="register-wrapper">
+  <!-- PAINEL ESQUERDO -->
+  <aside class="brand-panel">
+    <div class="brand-panel__glow brand-panel__glow--bottom"></div>
 
-  <div class="form-section flex-1 bg-cover max-[1100px]:hidden">
-    <div class="mobile-logo">
-      <div class="brand-logo">O</div>
-    </div>
-    <div class="auth-header">
-      <h1 class="auth-title">Cadastre-se</h1>
-      <p class="auth-subtitle">Crie sua conta e ative seu assistente financeiro</p>
-    </div>
-
-    <div id="registerForm">
-      <!-- Nome Fantasia -->
-      <div
-        class="form-group"
-        [class.has-error]="
-          registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
-        "
-      >
-        <label for="nomeFantasia" class="form-label">Nome fantasia</label>
-        <div class="input-icon">
-          <i class="ph ph-building"></i>
-          <input
-            type="text"
-            id="nomeFantasia"
-            formControlName="nomeFantasia"
-            class="form-input"
-            placeholder="Digite o nome da sua empresa"
-          />
+    <div class="brand-panel__top">
+      <div class="brand-logo-row">
+        <div class="brand-icon">
+          <span>O</span>
         </div>
-
-        @if (registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched)
-        {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">{{ getErrorMessage('nomeFantasia') }}</p>
-        </div>
-        }
+        <span class="brand-name">ORIENTO</span>
       </div>
 
-      <!-- Razão Social -->
-      <div class="form-group">
-        <label for="razaoSocial" class="form-label">Razão social (opcional)</label>
-        <div class="input-icon">
-          <i class="ph ph-file-text"></i>
-          <input
-            type="text"
-            id="razaoSocial"
-            formControlName="razaoSocial"
-            class="form-input"
-            placeholder="Digite a razão social (opcional)"
-          />
-        </div>
+      <div class="brand-headline">
+        <h1>
+          Construa seu <br />
+          legado <br />
+          financeiro com <br />
+          precisão.
+        </h1>
+        <p>
+          Junte-se a uma rede de elite de profissionais financeiros que usam insights editoriais
+          baseados em IA para dominar os mercados.
+        </p>
       </div>
-
-      <!-- CNPJ -->
-      <div
-        class="form-group"
-        [class.has-error]="registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched"
-      >
-        <label for="cnpj" class="form-label">CNPJ</label>
-        <div class="input-icon">
-          <i class="ph ph-identification-card"></i>
-          <input
-            type="text"
-            id="cnpj"
-            formControlName="cnpj"
-            class="form-input"
-            placeholder="Informe o CNPJ da empresa"
-          />
-        </div>
-
-        @if (registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched) {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">{{ getErrorMessage('cnpj') }}</p>
-        </div>
-        }
-      </div>
-
-      <!-- E-mail -->
-      <div
-        class="form-group"
-        [class.has-error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
-      >
-        <label for="email" class="form-label">E-mail</label>
-        <div class="input-icon">
-          <i class="ph ph-envelope-simple"></i>
-          <input
-            type="email"
-            id="email"
-            formControlName="email"
-            class="form-input"
-            placeholder="Digite o e-mail da empresa"
-          />
-        </div>
-
-        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">{{ getErrorMessage('email') }}</p>
-        </div>
-        }
-      </div>
-
-      <!-- Confirmar e-mail -->
-      <div
-        class="form-group"
-        [class.has-error]="
-          registerForm.hasError('emailMismatch') && registerForm.get('confirmarEmail')?.touched
-        "
-      >
-        <label for="confirmarEmail" class="form-label">Confirmar e-mail</label>
-        <div class="input-icon">
-          <i class="ph ph-envelope-simple-open"></i>
-          <input
-            type="email"
-            id="confirmarEmail"
-            formControlName="confirmarEmail"
-            class="form-input"
-            placeholder="Confirme o e-mail"
-          />
-        </div>
-
-        @if (registerForm.hasError('emailMismatch') && registerForm.get('confirmarEmail')?.touched)
-        {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">Os e-mails não coincidem.</p>
-        </div>
-        }
-      </div>
-
-      <!-- Senha -->
-      <div
-        class="form-group"
-        [class.has-error]="registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched"
-      >
-        <label for="senha" class="form-label">Senha</label>
-        <div class="input-icon">
-          <i class="ph ph-lock"></i>
-          <input
-            type="password"
-            id="senha"
-            formControlName="senha"
-            class="form-input"
-            placeholder="Crie uma senha segura"
-          />
-        </div>
-
-        @if (registerForm.get('senha')?.invalid && registerForm.get('senha')?.touched) {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">{{ getErrorMessage('senha') }}</p>
-        </div>
-        }
-      </div>
-
-      <!-- Confirmar senha -->
-      <div
-        class="form-group"
-        [class.has-error]="
-          registerForm.hasError('passwordMismatch') && registerForm.get('confirmarSenha')?.touched
-        "
-      >
-        <label for="confirmarSenha" class="form-label">Confirmar senha</label>
-        <div class="input-icon">
-          <i class="ph ph-lock-open"></i>
-          <input
-            type="password"
-            id="confirmarSenha"
-            formControlName="confirmarSenha"
-            class="form-input"
-            placeholder="Confirme a senha"
-          />
-        </div>
-
-        @if (registerForm.hasError('passwordMismatch') &&
-        registerForm.get('confirmarSenha')?.touched) {
-        <div class="error-message d-flex align-items-center">
-          <i class="ph ph-warning-circle"></i>
-          <p class="m-0">As senhas não coincidem.</p>
-        </div>
-        }
-      </div>
-
-      <app-primary-button
-        textoBotao="Cadastrar"
-        [disabled]="loading || registerForm.invalid"
-      ></app-primary-button>
-
-      @if (errorMessage) {
-      <p class="error-text text-center mt-3">{{ errorMessage }}</p>
-      }
     </div>
 
-    <p class="auth-footer">
-      Já tem uma conta? <a (click)="goToLogin()" class="link">Acesse a plataforma</a>
-    </p>
-  </div>
-</form>
+    <div class="brand-testimonial">
+      <blockquote>
+        "Desde que começamos a usar o Oriento, nosso atendimento se tornou muito mais rápido,
+        inteligente e eficiente. O chatbot entrega orientações financeiras precisas em segundos, e
+        nossos usuários realmente gostam da experiência. É como ter um assistente financeiro premium
+        disponível 24 horas por dia."
+      </blockquote>
+      <div class="testimonial-author">
+        <img
+          src="/profile/lucelho-testimonial.jpeg"
+          alt="Lucelho Silva"
+          class="testimonial-avatar"
+        />
+        <div>
+          <strong>Lucelho Silva</strong>
+          <span>CEO Elkys</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- PAINEL DIREITO -->
+  <main class="form-panel">
+    <div class="form-panel__inner">
+      <!-- Stepper — passo 1 ativo -->
+      <div class="stepper" role="list" aria-label="Etapas do cadastro">
+        <div class="stepper__step" role="listitem" aria-current="step">
+          <div class="stepper__bubble stepper__bubble--active">1</div>
+          <span class="stepper__label stepper__label--active">Identificação</span>
+        </div>
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem">
+          <div class="stepper__bubble">2</div>
+          <span class="stepper__label">Credenciais</span>
+        </div>
+        <div class="stepper__divider" aria-hidden="true"></div>
+        <div class="stepper__step" role="listitem">
+          <div class="stepper__bubble">3</div>
+          <span class="stepper__label">Confirmação</span>
+        </div>
+      </div>
+
+      <!-- Cabeçalho -->
+      <div class="form-header">
+        <h2>Crie sua conta</h2>
+        <p>Comece informando os dados da sua empresa.</p>
+      </div>
+
+      <!-- Formulário -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- Nome Completo -->
+        <div
+          class="field"
+          [class.field--error]="
+            registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched
+          "
+        >
+          <label for="nome" class="field__label">NOME COMPLETO</label>
+          <div class="field__input-wrap">
+            <input
+              type="text"
+              id="nome"
+              formControlName="nome"
+              class="field__input"
+              placeholder="Digite o nome completo"
+            />
+            <img src="/register/icon-profile.svg" alt="" class="field__icon" />
+          </div>
+          @if (
+            registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched
+          ) {
+            <p class="field__error">{{ getErrorMessage('nome') }}</p>
+          }
+        </div>
+
+        <!-- Nome Fantasia -->
+        <div
+          class="field"
+          [class.field--error]="
+            registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
+          "
+        >
+          <label for="nomeFantasia" class="field__label">NOME FANTASIA</label>
+          <div class="field__input-wrap">
+            <input
+              type="text"
+              id="nomeFantasia"
+              formControlName="nomeFantasia"
+              class="field__input"
+              placeholder="Nome da empresa"
+            />
+            <img src="/register/icon-empresa.svg" alt="" class="field__icon" />
+          </div>
+          @if (
+            registerForm.get('nomeFantasia')?.invalid && registerForm.get('nomeFantasia')?.touched
+          ) {
+            <p class="field__error">{{ getErrorMessage('nomeFantasia') }}</p>
+          }
+        </div>
+
+        <!-- CNPJ -->
+        <div
+          class="field"
+          [class.field--error]="
+            registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched
+          "
+        >
+          <label for="cnpj" class="field__label">CNPJ</label>
+          <div class="field__input-wrap">
+            <input
+              type="text"
+              id="cnpj"
+              formControlName="cnpj"
+              class="field__input"
+              placeholder="00.000.000/0000-00"
+            />
+            <img src="/register/icon-identificationCard.svg" alt="" class="field__icon" />
+          </div>
+          @if (registerForm.get('cnpj')?.invalid && registerForm.get('cnpj')?.touched) {
+            <p class="field__error">{{ getErrorMessage('cnpj') }}</p>
+          }
+        </div>
+
+        <!-- Ações -->
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+            Avançar
+          </button>
+          <p class="login-link">
+            Já tem uma conta?
+            <button type="button" (click)="goToLogin()" class="login-link__anchor">
+              Iniciar sessão
+            </button>
+          </p>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

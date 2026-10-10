@@ -1,5 +1,14 @@
 .main-content-area {
-  padding-top: 80px;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-top: 72px;
+  padding-left: calc(256px + 32px);
+  padding-right: 32px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+@media (max-width: 820px) {
+  .main-content-area {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }

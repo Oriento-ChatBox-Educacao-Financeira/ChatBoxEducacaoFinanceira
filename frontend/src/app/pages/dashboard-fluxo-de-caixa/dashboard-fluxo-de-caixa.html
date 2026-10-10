@@ -1,0 +1,212 @@
+<app-main-navbar>
+  <div class="fluxo-page">
+    <div class="fluxo-content">
+      <!-- KPI CARDS -->
+      <div class="fluxo-kpis">
+        <div
+          class="kpi-card"
+          [class.kpi-card--highlight]="item.highlight"
+          *ngFor="let item of kpis"
+        >
+          <div class="kpi-card__header">
+            <span class="kpi-card__label" [class.kpi-card__label--blue]="item.highlight">
+              {{ item.label }}
+            </span>
+
+            <i
+              [class]="item.icon"
+              class="kpi-card__ph-icon"
+              [class.kpi-card__ph-icon--blue]="item.badgeType === 'blue' || item.highlight"
+              [class.kpi-card__ph-icon--gold]="item.badgeType === 'gold'"
+            ></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value" [class.kpi-card__value--blue]="item.highlight">
+              {{ item.value }}
+            </span>
+
+            <div
+              *ngIf="item.badge"
+              class="kpi-card__badge"
+              [class.kpi-card__badge--gold]="item.badgeType === 'gold'"
+              [class.kpi-card__badge--blue]="item.badgeType === 'blue'"
+              [class.kpi-card__badge--neutral]="item.badgeType === 'neutral'"
+            >
+              <i class="ph ph-trend-up"></i>
+              <span>{{ item.badge }}</span>
+            </div>
+
+            <span *ngIf="item.sub" class="kpi-card__sub">
+              {{ item.sub }}
+            </span>
+          </div>
+
+          <div class="kpi-card__glow"></div>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div class="fluxo-grid">
+        <!-- COLUNA SIDEBAR -->
+        <div class="fluxo-sidebar">
+          <!-- VENCIMENTOS -->
+          <div class="chart-card chart-card--gray">
+            <div class="chart-card__header">
+              <span class="chart-card__title"> Vencimentos Hoje </span>
+
+              <i class="ph ph-calendar-x"></i>
+            </div>
+
+            <div class="fluxo-list">
+              <div class="fluxo-list__item" *ngFor="let item of vencimentosHoje">
+                <span>{{ item.descricao }}</span>
+                <strong>{{ item.valor }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- SALDO -->
+          <div class="kpi-card kpi-card--highlight">
+            <div class="kpi-card__header">
+              <span class="kpi-card__label kpi-card__label--blue"> SALDO ATUAL </span>
+
+              <i class="ph ph-wallet kpi-card__ph-icon kpi-card__ph-icon--blue"></i>
+            </div>
+
+            <div class="kpi-card__body">
+              <span class="kpi-card__value kpi-card__value--blue"> R$ 2.450M </span>
+
+              <div class="kpi-card__badge kpi-card__badge--gold">
+                <i class="ph ph-trend-up"></i>
+                <span>+12.5% vs mês anterior</span>
+              </div>
+            </div>
+
+            <div class="kpi-card__glow"></div>
+          </div>
+
+          <!-- PROJEÇÃO -->
+          <div class="kpi-card">
+            <div class="kpi-card__header">
+              <span class="kpi-card__label"> PROJEÇÃO 30 DIAS </span>
+
+              <i class="ph ph-chart-line-up kpi-card__ph-icon kpi-card__ph-icon--gold"></i>
+            </div>
+
+            <div class="kpi-card__body">
+              <span class="kpi-card__value"> R$ 2.89M </span>
+
+              <span class="kpi-card__sub"> Superávit previsto: R$ 440K </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="fluxo-main">
+          <!-- GRÁFICO -->
+          <div class="chart-card chart-card--large">
+            <div class="chart-card__header">
+              <div class="chart-card__header-left">
+                <span class="chart-card__title"> Evolução de Entradas e Saídas </span>
+
+                <span class="chart-card__subtitle"> Acompanhamento mensal consolidado </span>
+              </div>
+
+              <div class="chart-card__legend">
+                <div class="chart-card__legend-item">
+                  <span class="chart-card__legend-dot chart-card__legend-dot--blue"></span>
+                  <span>Entradas</span>
+                </div>
+
+                <div class="chart-card__legend-item">
+                  <span class="chart-card__legend-dot chart-card__legend-dot--gold"></span>
+                  <span>Saídas</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card__body">
+              <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
+                <line x1="0" y1="0" x2="580" y2="0" class="chart-line-bg" />
+                <line x1="0" y1="64" x2="580" y2="64" class="chart-line-bg" />
+                <line x1="0" y1="128" x2="580" y2="128" class="chart-line-bg" />
+                <line x1="0" y1="192" x2="580" y2="192" class="chart-line-bg" />
+
+                <!-- ENTRADAS -->
+                <polyline
+                  points="48,180 144,120 240,140 336,90 432,110 528,70"
+                  fill="none"
+                  stroke="#002162"
+                  stroke-width="3"
+                  stroke-linejoin="round"
+                />
+
+                <!-- SAÍDAS -->
+                <polyline
+                  points="48,220 144,180 240,190 336,160 432,170 528,140"
+                  fill="none"
+                  stroke="#FEB700"
+                  stroke-width="3"
+                  stroke-linejoin="round"
+                />
+              </svg>
+
+              <div class="chart-card__months">
+                <span>Jan</span>
+                <span>Fev</span>
+                <span>Mar</span>
+                <span>Abr</span>
+                <span>Mai</span>
+                <span>Jun</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MOVIMENTAÇÕES -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <span class="chart-card__title"> Movimentações Recentes </span>
+
+              <a class="chart-card__link"> Ver Extrato Completo </a>
+            </div>
+
+            <div class="mov-table">
+              <div class="mov-row" *ngFor="let item of movimentacoes">
+                <div class="mov-row__top">
+                  {{ item.data }}
+                </div>
+
+                <div class="mov-row__middle">
+                  <div>
+                    <strong>{{ item.titulo }}</strong>
+                    <span>{{ item.subtitulo }}</span>
+                  </div>
+
+                  <div class="mov-tag">
+                    {{ item.categoria }}
+                  </div>
+                </div>
+
+                <div
+                  class="mov-row__value"
+                  [class.mov-row__value--entrada]="item.entrada"
+                  [class.mov-row__value--saida]="!item.entrada"
+                >
+                  <i
+                    class="ph"
+                    [class.ph-arrow-circle-down]="item.entrada"
+                    [class.ph-arrow-circle-up]="!item.entrada"
+                  ></i>
+
+                  <strong>{{ item.valor }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-chat-widget></app-chat-widget>
+</app-main-navbar>

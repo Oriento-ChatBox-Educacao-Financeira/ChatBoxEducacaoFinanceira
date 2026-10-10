@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiError } from '../models/usuario.model';
 import { LoggerService } from './logger.service';
+import { EmailAlreadyRegisteredError } from './auth.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +13,20 @@ export class ErrorHandlerService {
   /**
    * Processa erros HTTP e retorna mensagem amigável ao usuário
    */
-  handleError(error: HttpErrorResponse): string {
+  handleError(error: HttpErrorResponse | Error): string {
     this.logger.error('Erro HTTP:', error);
+
+    if (error instanceof EmailAlreadyRegisteredError) {
+      return 'Este e-mail já está cadastrado. Use outro ou faça login.';
+    }
+
+    if (!(error instanceof HttpErrorResponse)) {
+      const message = (error as { message?: string })?.message;
+      if (message && /email|already|registered|exists/i.test(message)) {
+        return 'Este e-mail já está cadastrado. Use outro ou faça login.';
+      }
+      return message || 'Erro inesperado. Tente novamente.';
+    }
 
     // Erro do lado do cliente (rede, etc)
     if (error.error instanceof ErrorEvent) {
@@ -51,12 +64,17 @@ export class ErrorHandlerService {
   /**
    * Retorna mensagem específica para erros de autenticação
    */
-  handleAuthError(error: HttpErrorResponse): string {
-    if (error.status === 401) {
-      return 'E-mail ou senha inválidos.';
+  handleAuthError(error: HttpErrorResponse | Error): string {
+    if (error instanceof EmailAlreadyRegisteredError) {
+      return 'Este e-mail já está cadastrado. Use outro ou faça login.';
     }
-    if (error.status === 409) {
-      return 'Este e-mail ou CNPJ já está cadastrado.';
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        return 'E-mail ou senha inválidos.';
+      }
+      if (error.status === 409) {
+        return 'Este e-mail ou CNPJ já está cadastrado.';
+      }
     }
     return this.handleError(error);
   }

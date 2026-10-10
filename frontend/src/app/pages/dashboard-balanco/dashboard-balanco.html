@@ -1,0 +1,240 @@
+<app-main-navbar>
+  <div class="balanco-page">
+    <div class="balanco-content">
+      <!-- HEADER -->
+      <div class="balanco-header">
+        <div class="balanco-header__left">
+          <span class="balanco-header__title"> Balanço Patrimonial </span>
+
+          <span class="balanco-header__subtitle">
+            Análise estrutural da posição financeira corporativa. Valores consolidados atualizados
+            até o fechamento do último trimestre fiscal.
+          </span>
+        </div>
+
+        <!-- PERÍODOS -->
+        <div class="period-selector">
+          <div
+            class="period-selector__item"
+            [class.period-selector__item--active]="periodoAtivo === item"
+            *ngFor="let item of periodos"
+          >
+            {{ item }}
+          </div>
+
+          <div class="period-selector__divider"></div>
+
+          <i class="ph ph-caret-down"></i>
+        </div>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="balanco-kpis">
+        <div
+          class="kpi-card"
+          [class.kpi-card--highlight]="item.highlight"
+          *ngFor="let item of kpis"
+        >
+          <div class="kpi-card__header">
+            <span class="kpi-card__label" [class.kpi-card__label--blue]="item.highlight">
+              {{ item.label }}
+            </span>
+
+            <i
+              [class]="item.icon"
+              class="kpi-card__ph-icon"
+              [class.kpi-card__ph-icon--blue]="item.highlight"
+              [class.kpi-card__ph-icon--gold]="item.badgeType === 'gold'"
+            ></i>
+          </div>
+
+          <div class="kpi-card__body">
+            <span class="kpi-card__value" [class.kpi-card__value--blue]="item.highlight">
+              {{ item.value }}
+            </span>
+
+            <div
+              *ngIf="item.badge"
+              class="kpi-card__badge"
+              [class.kpi-card__badge--gold]="item.badgeType === 'gold'"
+              [class.kpi-card__badge--neutral]="item.badgeType === 'neutral'"
+              [class.kpi-card__badge--green]="item.badgeType === 'green'"
+            >
+              <i class="ph ph-trend-up"></i>
+
+              <span>{{ item.badge }}</span>
+            </div>
+
+            <span *ngIf="item.sub" class="kpi-card__sub">
+              {{ item.sub }}
+            </span>
+          </div>
+
+          <div class="kpi-card__glow"></div>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div class="balanco-grid">
+        <!-- SIDEBAR -->
+        <div class="balanco-sidebar">
+          <div class="balance-highlight-card">
+            <div class="balance-highlight-card__bg"></div>
+
+            <div class="balance-highlight-card__circle"></div>
+
+            <div class="balance-highlight-card__content">
+              <span class="balance-highlight-card__label"> Patrimônio Líquido </span>
+
+              <strong class="balance-highlight-card__value"> R$ 7.443.350 </strong>
+
+              <div class="balance-highlight-card__badge">
+                <i class="ph ph-chart-pie-slice"></i>
+
+                <span>Índice Liquidez: 1.8</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESUMOS -->
+          <div class="chart-card chart-card--gray">
+            <div class="chart-card__header">
+              <span class="chart-card__title"> Indicadores </span>
+
+              <i class="ph ph-chart-line-up"></i>
+            </div>
+
+            <div class="fluxo-list">
+              <div class="fluxo-list__item" *ngFor="let item of indicadores">
+                <span>{{ item.label }}</span>
+
+                <strong>{{ item.value }}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="balanco-main">
+          <!-- COMPOSIÇÃO DE ATIVOS -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <span class="chart-card__title"> Composição de Ativos </span>
+
+              <i class="ph ph-chart-donut"></i>
+            </div>
+
+            <div class="balance-chart-layout">
+              <!-- DONUT -->
+              <div class="donut-chart">
+                <div class="donut-chart__center">
+                  <span>Total</span>
+                  <strong>100%</strong>
+                </div>
+              </div>
+
+              <!-- LEGENDA -->
+              <div class="balance-legend">
+                <div class="balance-legend__item" *ngFor="let item of ativos">
+                  <div class="balance-legend__left">
+                    <span class="balance-legend__dot" [style.background]="item.color"></span>
+
+                    <div class="balance-legend__texts">
+                      <strong>{{ item.nome }}</strong>
+
+                      <span>{{ item.desc }}</span>
+                    </div>
+                  </div>
+
+                  <div class="balance-legend__right">
+                    <strong>{{ item.percentual }}</strong>
+
+                    <span>{{ item.valor }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ORIGEM DE RECURSOS -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <span class="chart-card__title"> Origem de Recursos </span>
+
+              <i class="ph ph-bank"></i>
+            </div>
+
+            <div class="balance-chart-layout">
+              <!-- DONUT -->
+              <div class="donut-chart donut-chart--gold">
+                <div class="donut-chart__center">
+                  <span>Capital</span>
+                  <strong>Mix</strong>
+                </div>
+              </div>
+
+              <!-- LEGENDA -->
+              <div class="balance-legend">
+                <div class="balance-legend__item" *ngFor="let item of recursos">
+                  <div class="balance-legend__left">
+                    <span class="balance-legend__dot" [style.background]="item.color"></span>
+
+                    <div class="balance-legend__texts">
+                      <strong>{{ item.nome }}</strong>
+
+                      <span>{{ item.desc }}</span>
+                    </div>
+                  </div>
+
+                  <div class="balance-legend__right">
+                    <strong>{{ item.percentual }}</strong>
+
+                    <span>{{ item.valor }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EVOLUÇÃO -->
+          <div class="chart-card">
+            <div class="chart-card__header">
+              <div class="chart-card__header-left">
+                <span class="chart-card__title"> Evolução Patrimonial </span>
+
+                <span class="chart-card__subtitle"> Crescimento trimestral consolidado </span>
+              </div>
+            </div>
+
+            <div class="chart-card__body">
+              <svg class="line-chart" viewBox="0 0 580 255" preserveAspectRatio="none">
+                <line x1="0" y1="0" x2="580" y2="0" class="chart-line-bg" />
+                <line x1="0" y1="64" x2="580" y2="64" class="chart-line-bg" />
+                <line x1="0" y1="128" x2="580" y2="128" class="chart-line-bg" />
+                <line x1="0" y1="192" x2="580" y2="192" class="chart-line-bg" />
+
+                <polyline
+                  points="48,180 144,150 240,120 336,100 432,85 528,60"
+                  fill="none"
+                  stroke="#002162"
+                  stroke-width="3"
+                  stroke-linejoin="round"
+                />
+              </svg>
+
+              <div class="chart-card__months">
+                <span>T1</span>
+                <span>T2</span>
+                <span>T3</span>
+                <span>T4</span>
+                <span>T1</span>
+                <span>T2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-chat-widget></app-chat-widget>
+</app-main-navbar>
