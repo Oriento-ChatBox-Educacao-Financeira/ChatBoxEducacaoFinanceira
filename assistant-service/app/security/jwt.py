@@ -3,7 +3,11 @@ from uuid import UUID
 import jwt
 from fastapi import HTTPException, status
 
-from app.security.config import get_jwt_public_key
+from app.security.config import (
+    get_jwt_algorithm,
+    get_jwt_issuer,
+    get_jwt_public_key,
+)
 
 
 def validate_access_token(token: str) -> UUID:
@@ -11,10 +15,15 @@ def validate_access_token(token: str) -> UUID:
         payload = jwt.decode(
             token,
             get_jwt_public_key(),
-            algorithms=["RS256"],
-            issuer="oriento",
+            algorithms=[get_jwt_algorithm()],
+            issuer=get_jwt_issuer(),
             options={
-                "require": ["sub", "iss", "iat", "exp"],
+                "require": [
+                    "sub",
+                    "iss",
+                    "iat",
+                    "exp",
+                ],
             },
         )
 
@@ -28,5 +37,7 @@ def validate_access_token(token: str) -> UUID:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido ou expirado",
-            headers={"WWW-Authenticate": "Bearer"},
+            headers={
+                "WWW-Authenticate": "Bearer",
+            },
         )
