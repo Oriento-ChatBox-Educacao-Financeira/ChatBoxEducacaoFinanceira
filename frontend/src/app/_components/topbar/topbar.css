@@ -1,58 +1,122 @@
-:host {
-  --primary-blue: #103688;
-  --primary-gold: #ffbb00;
-  --primary-white: #ffffff;
-}
-
-.topbar-nav {
-  background-color: var(--primary-blue);
-  padding: 2px 16px;
-  z-index: 900;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-/* LOGO "ORIENTO" */
-.navbar-brand {
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 256px;
+  right: 0;
+  height: 72px;
+  padding: 0 32px;
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(12px);
   display: flex;
   align-items: center;
-  gap: 14px;
-  color: var(--primary-white);
-  font-weight: 700;
-  font-size: 20px;
+  justify-content: space-between;
+  gap: 32px;
+  z-index: 99;
 }
 
-.navbar-brand:hover {
-  color: #f0f0f0;
+/* ── BUSCA ── */
+.topbar__search-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/*  QUADRADO DA LOGO */
-.logo-square {
-  width: 30px;
-  height: 30px;
-  background-color: var(--primary-gold);
-  border-radius: 6px;
-  color: var(--primary-blue);
+.topbar__search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.topbar__search {
+  width: 100%;
+  padding: 9px 16px 10px 40px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  color: #191c1d;
+  transition: box-shadow 0.2s;
+}
+
+.topbar__search::placeholder {
+  color: #6b7280;
+}
+
+.topbar__search:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--blue-mid);
+}
+
+/* ── DIREITA ── */
+.topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.topbar__icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  z-index: 1;
 }
 
-/* BOTÃO */
-.btn-icon {
-  color: var(--primary-white);
-  font-size: 24px;
-  border: none;
-  padding: 6px 8px;
+.topbar__icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
-.btn-icon:hover {
-  color: var(--primary-gold);
+.topbar__icon-btn:hover .topbar__icon {
+  opacity: 1;
 }
 
-@media (max-width: 600px) {
-  .btn-icon {
-    padding: 9px 8px;
+/* ── PERFIL ── */
+.topbar__profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.topbar__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  object-fit: cover;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.topbar__username {
+  color: var(--blue-mid);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+/* ── RESPONSIVIDADE ── */
+@media (max-width: 820px) {
+  .topbar {
+    left: 0;
+  }
+
+  .topbar__username {
+    display: none;
   }
 }

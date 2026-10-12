@@ -1,17 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
-:host {
-  --primary-blue: #103688;
-  --dark-blue: #002162;
-  --primary-gold: #ffb800;
-  --primary-white: #ffffff;
-  --text-dark: #191c1d;
-  --gray: #747683;
-  --light-gray: #f3f4f5;
-  --border-gray: rgba(196, 198, 211, 0.3);
-  --error: #dc2626;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -24,8 +10,6 @@
   display: flex;
   font-family: 'Inter', sans-serif;
 }
-
-/* LEFT SIDE */
 
 .brand-section {
   width: 40%;
@@ -80,7 +64,7 @@
   width: 40px;
   height: 40px;
   border-radius: 4px;
-  background: var(--primary-gold);
+  background: var(--gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -89,11 +73,11 @@
 .brand-logo span {
   font-size: 22px;
   font-weight: 900;
-  color: var(--primary-blue);
+  color: var(--blue-mid);
 }
 
 .brand-title {
-  color: white;
+  color: var(--white);
   font-size: 24px;
   font-weight: 900;
 }
@@ -105,7 +89,7 @@
 }
 
 .hero-title {
-  color: white;
+  color: var(--white);
   font-size: 48px;
   font-weight: 800;
   line-height: 60px;
@@ -118,7 +102,6 @@
   line-height: 29px;
 }
 
-/* TESTIMONIAL */
 .testimonial-wrapper {
   position: relative;
   z-index: 2;
@@ -137,7 +120,7 @@
 }
 
 .testimonial-text {
-  color: white;
+  color: var(--white);
   font-size: 14px;
   line-height: 20px;
   font-style: italic;
@@ -161,7 +144,7 @@
 }
 
 .testimonial-info strong {
-  color: white;
+  color: var(--white);
   font-size: 12px;
 }
 
@@ -171,14 +154,12 @@
   letter-spacing: 1px;
 }
 
-/* RIGHT SIDE */
-
 .form-section {
   width: 60%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: var(--bg);
   padding: 96px;
 }
 
@@ -199,7 +180,7 @@
 }
 
 .auth-subtitle {
-  color: #444651;
+  color: var(--text-mid);
   font-size: 16px;
   line-height: 24px;
 }
@@ -214,7 +195,7 @@
 .form-label {
   display: block;
   margin-bottom: 10px;
-  color: #444651;
+  color: var(--text-mid);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -242,8 +223,8 @@
   padding: 18px 48px 18px 16px;
   border: none;
   border-radius: 4px;
-  background: #f3f4f5;
-  color: #191c1d;
+  background: var(--input-bg);
+  color: var(--text-dark);
   font-size: 16px;
   font-weight: 400;
   transition:
@@ -252,11 +233,11 @@
 }
 
 .form-input::placeholder {
-  color: rgba(116, 118, 131, 0.5);
+  color: var(--text-muted);
 }
 
 .form-input:focus {
-  outline: 1px solid #103688;
+  outline: 1px solid var(--blue-mid);
   background: #eef2ff;
 }
 
@@ -264,7 +245,7 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
-  color: var(--dark-blue);
+  color: var(--blue-dark);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -280,10 +261,8 @@
 
 .remember-wrapper label {
   font-size: 12px;
-  color: #444651;
+  color: var(--text-mid);
 }
-
-/* ACTION ROW */
 
 .action-row {
   display: flex;
@@ -298,13 +277,13 @@
 }
 
 .auth-footer {
-  color: #444651;
+  color: var(--text-mid);
   font-size: 14px;
   line-height: 20px;
 }
 
 .link {
-  color: var(--dark-blue);
+  color: var(--blue-dark);
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -338,19 +317,9 @@
   color: var(--error);
 }
 
-.forgot-password {
-  color: var(--dark-blue);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  white-space: nowrap;
-}
 .forgot-password:hover {
   text-decoration: underline;
 }
-
-/* DIVIDER */
 
 .divider {
   position: relative;
@@ -365,26 +334,25 @@
   position: absolute;
   width: 100%;
   height: 1px;
-  background: rgba(196, 198, 211, 0.3);
+  background: var(--border);
 }
 
 .divider span {
   position: relative;
   z-index: 2;
   padding: 0 16px;
-  background: #f8f9fa;
-  color: #444651;
+  background: var(--bg);
+  color: var(--text-mid);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.2px;
 }
 
-/* GOOGLE BUTTON */
 .google-button {
   width: 100%;
-  border: 1px solid rgba(196, 198, 211, 0.3);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  background: #f3f4f5;
+  background: var(--input-bg);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -408,22 +376,19 @@
 }
 
 .google-button span {
-  color: #191c1d;
+  color: var(--text-dark);
   font-size: 16px;
   font-weight: 700;
 }
 
-/* RESPONSIVO */
 @media (max-width: 700px) {
   .action-row {
     flex-direction: column;
     align-items: stretch;
   }
-
   .button-wrapper {
     width: 100%;
   }
-
   .auth-footer {
     text-align: center;
   }
@@ -433,7 +398,6 @@
   .brand-section {
     display: none;
   }
-
   .form-section {
     width: 100%;
     padding: 40px 24px;

@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
 
-  canActivate(): boolean {
+  /**
+   * Aguarda a hidratação inicial da sessão (bootstrapSession) antes de
+   * decidir, para não redirecionar a /login durante o boot quando o
+   * usuário tem sessão Supabase válida em localStorage.
+   */
+  async canActivate(): Promise<boolean | UrlTree> {
+    await this.auth.whenReady();
     if (this.auth.isAuthenticated()) {
-      return true; // Usuário autenticado
+      return true;
     }
-
-    // Se não estiver logado, redireciona para o login
-    this.router.navigate(['/login']);
-    return false;
+    return this.router.createUrlTree(['/login']);
   }
 }

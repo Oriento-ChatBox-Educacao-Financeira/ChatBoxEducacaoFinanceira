@@ -1,0 +1,161 @@
+<app-main-navbar>
+  <div class="overview-page">
+    <div class="overview-content">
+      <!-- HEADER -->
+      <div class="overview-header">
+        <div class="overview-header__left">
+          <span class="overview-header__title"> Visão Geral </span>
+
+          <span class="overview-header__subtitle">
+            Resumo consolidado da sua saúde financeira.
+          </span>
+        </div>
+
+        <div class="overview-period">
+          <span>Maio 2026</span>
+        </div>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="overview-kpis">
+        <div class="overview-kpi-card" *ngFor="let item of kpis">
+          <div class="overview-kpi-card__header">
+            <span>{{ item.label }}</span>
+
+            <i [class]="item.icon"></i>
+          </div>
+
+          <div class="overview-kpi-card__body">
+            <strong>{{ item.value }}</strong>
+
+            <div *ngIf="item.badge" class="overview-kpi-card__badge">
+              <i class="ph ph-trend-up"></i>
+
+              <span>{{ item.badge }}</span>
+            </div>
+
+            <span *ngIf="item.sub" class="overview-kpi-card__sub">
+              {{ item.sub }}
+            </span>
+          </div>
+
+          <div class="overview-kpi-card__line"></div>
+        </div>
+      </div>
+
+      <!-- GRID -->
+      <div class="overview-grid">
+        <!-- LEFT -->
+        <div class="overview-main">
+          <!-- DRE -->
+          <div class="overview-card">
+            <div class="overview-card__header">
+              <span class="overview-card__title"> Evolução DRE Simplificado </span>
+
+              <div class="overview-chart-legend">
+                <div class="overview-chart-legend__item">
+                  <span class="overview-chart-legend__dot overview-chart-legend__dot--blue"></span>
+                  <span>Receita</span>
+                </div>
+
+                <div class="overview-chart-legend__item">
+                  <span class="overview-chart-legend__dot overview-chart-legend__dot--gray"></span>
+                  <span>Despesa</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="overview-bar-chart">
+              <div class="overview-bar-chart__group" *ngFor="let item of dre">
+                <div class="overview-bar-chart__bars">
+                  <div
+                    class="overview-bar-chart__bar overview-bar-chart__bar--blue"
+                    [style.height]="item.receita"
+                  ></div>
+
+                  <div
+                    class="overview-bar-chart__bar overview-bar-chart__bar--gray"
+                    [style.height]="item.despesa"
+                  ></div>
+                </div>
+
+                <span>{{ item.mes }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- INSIGHT -->
+          <div class="overview-insight-card">
+            <div class="overview-insight-card__icon">
+              <i class="ph ph-sparkle"></i>
+            </div>
+
+            <div class="overview-insight-card__content">
+              <span class="overview-insight-card__title"> ORIENTO Insight </span>
+
+              <p class="overview-insight-card__text">
+                Olá! Notei que seu superávit projetado para os próximos 30 dias é de
+                <strong>R$ 440.500</strong>. Gostaria de ver sugestões de investimento?
+              </p>
+
+              <div class="overview-insight-card__actions">
+                <button class="overview-btn overview-btn--gold">Ver Sugestões</button>
+
+                <button class="overview-btn">Dispensar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="overview-sidebar">
+          <!-- SAÚDE -->
+          <div class="overview-card overview-card--center">
+            <div class="overview-card__header">
+              <span class="overview-card__title"> Saúde Financeira </span>
+            </div>
+
+            <div class="health-score">
+              <div class="health-score__circle">
+                <div class="health-score__inner">
+                  <strong>88</strong>
+                  <span>/ 100</span>
+                </div>
+              </div>
+
+              <div class="health-score__badge">Excelente</div>
+            </div>
+          </div>
+
+          <!-- VENCIMENTOS -->
+          <div class="overview-card overview-card--gray">
+            <div class="overview-card__header">
+              <span class="overview-card__title"> Próximos Vencimentos </span>
+            </div>
+
+            <div class="overview-payments">
+              <div class="overview-payment-item" *ngFor="let item of vencimentos">
+                <div class="overview-payment-item__left">
+                  <div class="overview-payment-item__icon">
+                    <i [class]="item.icon"></i>
+                  </div>
+
+                  <div class="overview-payment-item__texts">
+                    <strong>{{ item.nome }}</strong>
+
+                    <span>{{ item.desc }}</span>
+                  </div>
+                </div>
+
+                <strong class="overview-payment-item__value">
+                  {{ item.valor }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <app-chat-widget></app-chat-widget>
+</app-main-navbar>

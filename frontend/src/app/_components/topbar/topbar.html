@@ -1,12 +1,32 @@
-<nav class="navbar navbar-expand-lg fixed-top topbar-nav">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-      <div class="logo-square">O</div>
-      <div>ORIENTO</div>
-    </a>
+<header class="topbar">
 
-    <button class="btn btn-icon" type="button" (click)="onMenuButtonClick()">
-      <i class="ph ph-caret-double-left"></i>
-    </button>
+  <!-- Busca -->
+  <div class="topbar__search-wrap">
+    <img src="/topbar/icon-pesquisa.svg" alt="" class="topbar__search-icon" />
+    <input
+      type="text"
+      class="topbar__search"
+      placeholder="Pesquise seus dados financeiros..."
+      [(ngModel)]="searchQuery"
+    />
   </div>
-</nav>
+
+  <!-- Direita -->
+  <div class="topbar__right">
+    <!-- Notificação -->
+    <button class="topbar__icon-btn" (click)="abrirNotificacoes()">
+      <img src="/topbar/icon-notificacao.svg" alt="Notificações" class="topbar__icon" />
+    </button>
+
+    <!-- Perfil -->
+    <div class="topbar__profile">
+      <img
+        src="/profile/lucelho-testimonial.jpeg"
+        alt="Foto de perfil"
+        class="topbar__avatar"
+      />
+      <span class="topbar__username">{{ userName }}</span>
+    </div>
+  </div>
+
+</header>

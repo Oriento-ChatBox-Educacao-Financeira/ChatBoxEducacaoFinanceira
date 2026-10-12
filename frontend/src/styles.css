@@ -1,10 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+:root {
+  --blue-dark: #002162;
+  --blue-mid: #103688;
+  --gold: #ffb800;
+  --gold-text: #271900;
+  --white: #ffffff;
+  --bg: #f8f9fa;
+  --text-dark: #191c1d;
+  --text-mid: #444651;
+  --text-muted: rgba(116, 118, 131, 0.5);
+  --input-bg: #f3f4f5;
+  --border: rgba(196, 198, 211, 0.3);
+  --error: #dc2626;
+}
 
 html,
 body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
 }

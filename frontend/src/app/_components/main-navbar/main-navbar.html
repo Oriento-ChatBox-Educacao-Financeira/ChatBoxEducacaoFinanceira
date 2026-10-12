@@ -1,6 +1,5 @@
-<app-topbar (openMenuClick)="sidebar.toggleSidebar()"></app-topbar>
-
-<app-navbar #sidebar></app-navbar>
+<app-topbar [userName]="nomeUsuario"></app-topbar>
+<app-navbar></app-navbar>
 
 <main class="main-content-area">
   <ng-content></ng-content>
