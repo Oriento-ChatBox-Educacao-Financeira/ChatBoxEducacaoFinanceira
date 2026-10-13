@@ -45,10 +45,6 @@ public class UsuarioService {
         usuario.setEmail(request.email());
         usuario.setSenha(passwordEncoder.encode(request.senha()));
 
-        if (request.nivelMaturidadeFinanceira() != null) {
-            usuario.setNivelMaturidade(request.nivelMaturidadeFinanceira().name());
-        }
-
         Usuario salvo = usuarioRepository.save(usuario);
         logger.info("Usuário criado com sucesso. ID: {}", salvo.getIdUsuario());
 
@@ -103,10 +99,6 @@ public class UsuarioService {
         if (request.senha() != null && !request.senha().isBlank()) {
             usuario.setSenha(passwordEncoder.encode(request.senha()));
             logger.debug("Senha atualizada para o usuário ID: {}", id);
-        }
-
-        if (request.nivelMaturidadeFinanceira() != null) {
-            usuario.setNivelMaturidade(request.nivelMaturidadeFinanceira().name());
         }
 
         Usuario atualizado = usuarioRepository.save(usuario);

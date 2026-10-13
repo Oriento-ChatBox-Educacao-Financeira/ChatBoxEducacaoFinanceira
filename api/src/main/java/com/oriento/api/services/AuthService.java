@@ -1,12 +1,11 @@
 package com.oriento.api.services;
 
-import com.oriento.api.dto.LoginRequest;
-import com.oriento.api.dto.LoginResponse;
-import com.oriento.api.dto.UsuarioResponse;
-import com.oriento.api.model.Empresa;
-import com.oriento.api.model.Usuario;
-import com.oriento.api.repositories.EmpresaRepository;
-import com.oriento.api.repositories.UsuarioRepository;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,11 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import com.oriento.api.dto.LoginRequest;
+import com.oriento.api.dto.LoginResponse;
+import com.oriento.api.dto.UsuarioResponse;
+import com.oriento.api.model.Empresa;
+import com.oriento.api.model.Usuario;
+import com.oriento.api.repositories.EmpresaRepository;
+import com.oriento.api.repositories.UsuarioRepository;
 
 /**
  * Serviço responsável por gerenciar autenticação de usuários.
@@ -163,7 +164,7 @@ public class AuthService {
 
         // ETAPA 5: Geração de tokens
         // Busca a empresa associada ao usuário (pode ser null se ainda não cadastrou empresa)
-        Empresa empresa = empresaRepository.findByUsuario(usuario.get()).orElse(null);
+        Empresa empresa = empresaRepository.findByUsuario_IdUsuario(usuario.get().getIdUsuario()).orElse(null);
 
         // Gera access token JWT com claims de contexto do usuário
         var accessToken = jwtService.gerarTokenJWT(usuario.get(), empresa);
