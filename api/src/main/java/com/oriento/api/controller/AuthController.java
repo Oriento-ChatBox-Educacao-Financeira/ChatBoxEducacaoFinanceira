@@ -16,9 +16,11 @@ import com.oriento.api.dto.LoginRequest;
 import com.oriento.api.dto.LoginResponse;
 import com.oriento.api.dto.RefreshTokenDTO;
 import com.oriento.api.dto.UsuarioResponse;
+import com.oriento.api.model.Empresa;
 import com.oriento.api.model.RefreshToken;
 import com.oriento.api.model.Usuario;
 import com.oriento.api.repositories.UsuarioRepository;
+import com.oriento.api.repositories.EmpresaRepository;
 import com.oriento.api.services.AuthService;
 import com.oriento.api.services.CurrentUserService;
 import com.oriento.api.services.JwtService;
@@ -38,6 +40,7 @@ public class AuthController {
     private final CurrentUserService currentUserService;
     private final UsuarioRepository usuarioRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmpresaRepository empresaRepository;
 
     public AuthController(AuthService authService,
                           JwtService jwtService,
@@ -45,12 +48,16 @@ public class AuthController {
                           CurrentUserService currentUserService,
                           UsuarioRepository usuarioRepository,
                           BCryptPasswordEncoder passwordEncoder) {
+                          RefreshTokenService refreshTokenService,
+                          EmpresaRepository empresaRepository) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.currentUserService = currentUserService;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+
+        this.empresaRepository = empresaRepository;
 
         logger.info("AuthController inicializado com sucesso");
     }
@@ -96,12 +103,15 @@ public class AuthController {
 
         RefreshToken refreshToken = refreshTokenService.validarRefreshToken(refreshTokenDTO.refreshToken());
         Usuario usuario = refreshToken.getUsuario();
-        
-        logger.debug("Refresh token válido. Gerando novo access token para usuário ID: {}", 
+
+        logger.debug("Refresh token válido. Gerando novo access token para usuário ID: {}",
                 usuario.getIdUsuario());
 
-        var novoAccessToken = jwtService.gerarTokenJWT(usuario);
-        
+        // Busca empresa para manter as claims atualizadas no novo token
+        Empresa empresa = empresaRepository.findByUsuario(usuario).orElse(null);
+
+        var novoAccessToken = jwtService.gerarTokenJWT(usuario, empresa);
+
         logger.info("Novo access token gerado com sucesso para usuário ID: {}", usuario.getIdUsuario());
 
         return ResponseEntity.ok(new LoginResponse(

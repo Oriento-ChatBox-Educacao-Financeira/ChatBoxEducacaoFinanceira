@@ -1,5 +1,10 @@
 package com.oriento.api.model;
 
+import com.oriento.api.dto.LoginRequest;
+import com.oriento.api.model.enuns.Nivelmaturidadefinanceira;
+import com.oriento.api.model.enuns.RoleUsuario;
+import jakarta.persistence.*;
+
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,33 +13,19 @@ import java.util.UUID;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.oriento.api.dto.LoginRequest;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
 /**
- * Entidade JPA da tabela {@code usuario}.
- * <ul>
- *   <li>{@code id_usuario} uuid (default {@code gen_random_uuid()} no banco).</li>
- *   <li>{@code email} {@code varchar(150)} NOT NULL UNIQUE.</li>
- *   <li>{@code senha_hash} {@code varchar(255)} NOT NULL (BCrypt).</li>
- *   <li>{@code nivel_maturidade} {@code varchar(20)} nullable, default {@code 'BASICO'} no banco.</li>
- *   <li>{@code data_criacao} {@code timestamptz} default {@code now()}.</li>
- *   <li>{@code ultimo_acesso} {@code timestamptz} nullable.</li>
- * </ul>
- *
- * <p>{@link DynamicInsert} omite colunas {@code null} no insert para que o
- * {@code DEFAULT 'BASICO'} do banco seja respeitado quando o c\u00f3digo n\u00e3o
- * informar o {@code nivel_maturidade}.
+ * Entidade JPA que representa um usuário no banco de dados.
+ * 
+ * Esta entidade armazena todas as informações de um usuário do sistema,
+ * incluindo dados pessoais e credenciais de acesso.
+ * 
+ * Características:
+ * - ID único gerado automaticamente (UUID)
+ * - Email e CNPJ únicos (constraints UNIQUE)
+ * - Senha armazenada como hash BCrypt (nunca em texto plano)
+ * - Suporta login por email ou CNPJ
+ * 
+ * Tabela no banco: usuario
  */
 @Entity
 @Table(name = "usuario")
@@ -67,6 +58,13 @@ public class Usuario {
     @Column(name = "data_criacao", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT NOW()")
     private OffsetDateTime dataCriacao;
+
+    @Column(name = "ultimo_acesso", nullable = true)
+    private LocalDateTime ultimoacesso;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 30)
+    private RoleUsuario role = RoleUsuario.ROLE_USER;
 
     @Column(name = "ultimo_acesso")
     private OffsetDateTime ultimoAcesso;
@@ -159,8 +157,25 @@ public class Usuario {
     public Empresa getEmpresa() {
         return empresa;
     }
-
-    public void setEmpresa(Empresa empresa) {
-        this.empresa = empresa;
+    public void setNivelMaturidadeUser(Nivelmaturidadefinanceira nivelMaturidadeUser) {
+        this.nivelMaturidadeUser = nivelMaturidadeUser;
+    }
+    public LocalDateTime getData_criacao() {
+        return datacriacao;
+    }
+    public void setData_criacao(LocalDateTime data_criacao) {
+        this.datacriacao = LocalDateTime.now();
+    }
+    public LocalDateTime getUltimo_acesso() {
+        return ultimoacesso;
+    }
+    public void setUltimoacesso(LocalDateTime ultimo_acesso) {
+        this.ultimoacesso = ultimo_acesso;
+    }
+    public RoleUsuario getRole() {
+        return role;
+    }
+    public void setRole(RoleUsuario role) {
+        this.role = role;
     }
 }
