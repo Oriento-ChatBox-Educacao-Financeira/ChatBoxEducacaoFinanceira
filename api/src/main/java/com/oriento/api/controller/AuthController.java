@@ -19,8 +19,8 @@ import com.oriento.api.dto.UsuarioResponse;
 import com.oriento.api.model.Empresa;
 import com.oriento.api.model.RefreshToken;
 import com.oriento.api.model.Usuario;
-import com.oriento.api.repositories.UsuarioRepository;
 import com.oriento.api.repositories.EmpresaRepository;
+import com.oriento.api.repositories.UsuarioRepository;
 import com.oriento.api.services.AuthService;
 import com.oriento.api.services.CurrentUserService;
 import com.oriento.api.services.JwtService;
@@ -47,9 +47,9 @@ public class AuthController {
                           RefreshTokenService refreshTokenService,
                           CurrentUserService currentUserService,
                           UsuarioRepository usuarioRepository,
-                          BCryptPasswordEncoder passwordEncoder) {
-                          RefreshTokenService refreshTokenService,
-                          EmpresaRepository empresaRepository) {
+                          BCryptPasswordEncoder passwordEncoder,
+                          EmpresaRepository empresaRepository
+                        ) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
@@ -108,7 +108,7 @@ public class AuthController {
                 usuario.getIdUsuario());
 
         // Busca empresa para manter as claims atualizadas no novo token
-        Empresa empresa = empresaRepository.findByUsuario(usuario).orElse(null);
+        Empresa empresa = empresaRepository.findByUsuario_IdUsuario(usuario.getIdUsuario()).orElse(null);
 
         var novoAccessToken = jwtService.gerarTokenJWT(usuario, empresa);
 

@@ -1,10 +1,5 @@
 package com.oriento.api.model;
 
-import com.oriento.api.dto.LoginRequest;
-import com.oriento.api.model.enuns.Nivelmaturidadefinanceira;
-import com.oriento.api.model.enuns.RoleUsuario;
-import jakarta.persistence.*;
-
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +7,22 @@ import java.util.UUID;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.oriento.api.dto.LoginRequest;
+import com.oriento.api.model.enuns.RoleUsuario;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Entidade JPA que representa um usuário no banco de dados.
@@ -46,21 +57,12 @@ public class Usuario {
     @Column(name = "senha_hash", length = 255, nullable = false)
     private String senha;
 
-    /**
-     * Persistido como {@code varchar(20)}. O DB tem default {@code 'BASICO'},
-     * que est\u00e1 fora do enum {@code Nivelmaturidadefinanceira}; por isso
-     * usamos {@link String} e adicionamos uma camada de UI/DTO se quisermos
-     * restringir.
-     */
-    @Column(name = "nivel_maturidade", length = 20)
-    private String nivelMaturidade;
-
     @Column(name = "data_criacao", insertable = false, updatable = false,
             columnDefinition = "TIMESTAMP WITH TIME ZONE DEFAULT NOW()")
     private OffsetDateTime dataCriacao;
 
     @Column(name = "ultimo_acesso", nullable = true)
-    private LocalDateTime ultimoacesso;
+    private OffsetDateTime ultimoacesso;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 30)
@@ -112,14 +114,6 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public String getNivelMaturidade() {
-        return nivelMaturidade;
-    }
-
-    public void setNivelMaturidade(String nivelMaturidade) {
-        this.nivelMaturidade = nivelMaturidade;
-    }
-
     public OffsetDateTime getDataCriacao() {
         return dataCriacao;
     }
@@ -154,22 +148,23 @@ public class Usuario {
         conversation.setUsuario(null);
     }
 
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
     public Empresa getEmpresa() {
         return empresa;
     }
-    public void setNivelMaturidadeUser(Nivelmaturidadefinanceira nivelMaturidadeUser) {
-        this.nivelMaturidadeUser = nivelMaturidadeUser;
+
+    public OffsetDateTime getData_criacao() {
+        return dataCriacao;
     }
-    public LocalDateTime getData_criacao() {
-        return datacriacao;
+    public void setData_criacao(OffsetDateTime data_criacao) {
+        this.dataCriacao = OffsetDateTime.now();
     }
-    public void setData_criacao(LocalDateTime data_criacao) {
-        this.datacriacao = LocalDateTime.now();
-    }
-    public LocalDateTime getUltimo_acesso() {
+    public OffsetDateTime getUltimo_acesso() {
         return ultimoacesso;
     }
-    public void setUltimoacesso(LocalDateTime ultimo_acesso) {
+    public void setUltimoacesso(OffsetDateTime ultimo_acesso) {
         this.ultimoacesso = ultimo_acesso;
     }
     public RoleUsuario getRole() {
