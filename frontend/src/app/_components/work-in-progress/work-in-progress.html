@@ -1,0 +1,21 @@
+<section class="wip">
+  <div class="wip__card">
+    <div class="wip__icon-wrap" aria-hidden="true">
+      <i [class]="icone" class="wip__icon"></i>
+    </div>
+
+    <h1 class="wip__title">{{ titulo }}</h1>
+
+    <p class="wip__description" *ngIf="descricao">{{ descricao }}</p>
+
+    <div class="wip__badge">
+      <i class="ph ph-clock"></i>
+      <span>Em construção</span>
+    </div>
+
+    <button type="button" class="wip__button" (click)="voltar()">
+      <i class="ph ph-arrow-left"></i>
+      <span>{{ rotuloVoltar }}</span>
+    </button>
+  </div>
+</section>

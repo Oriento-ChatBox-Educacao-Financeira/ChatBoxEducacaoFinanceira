@@ -1,18 +1,19 @@
 package com.oriento.api.services;
 
 
-import com.oriento.api.dto.UsuarioResponse;
-import com.oriento.api.model.Usuario;
-import com.oriento.api.repositories.UsuarioRepository;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import com.oriento.api.dto.UsuarioResponse;
+import com.oriento.api.model.Usuario;
+import com.oriento.api.repositories.UsuarioRepository;
 
 @Service
 public class UsuarioService {
@@ -45,7 +46,7 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(request.senha()));
 
         if (request.nivelMaturidadeFinanceira() != null) {
-            usuario.setNivelMaturidadeUser(request.nivelMaturidadeFinanceira());
+            usuario.setNivelMaturidade(request.nivelMaturidadeFinanceira().name());
         }
 
         Usuario salvo = usuarioRepository.save(usuario);
@@ -105,7 +106,7 @@ public class UsuarioService {
         }
 
         if (request.nivelMaturidadeFinanceira() != null) {
-            usuario.setNivelMaturidadeUser(request.nivelMaturidadeFinanceira());
+            usuario.setNivelMaturidade(request.nivelMaturidadeFinanceira().name());
         }
 
         Usuario atualizado = usuarioRepository.save(usuario);

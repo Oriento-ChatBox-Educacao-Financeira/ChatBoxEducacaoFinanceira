@@ -1,0 +1,183 @@
+<app-main-navbar>
+  <div class="upload-page">
+    <!-- HEADER -->
+    <div class="upload-page__header">
+      <div>
+        <h1 class="upload-page__title">Importar planilha financeira</h1>
+        <p class="upload-page__subtitle">
+          Envie sua planilha de DRE, Balanço Patrimonial e Capital de Giro. Os dados alimentam os
+          dashboards e o assistente Oriento.
+        </p>
+      </div>
+      <button type="button" class="btn-template" (click)="baixarTemplate()">
+        <i class="ph ph-download-simple"></i>
+        Baixar template XLSX
+      </button>
+    </div>
+
+    <!-- GRID PRINCIPAL -->
+    <div class="upload-page__grid">
+      <!-- COLUNA ESQUERDA: drop-zone + ações + feedback -->
+      <div class="upload-card">
+        <div
+          class="drop-zone"
+          [class.drop-zone--has-file]="arquivoSelecionado()"
+          [class.drop-zone--error]="status() === 'error'"
+          [class.drop-zone--uploading]="status() === 'uploading'"
+          (drop)="onDrop($event)"
+          (dragover)="onDragOver($event)"
+        >
+          <input
+            type="file"
+            id="arquivo-planilha"
+            [accept]="extensoesAceitas.join(',')"
+            (change)="onArquivoSelecionado($event)"
+            hidden
+          />
+          <label for="arquivo-planilha" class="drop-zone__label">
+            <div class="drop-zone__icon" *ngIf="!arquivoSelecionado()">
+              <i class="ph ph-cloud-arrow-up"></i>
+            </div>
+            <div class="drop-zone__icon drop-zone__icon--file" *ngIf="arquivoSelecionado()">
+              <i class="ph ph-file-xls"></i>
+            </div>
+
+            <ng-container *ngIf="!arquivoSelecionado()">
+              <strong class="drop-zone__title">
+                Arraste o arquivo aqui ou
+                <span class="drop-zone__link">clique para selecionar</span>
+              </strong>
+              <small class="drop-zone__hint">
+                Formatos aceitos: {{ extensoesAceitas.join(', ') }} — até {{ tamanhoMaximoMb }}MB
+              </small>
+            </ng-container>
+
+            <ng-container *ngIf="arquivoSelecionado() as arq">
+              <strong class="drop-zone__title">{{ arq.name }}</strong>
+              <small class="drop-zone__hint">
+                {{ arq.size / 1024 | number: '1.0-1' }} KB · clique para trocar
+              </small>
+            </ng-container>
+          </label>
+        </div>
+
+        <!-- AÇÕES -->
+        <div class="upload-card__actions">
+          <button
+            type="button"
+            class="btn btn--primary"
+            [disabled]="!arquivoSelecionado() || status() === 'uploading'"
+            (click)="enviar()"
+          >
+            <i
+              class="ph"
+              [class.ph-paper-plane-tilt]="status() !== 'uploading'"
+              [class.ph-spinner-gap]="status() === 'uploading'"
+            ></i>
+            {{ status() === 'uploading' ? 'Processando…' : 'Enviar planilha' }}
+          </button>
+          <button
+            type="button"
+            class="btn btn--ghost"
+            (click)="limpar()"
+            [disabled]="status() === 'uploading'"
+          >
+            Limpar
+          </button>
+        </div>
+
+        <!-- PROGRESSO -->
+        <div class="progress-block" *ngIf="status() === 'uploading'">
+          <div class="progress-block__bar">
+            <div class="progress-block__fill" [style.width.%]="progresso()"></div>
+          </div>
+          <div class="progress-block__info">
+            <span class="progress-block__label">
+              {{ progresso() < 65 ? 'Lendo planilha…' : 'Salvando dados…' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- FEEDBACK SUCESSO -->
+        <div class="feedback feedback--success" *ngIf="status() === 'success' && resultado() as r">
+          <i class="ph ph-check-circle"></i>
+          <div>
+            <strong>Importação concluída.</strong>
+            {{ r.linhasImportadas }} linhas salvas a partir de <em>{{ r.arquivo }}</em
+            >.
+            <div *ngIf="r.avisos?.length" class="feedback__avisos">
+              <strong><i class="ph ph-warning"></i> Atenção:</strong>
+              <ul>
+                <li *ngFor="let a of r.avisos">{{ a }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEEDBACK DUPLICADA -->
+        <div class="feedback feedback--warning" *ngIf="status() === 'duplicada' && mensagemErro()">
+          <i class="ph ph-files"></i>
+          <div>
+            <strong>Planilha duplicada.</strong>
+            {{ mensagemErro() }}
+            <small
+              >Faça uma alteração na planilha (mesmo um valor) e tente novamente, ou apenas confira
+              que os dados já foram importados.</small
+            >
+          </div>
+        </div>
+
+        <!-- FEEDBACK ERRO -->
+        <div class="feedback feedback--error" *ngIf="status() === 'error' && mensagemErro()">
+          <i class="ph ph-warning-circle"></i>
+          <div>{{ mensagemErro() }}</div>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA: estrutura esperada + dicas -->
+      <aside class="info-card">
+        <h2 class="info-card__title">
+          <i class="ph ph-info"></i>
+          Estrutura da planilha
+        </h2>
+
+        <ul class="info-list">
+          <li>
+            <strong>Aba <code>Input</code></strong>
+            <span
+              >Linha-marcador <code>DRE</code> seguida das contas, depois <code>BP</code> com as
+              contas do Balanço. Datas dos meses nas colunas a partir da coluna C.</span
+            >
+          </li>
+          <li>
+            <strong>Aba <code>Capital Giro</code></strong>
+            <span
+              >Linha-marcador <code>Capital de Giro</code> com Ativo/Passivo Operacional e capital
+              de giro. Opcional: só é usada se o BP do <code>Input</code> estiver vazio.</span
+            >
+          </li>
+          <li>
+            <strong>Datas nas colunas</strong>
+            <span
+              >Mensais, em formato de data do Excel. Colunas de agregados (<em>1º Tri 25</em>,
+              <em>1º S 25</em>) são ignoradas automaticamente.</span
+            >
+          </li>
+          <li>
+            <strong>Códigos contábeis</strong>
+            <span
+              >Coluna A no formato hierárquico (<code>3.01.01</code>, <code>1.01.02</code>), coluna
+              B com descrição. Linhas-pai são descartadas se há linhas-filhas.</span
+            >
+          </li>
+        </ul>
+
+        <div class="info-card__note">
+          <i class="ph ph-lightbulb"></i>
+          Não tem certeza do formato? Baixe o template e preencha os valores ele já vem com a
+          estrutura correta.
+        </div>
+      </aside>
+    </div>
+  </div>
+</app-main-navbar>

@@ -1,215 +1,219 @@
 <app-main-navbar>
   <div class="chat-page">
     <!-- HEADER -->
-    <div class="chat-page__header">
-      <div>
-        <span class="chat-page__eyebrow">ASSISTENTE FINANCEIRO</span>
-
-        <h1 class="chat-page__title">Oriento AI</h1>
-
-        <p class="chat-page__subtitle">
-          Análises financeiras inteligentes, projeções e suporte estratégico em tempo real.
-        </p>
+    <header class="chat-header">
+      <div class="chat-header__brand">
+        <div class="chat-header__avatar">
+          <i class="ph ph-finn-the-human"></i>
+        </div>
+        <div class="chat-header__text">
+          <h1 class="chat-header__title">Oriento AI</h1>
+          <span class="chat-header__status">
+            <span class="chat-header__dot"></span>
+            Online · pronto pra analisar seus dados
+          </span>
+        </div>
       </div>
 
-      <div class="chat-page__header-actions">
-        <button class="outline-button">
-          <i class="ph ph-clock-counter-clockwise"></i>
-          Histórico
-        </button>
-
-        <button class="primary-button">
+      <div class="chat-header__actions">
+        <button type="button" class="btn-ghost" (click)="novaConversa()" title="Nova conversa">
           <i class="ph ph-plus"></i>
-          Nova conversa
+          <span class="hide-on-mobile">Nova conversa</span>
+        </button>
+        <button
+          type="button"
+          class="btn-ghost btn-drawer"
+          (click)="toggleDrawer()"
+          title="Conversas e sugestões"
+        >
+          <i class="ph ph-list"></i>
         </button>
       </div>
-    </div>
+    </header>
 
     <!-- LAYOUT -->
     <div class="chat-layout">
-      <!-- CHAT -->
-      <section class="chat-content">
-        <!-- MESSAGES -->
-        <div class="chat-messages">
-          <!-- USER -->
-          <div class="message-row user">
-            <div class="user-bubble">
-              Estou procurando diversificar minha carteira. Você pode analisar as tendências atuais
-              do mercado de ações de energia sustentável e sugerir uma estratégia de entrada de
-              baixo risco?
+      <!-- CONTEÚDO PRINCIPAL -->
+      <section class="chat-main">
+        <!-- MENSAGENS -->
+        <div #scrollEl class="chat-thread">
+          <!-- ESTADO VAZIO -->
+          <div class="chat-empty" *ngIf="!messages().length && !isTyping()">
+            <div class="chat-empty__icon">
+              <i class="ph ph-sparkle"></i>
             </div>
-
-            <span class="message-time">VOCÊ • 10:24</span>
+            <h2>Como posso ajudar hoje?</h2>
+            <p>Pergunte sobre DRE, fluxo de caixa, margens ou peça uma sugestão de cenário.</p>
+            <div class="chat-empty__chips">
+              <button
+                type="button"
+                class="chip"
+                *ngFor="let s of suggestions"
+                (click)="sendSuggestion(s)"
+              >
+                {{ s }}
+              </button>
+            </div>
           </div>
 
-          <!-- BOT -->
-          <div class="message-row bot">
-            <div class="bot-avatar">
-              <i class="ph ph-wechat-logo"></i>
+          <!-- MENSAGENS -->
+          <div
+            class="msg"
+            [class.msg--user]="m.role === 'user'"
+            [class.msg--bot]="m.role === 'bot'"
+            *ngFor="let m of messages(); trackBy: trackByIndex"
+          >
+            <div class="msg__avatar">
+              <i
+                class="ph"
+                [class.ph-user]="m.role === 'user'"
+                [class.ph-finn-the-human]="m.role === 'bot'"
+              ></i>
             </div>
 
-            <div class="bot-content">
-              <div class="bot-card">
-                <!-- TITLE -->
-                <div class="bot-card__title">
-                  <div class="bot-card__title-icon">
-                    <i class="ph ph-chart-line-up"></i>
-                  </div>
-
-                  <span>Análise de Energia Sustentável</span>
-                </div>
-
-                <!-- TEXT -->
-                <div class="bot-card__text">
-                  O setor de energia sustentável está passando por uma mudança significativa em
-                  direção à
-                  <strong>infraestrutura distribuída</strong>. Com base em dados fiscais recentes,
-                  observamos um aumento de 14% na alocação de capital de longo prazo no mercado
-                  europeu, especificamente para soluções de armazenamento em escala de rede.
-                </div>
-
-                <!-- KPI -->
-                <div class="insights-grid">
-                  <div class="insight-card">
-                    <span class="insight-card__label"> PREVISÃO DE CRESCIMENTO </span>
-
-                    <span class="insight-card__value"> +22.4% </span>
-
-                    <span class="insight-card__description"> CAGR estimado do setor até 2027 </span>
-                  </div>
-
-                  <div class="insight-card">
-                    <span class="insight-card__label"> AVALIAÇÃO DE RISCO </span>
-
-                    <span class="insight-card__value"> Moderado </span>
-
-                    <span class="insight-card__description">
-                      Sensibilidade alta às políticas fiscais
-                    </span>
-                  </div>
-                </div>
-
-                <!-- STRATEGY -->
-                <div class="strategy-section">
-                  <span class="strategy-section__title"> Estratégia Recomendada </span>
-
-                  <div class="strategy-list">
-                    <div class="strategy-item">
-                      <span class="strategy-dot"></span>
-
-                      <span>
-                        Utilize
-                        <strong>DCA (Dollar Cost Averaging)</strong>
-                        em uma janela de 6 meses para mitigar volatilidade.
-                      </span>
-                    </div>
-
-                    <div class="strategy-item">
-                      <span class="strategy-dot"></span>
-
-                      <span>
-                        Foque em empresas de infraestrutura energética em vez de manufatura pesada.
-                      </span>
-                    </div>
-
-                    <div class="strategy-item">
-                      <span class="strategy-dot"></span>
-
-                      <span>
-                        Mantenha uma reserva de caixa de 15% para entradas oportunistas.
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            <div class="msg__content">
+              <div class="msg__meta">
+                <strong>{{ m.role === 'user' ? 'Você' : 'Oriento' }}</strong>
+                <span>{{ m.time }}</span>
               </div>
 
-              <!-- ACTIONS -->
-              <div class="message-actions">
-                <button class="message-action">
+              <!-- USER (texto plano) -->
+              <div class="msg__bubble" *ngIf="m.role === 'user'">{{ m.text }}</div>
+
+              <!-- BOT (Markdown sanitizado, com indicador de digitação enquanto pendente) -->
+              <ng-container *ngIf="m.role === 'bot'">
+                <div
+                  class="msg__bubble msg__bubble--bot msg__bubble--typing"
+                  *ngIf="m.pending && !m.text"
+                  aria-label="Oriento está digitando"
+                >
+                  <span class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                </div>
+
+                <div
+                  class="msg__bubble msg__bubble--bot"
+                  [class.msg__bubble--streaming]="m.streaming && m.text"
+                  *ngIf="!(m.pending && !m.text)"
+                >
+                  <span [innerHTML]="m.text | markdown"></span>
+                  <span *ngIf="m.streaming" class="bot-cursor" aria-hidden="true">▍</span>
+                </div>
+              </ng-container>
+
+              <!-- Ações na resposta do bot (apenas quando finalizado) -->
+              <div class="msg__actions" *ngIf="m.role === 'bot' && !m.streaming && !m.pending">
+                <button type="button" class="ic-btn" title="Copiar">
                   <i class="ph ph-copy"></i>
-                  Copiar
                 </button>
-
-                <button class="message-action">
+                <button type="button" class="ic-btn" title="Regenerar">
                   <i class="ph ph-arrows-clockwise"></i>
-                  Regenerar
                 </button>
-
-                <button class="message-action icon">
+                <button type="button" class="ic-btn" title="Útil">
                   <i class="ph ph-thumbs-up"></i>
+                </button>
+                <button type="button" class="ic-btn" title="Não útil">
+                  <i class="ph ph-thumbs-down"></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- INPUT -->
-        <div class="chat-input-area">
-          <div class="chat-input-wrapper">
+        <!-- COMPOSER -->
+        <div class="composer">
+          <div class="composer__row">
             <textarea
+              #textarea
+              class="composer__textarea"
+              placeholder="Pergunte sobre seus dados financeiros…"
               [(ngModel)]="message"
-              placeholder="Digite sua pergunta..."
+              (keydown)="onKeydown($event)"
+              (input)="autoResize()"
               rows="1"
             ></textarea>
 
-            <button class="send-button">
+            <button
+              type="button"
+              class="composer__send"
+              (click)="enviar()"
+              [disabled]="!message.trim() || isSending"
+              title="Enviar"
+            >
               <i class="ph ph-paper-plane-right"></i>
             </button>
           </div>
 
-          <div class="chat-input-footer">
-            <span> O Oriento pode cometer erros. Revise informações importantes. </span>
-
-            <button class="human-support-button">
-              <i class="ph ph-user"></i>
-              Atendimento Humano
+          <div class="composer__footer">
+            <span class="composer__hint">
+              <i class="ph ph-info"></i>
+              Oriento pode cometer erros verifique informações importantes.
+            </span>
+            <button type="button" class="composer__support">
+              <i class="ph ph-headset"></i>
+              <span>Atendimento humano</span>
             </button>
           </div>
         </div>
       </section>
 
       <!-- SIDEBAR -->
-      <aside class="chat-sidebar">
-        <div class="sidebar-card">
-          <div class="sidebar-card__header">
-            <span>Conversas recentes</span>
-          </div>
+      <aside class="chat-aside" [class.chat-aside--open]="drawerOpen()">
+        <div class="chat-aside__head">
+          <strong>Conversas</strong>
+          <button type="button" class="chat-aside__close" (click)="fecharDrawer()" title="Fechar">
+            <i class="ph ph-x"></i>
+          </button>
+        </div>
 
-          <div class="conversation-list">
-            <div class="conversation-item" *ngFor="let conversation of conversations">
-              <div class="conversation-item__icon">
-                <i class="ph ph-chat-circle-dots"></i>
+        <div class="aside-section">
+          <span class="aside-section__title">Recentes</span>
+
+          <ul class="conv-list" *ngIf="conversations().length">
+            <li
+              class="conv-item"
+              *ngFor="let c of conversations(); trackBy: trackByConversa"
+              [class.conv-item--active]="isConversaAtiva(c)"
+              (click)="abrirConversa(c)"
+              role="button"
+              tabindex="0"
+              (keydown.enter)="abrirConversa(c)"
+            >
+              <i class="ph ph-chat-circle-dots"></i>
+              <div class="conv-item__body">
+                <strong>{{ c.titulo }}</strong>
+                <span>{{ formatarData(c.ultimaInteracao || c.iniciadaEm) }}</span>
               </div>
+            </li>
+          </ul>
 
-              <div class="conversation-item__content">
-                <span class="conversation-item__title">
-                  {{ conversation.title }}
-                </span>
-
-                <span class="conversation-item__date">
-                  {{ conversation.date }}
-                </span>
-              </div>
-            </div>
+          <div class="aside-empty" *ngIf="!conversations().length">
+            <i class="ph ph-chat-circle-dots"></i>
+            <p>Sem conversas anteriores.</p>
+            <small>Comece uma nova conversa para começar a salvar seu histórico.</small>
           </div>
         </div>
 
-        <div class="sidebar-card">
-          <div class="sidebar-card__header">
-            <span>Sugestões rápidas</span>
-          </div>
-
-          <div class="quick-actions">
+        <div class="aside-section">
+          <span class="aside-section__title">Sugestões rápidas</span>
+          <div class="aside-chips">
             <button
-              class="quick-action"
-              *ngFor="let suggestion of suggestions"
-              (click)="sendSuggestion(suggestion)"
+              type="button"
+              class="chip chip--sm"
+              *ngFor="let s of suggestions"
+              (click)="sendSuggestion(s); fecharDrawer()"
             >
-              {{ suggestion }}
+              {{ s }}
             </button>
           </div>
         </div>
       </aside>
+
+      <!-- Overlay mobile -->
+      <div class="aside-overlay" *ngIf="drawerOpen()" (click)="fecharDrawer()"></div>
     </div>
   </div>
 </app-main-navbar>

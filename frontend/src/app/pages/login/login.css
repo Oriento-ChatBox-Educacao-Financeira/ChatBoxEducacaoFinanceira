@@ -15,7 +15,7 @@
   width: 40%;
   min-height: 100vh;
   position: relative;
-  padding: 48px;
+  padding: clamp(1.5rem, 3vw, 3rem);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -90,16 +90,16 @@
 
 .hero-title {
   color: var(--white);
-  font-size: 48px;
+  font-size: clamp(2rem, 1.6rem + 2vw, 3rem);
   font-weight: 800;
-  line-height: 60px;
+  line-height: 1.2;
 }
 
 .hero-description {
   max-width: 384px;
   color: #87a3fb;
-  font-size: 18px;
-  line-height: 29px;
+  font-size: var(--fs-md);
+  line-height: 1.55;
 }
 
 .testimonial-wrapper {
@@ -160,7 +160,7 @@
   align-items: center;
   justify-content: center;
   background: var(--bg);
-  padding: 96px;
+  padding: clamp(1.5rem, 4vw, 6rem);
 }
 
 .form-wrapper {
@@ -174,15 +174,15 @@
 
 .auth-title {
   color: var(--text-dark);
-  font-size: 36px;
+  font-size: var(--fs-2xl);
   font-weight: 800;
   margin-bottom: 8px;
 }
 
 .auth-subtitle {
   color: var(--text-mid);
-  font-size: 16px;
-  line-height: 24px;
+  font-size: var(--fs-base);
+  line-height: 1.55;
 }
 
 .form-group {
@@ -220,12 +220,12 @@
 
 .form-input {
   width: 100%;
-  padding: 18px 48px 18px 16px;
+  padding: 14px 44px 14px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--input-bg);
   color: var(--text-dark);
-  font-size: 16px;
+  font-size: var(--fs-base);
   font-weight: 400;
   transition:
     outline 0.2s ease,
@@ -400,6 +400,21 @@
   }
   .form-section {
     width: 100%;
-    padding: 40px 24px;
+    padding: clamp(1.5rem, 5vw, 3rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-header {
+    margin-bottom: var(--sp-5);
+  }
+  .form-group {
+    margin-bottom: var(--sp-4);
+  }
+  .form-input {
+    padding: 12px 40px 12px 14px;
+  }
+  .google-button {
+    padding: 12px;
   }
 }

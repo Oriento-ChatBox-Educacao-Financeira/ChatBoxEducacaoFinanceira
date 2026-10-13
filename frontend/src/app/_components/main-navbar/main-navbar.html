@@ -1,4 +1,4 @@
-<app-topbar [userName]="nomeUsuario"></app-topbar>
+<app-topbar [userName]="(nomeUsuario$ | async) ?? 'Convidado'"></app-topbar>
 <app-navbar></app-navbar>
 
 <main class="main-content-area">

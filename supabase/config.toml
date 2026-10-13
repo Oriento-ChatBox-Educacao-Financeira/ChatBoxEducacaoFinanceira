@@ -1,0 +1,53 @@
+# Supabase local dev configuration.
+# Geração mínima: `supabase start` lê este arquivo e sobe Postgres, Auth, Storage,
+# Realtime e o runner de Edge Functions em containers Docker.
+# Studio: http://127.0.0.1:54323
+
+project_id = "chatbox-educacao-financeira"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+enabled = true
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[auth]
+enabled = true
+site_url = "http://localhost:4200"
+additional_redirect_urls = ["http://localhost:4200"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = false
+enable_confirmations = false
+
+[storage]
+enabled = true
+file_size_limit = "20MiB"
+
+[edge_runtime]
+enabled = true
+inspector_port = 8083
+
+[functions.parse-planilha]
+verify_jwt = true

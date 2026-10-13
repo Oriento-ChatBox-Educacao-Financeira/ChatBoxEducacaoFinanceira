@@ -15,7 +15,6 @@ target/
 
 ### Env ###
 .env
-src/main/resources/keys/gemini
 
 ### IntelliJ IDEA ###
 .idea

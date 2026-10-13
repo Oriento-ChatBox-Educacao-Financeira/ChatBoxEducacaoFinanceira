@@ -1,0 +1,114 @@
+.wip {
+  width: 100%;
+  min-height: calc(100vh - var(--topbar-h) - var(--sp-7));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6) var(--sp-4);
+}
+
+.wip__card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: var(--sp-7) var(--sp-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  box-shadow: 0px 8px 22px -4px rgba(25, 28, 29, 0.06);
+}
+
+.wip__icon-wrap {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 33, 98, 0.08) 0%, rgba(255, 184, 0, 0.18) 100%);
+  margin-bottom: var(--sp-2);
+}
+
+.wip__icon {
+  font-size: 40px;
+  color: var(--blue-dark);
+}
+
+.wip__title {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--blue-dark);
+  line-height: 1.2;
+}
+
+.wip__description {
+  margin: 0;
+  color: var(--text-mid);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+.wip__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 184, 0, 0.16);
+  color: var(--gold-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.wip__badge i {
+  font-size: 14px;
+}
+
+.wip__button {
+  margin-top: var(--sp-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--blue-dark);
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.wip__button:hover {
+  background: var(--blue-mid);
+}
+
+.wip__button:active {
+  transform: translateY(1px);
+}
+
+.wip__button i {
+  font-size: 16px;
+}
+
+@media (max-width: 480px) {
+  .wip__card {
+    padding: var(--sp-6) var(--sp-4);
+  }
+  .wip__icon-wrap {
+    width: 72px;
+    height: 72px;
+  }
+  .wip__icon {
+    font-size: 32px;
+  }
+}

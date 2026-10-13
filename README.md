@@ -8,7 +8,7 @@
 
 ## Sobre o Projeto
 
-**Oriento** é uma plataforma web completa de educação financeira voltada para pequenas e médias empresas (PMEs). A aplicação oferece um assistente virtual inteligente alimentado pela API do Google Gemini, que auxilia empreendedores com orientações personalizadas sobre gestão financeira, controle de fluxo de caixa, investimentos e estratégias de crescimento empresarial.
+**Oriento** é uma plataforma web completa de educação financeira voltada para pequenas e médias empresas (PMEs). A aplicação oferece um assistente virtual inteligente alimentado por um modelo de linguagem (LLM) servido via Ollama, que auxilia empreendedores com orientações personalizadas sobre gestão financeira, controle de fluxo de caixa, investimentos e estratégias de crescimento empresarial.
 
 ### Principais Funcionalidades
 
@@ -29,9 +29,9 @@ O projeto segue uma arquitetura **Fullstack Monorepo** com separação clara ent
 ChatBoxEducacaoFinanceira/
 ├── api/                    # Backend - Spring Boot REST API
 │   ├── src/main/java/com/oriento/api/
-│   │   ├── client/         # Integrações externas (Gemini AI)
+│   │   ├── client/         # Integrações externas (LLM / AI)
 │   │   ├── config/         # Configurações (Security, CORS, Rate Limit)
-│   │   ├── controller/     # Controllers REST (Auth, Gemini, Usuario)
+│   │   ├── controller/     # Controllers REST (Auth, AI, Usuario)
 │   │   ├── dto/            # Data Transfer Objects
 │   │   ├── exception/      # Tratamento global de exceções
 │   │   ├── filter/         # Filtros HTTP personalizados
@@ -49,7 +49,7 @@ ChatBoxEducacaoFinanceira/
         ├── interceptors/   # Interceptadores HTTP (Auth, Errors)
         ├── models/         # Interfaces TypeScript
         ├── pages/          # Páginas da aplicação
-        ├── services/       # Serviços (API, Auth, Gemini)
+        ├── services/       # Serviços (API, Auth, AI)
         └── validators/     # Validações customizadas
 ```
 
@@ -65,7 +65,7 @@ ChatBoxEducacaoFinanceira/
 - **MySQL** - Banco de dados relacional
 - **JWT (JSON Web Tokens)** - Autenticação stateless
 - **Bucket4j** - Rate limiting
-- **Google Gemini API** - Inteligência artificial conversacional
+- **Ollama + LLM local** - Inteligência artificial conversacional (qwen2.5:7b-instruct)
 - **Maven** - Gerenciamento de dependências
 
 ### Frontend
@@ -126,8 +126,9 @@ spring.datasource.url=jdbc:mysql://localhost:3306/oriento
 spring.datasource.username=orientodb
 spring.datasource.password=sua_senha_segura
 
-# Gemini API Key (obtenha em https://makersuite.google.com/app/apikey)
-gemini.api.key=SUA_CHAVE_GEMINI_API
+# LLM local (Ollama) — endpoint e modelo padrão
+llm.api.base-url=http://127.0.0.1:11434
+llm.api.model=qwen2.5:7b-instruct
 ```
 
 #### 3.2. Gerar Chaves RSA para JWT
@@ -273,7 +274,8 @@ Os arquivos otimizados serão gerados em `frontend/dist/`
 | `spring.datasource.url` | URL do banco MySQL | `jdbc:mysql://localhost:3306/oriento` |
 | `spring.datasource.username` | Usuário do banco | `orientodb` |
 | `spring.datasource.password` | Senha do banco | - |
-| `gemini.api.key` | Chave da API Gemini | - |
+| `llm.api.base-url` | URL base do servidor Ollama | `http://127.0.0.1:11434` |
+| `llm.api.model` | Modelo LLM a ser usado | `qwen2.5:7b-instruct` |
 | `jwt.public.key` | Caminho da chave pública JWT | `classpath:keys/app.pub` |
 | `jwt.private.key` | Caminho da chave privada JWT | `classpath:keys/app.key` |
 

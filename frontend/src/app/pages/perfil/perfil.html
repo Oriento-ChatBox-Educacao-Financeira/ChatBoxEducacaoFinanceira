@@ -1,0 +1,54 @@
+<app-main-navbar>
+  <div class="perfil-page">
+    <header class="perfil-header">
+      <h1 class="perfil-header__title">Perfil</h1>
+      <p class="perfil-header__subtitle">Dados da sua conta e empresa.</p>
+    </header>
+
+    <ng-container *ngIf="user$ | async as u; else carregando">
+      <div class="perfil-grid">
+        <section class="perfil-card">
+          <h2 class="perfil-card__title">
+            <i class="ph ph-user"></i>
+            Usuário
+          </h2>
+          <dl class="perfil-list">
+            <div class="perfil-list__row">
+              <dt>Nome</dt>
+              <dd>{{ u.nome }}</dd>
+            </div>
+            <div class="perfil-list__row">
+              <dt>E-mail</dt>
+              <dd>{{ u.email }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="perfil-card">
+          <h2 class="perfil-card__title">
+            <i class="ph ph-buildings"></i>
+            Empresa
+          </h2>
+          <dl class="perfil-list">
+            <div class="perfil-list__row">
+              <dt>Nome fantasia</dt>
+              <dd>{{ u.nomeFantasia || '—' }}</dd>
+            </div>
+            <div class="perfil-list__row" *ngIf="u.razaoSocial">
+              <dt>Razão social</dt>
+              <dd>{{ u.razaoSocial }}</dd>
+            </div>
+            <div class="perfil-list__row">
+              <dt>CNPJ</dt>
+              <dd>{{ u.cnpj || '—' }}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </ng-container>
+
+    <ng-template #carregando>
+      <div class="perfil-loading"><i class="ph ph-spinner-gap"></i> Carregando…</div>
+    </ng-template>
+  </div>
+</app-main-navbar>

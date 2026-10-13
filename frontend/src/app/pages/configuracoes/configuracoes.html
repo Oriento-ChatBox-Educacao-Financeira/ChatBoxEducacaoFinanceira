@@ -1,0 +1,114 @@
+<app-main-navbar>
+  <div class="config-page">
+    <header class="config-header">
+      <h1 class="config-header__title">Configurações</h1>
+      <p class="config-header__subtitle">Gerencie sua senha e as planilhas importadas.</p>
+    </header>
+
+    <div class="config-grid">
+      <!-- Trocar senha -->
+      <section class="config-card">
+        <h2 class="config-card__title">
+          <i class="ph ph-lock-key"></i>
+          Alterar senha
+        </h2>
+        <p class="config-card__hint">Mínimo de 6 caracteres.</p>
+
+        <form class="config-form" (ngSubmit)="trocarSenha()">
+          <label class="config-form__label">
+            Nova senha
+            <input
+              type="password"
+              class="config-form__input"
+              [(ngModel)]="novaSenha"
+              name="novaSenha"
+              autocomplete="new-password"
+              [disabled]="trocandoSenha()"
+            />
+          </label>
+
+          <label class="config-form__label">
+            Confirmar nova senha
+            <input
+              type="password"
+              class="config-form__input"
+              [(ngModel)]="confirmaSenha"
+              name="confirmaSenha"
+              autocomplete="new-password"
+              [disabled]="trocandoSenha()"
+            />
+          </label>
+
+          <button
+            type="submit"
+            class="config-btn config-btn--primary"
+            [disabled]="trocandoSenha() || !novaSenha"
+          >
+            <i class="ph" [class.ph-spinner-gap]="trocandoSenha()" [class.ph-check]="!trocandoSenha()"></i>
+            {{ trocandoSenha() ? 'Salvando…' : 'Atualizar senha' }}
+          </button>
+
+          <div
+            *ngIf="senhaMsg() as m"
+            class="config-msg"
+            [class.config-msg--ok]="m.tipo === 'sucesso'"
+            [class.config-msg--erro]="m.tipo === 'erro'"
+          >
+            {{ m.texto }}
+          </div>
+        </form>
+      </section>
+
+      <!-- Planilhas importadas -->
+      <section class="config-card">
+        <h2 class="config-card__title">
+          <i class="ph ph-files"></i>
+          Planilhas importadas
+        </h2>
+        <p class="config-card__hint">
+          Apagar uma planilha remove todas as linhas correspondentes do banco e o arquivo bruto do
+          storage. Os dashboards são recalculados automaticamente.
+        </p>
+
+        <div class="config-loading" *ngIf="carregandoPlanilhas()">
+          <i class="ph ph-spinner-gap"></i> Carregando…
+        </div>
+
+        <div class="config-empty" *ngIf="!carregandoPlanilhas() && !planilhas().length">
+          <i class="ph ph-folder-open"></i>
+          <span>Nenhuma planilha importada ainda.</span>
+        </div>
+
+        <ul class="planilhas-list" *ngIf="!carregandoPlanilhas() && planilhas().length">
+          <li class="planilha-item" *ngFor="let p of planilhas()">
+            <div class="planilha-item__main">
+              <i class="ph ph-file-xls planilha-item__icon"></i>
+              <div class="planilha-item__info">
+                <strong class="planilha-item__nome">{{ p.arquivo }}</strong>
+                <span class="planilha-item__meta">
+                  {{ p.linhas }} linhas · importada em {{ p.dataUpload | date: 'dd/MM/yyyy HH:mm' }}
+                </span>
+              </div>
+            </div>
+            <div class="planilha-item__actions">
+              <app-chat-info-button
+                [titulo]="'Pergunte sobre ' + p.arquivo"
+                [contextoLabel]="'planilha:' + p.arquivo"
+                [perguntas]="perguntasPlanilha(p.arquivo)"
+              ></app-chat-info-button>
+              <button
+                type="button"
+                class="config-btn config-btn--danger"
+                [disabled]="deletandoArquivo() === p.arquivo"
+                (click)="deletar(p)"
+              >
+                <i class="ph" [class.ph-spinner-gap]="deletandoArquivo() === p.arquivo" [class.ph-trash]="deletandoArquivo() !== p.arquivo"></i>
+                {{ deletandoArquivo() === p.arquivo ? 'Apagando…' : 'Apagar' }}
+              </button>
+            </div>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</app-main-navbar>

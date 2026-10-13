@@ -1,0 +1,89 @@
+/* Componente reutilizavel de loading. Cada variant define dimensoes
+   padrao que aproximam blocos comuns dos dashboards e listas. As
+   inline styles (width/height/radius) sobrescrevem quando passadas. */
+
+/* Host transparente para que multiplos skeletons (count > 1) virem
+   grid/flex items diretos do container pai, sem wrapper extra. */
+:host {
+  display: contents;
+}
+
+.skeleton {
+  --skeleton-base: rgba(196, 198, 211, 0.22);
+  --skeleton-shine: rgba(255, 255, 255, 0.6);
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 100%
+  );
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Variants */
+
+.skeleton--text {
+  height: 14px;
+  width: 60%;
+  border-radius: 6px;
+}
+
+.skeleton--rect {
+  width: 100%;
+  height: 64px;
+}
+
+.skeleton--circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton--kpi {
+  width: 100%;
+  height: 96px;
+  border-radius: 8px;
+}
+
+.skeleton--chart {
+  width: 100%;
+  height: 240px;
+  border-radius: 8px;
+}
+
+.skeleton--list-item {
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+}
+
+.skeleton--card {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+}
+
+/* Acessibilidade: respeita o usuario que pediu menos animacoes */
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background-image: none;
+  }
+}

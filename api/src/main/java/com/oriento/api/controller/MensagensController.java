@@ -1,12 +1,16 @@
 package com.oriento.api.controller;
 
 import com.oriento.api.model.Mensagens;
+import com.oriento.api.model.Usuario;
+import com.oriento.api.services.AIService;
+import com.oriento.api.services.CurrentUserService;
 import com.oriento.api.services.MensagensService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -19,9 +23,15 @@ public class MensagensController {
     private static final Logger logger = LoggerFactory.getLogger(MensagensController.class);
 
     private final MensagensService mensagensService;
+    private final AIService aiService;
+    private final CurrentUserService currentUser;
 
-    public MensagensController(MensagensService mensagensService) {
+    public MensagensController(MensagensService mensagensService,
+                               AIService aiService,
+                               CurrentUserService currentUser) {
         this.mensagensService = mensagensService;
+        this.aiService = aiService;
+        this.currentUser = currentUser;
     }
 
     /**
@@ -38,10 +48,20 @@ public class MensagensController {
     /**
      * GET /api/mensagens/conversa/{conversaId}
      * Retorna o histórico de mensagens de uma conversa, ordenado por ordem ASC.
+     * Apenas o dono da conversa pode acessá-la.
      */
     @GetMapping("/conversa/{conversaId}")
     public ResponseEntity<List<Mensagens>> buscarHistorico(@PathVariable UUID conversaId) {
-        logger.debug("GET /api/mensagens/conversa/{}", conversaId);
+        Usuario usuario = currentUser.obterUsuarioAutenticado();
+        logger.debug("GET /api/mensagens/conversa/{} para usuário {}", conversaId, usuario.getIdUsuario());
+
+        if (!aiService.conversaPertenceAoUsuario(conversaId, usuario)) {
+            logger.warn("Usuário {} tentou acessar conversa {} sem permissão",
+                    usuario.getIdUsuario(), conversaId);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Conversa não pertence ao usuário autenticado");
+        }
+
         return ResponseEntity.ok(mensagensService.buscarHistoricoDaConversa(conversaId));
     }
 
