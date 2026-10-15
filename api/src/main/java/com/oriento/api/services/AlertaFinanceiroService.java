@@ -25,24 +25,24 @@ public class AlertaFinanceiroService {
         this.empresaRepository = empresaRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<AlertaFinanceiro> listarTodos() {
-        logger.debug("Listando todos os alertas financeiros");
-        return alertaRepository.findAll();
-    }
-
+    /**
+     * Lista alertas pertencentes à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
     public List<AlertaFinanceiro> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando alertas da empresa ID: {}", idEmpresa);
         return alertaRepository.findByEmpresaId(idEmpresa);
     }
 
+    /**
+     * Busca alerta verificando se pertence à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public AlertaFinanceiro buscarPorId(Integer id) {
-        logger.debug("Buscando alerta financeiro ID: {}", id);
-        return alertaRepository.findById(id)
+    public AlertaFinanceiro buscarPorId(Integer id, Integer idEmpresa) {
+        logger.debug("Buscando alerta financeiro ID: {} para empresa ID: {}", id, idEmpresa);
+        return alertaRepository.findByIdAlertaAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> {
-                    logger.warn("Alerta financeiro não encontrado. ID: {}", id);
+                    logger.warn("Alerta financeiro não encontrado ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Alerta financeiro não encontrado com ID: " + id);
                 });
     }
@@ -62,10 +62,10 @@ public class AlertaFinanceiroService {
     }
 
     @Transactional
-    public AlertaFinanceiro atualizar(Integer id, AlertaFinanceiro dadosNovos) {
-        logger.info("Atualizando alerta financeiro ID: {}", id);
+    public AlertaFinanceiro atualizar(Integer id, AlertaFinanceiro dadosNovos, Integer idEmpresa) {
+        logger.info("Atualizando alerta financeiro ID: {} para empresa ID: {}", id, idEmpresa);
 
-        AlertaFinanceiro alerta = alertaRepository.findById(id)
+        AlertaFinanceiro alerta = alertaRepository.findByIdAlertaAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> new IllegalArgumentException("Alerta financeiro não encontrado com ID: " + id));
 
         alerta.setTipoAlerta(dadosNovos.getTipoAlerta());
@@ -78,12 +78,11 @@ public class AlertaFinanceiroService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando alerta financeiro ID: {}", id);
-        if (!alertaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Alerta financeiro não encontrado com ID: " + id);
-        }
-        alertaRepository.deleteById(id);
+    public void deletar(Integer id, Integer idEmpresa) {
+        logger.info("Deletando alerta financeiro ID: {} para empresa ID: {}", id, idEmpresa);
+        AlertaFinanceiro alerta = alertaRepository.findByIdAlertaAndEmpresaId(id, idEmpresa)
+                .orElseThrow(() -> new IllegalArgumentException("Alerta financeiro não encontrado com ID: " + id));
+        alertaRepository.delete(alerta);
         logger.info("Alerta financeiro deletado com sucesso. ID: {}", id);
     }
 }
