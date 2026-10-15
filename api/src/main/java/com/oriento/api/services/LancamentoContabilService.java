@@ -30,24 +30,24 @@ public class LancamentoContabilService {
         this.simulacaoRepository = simulacaoRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<LancamentoContabil> listarTodos() {
-        logger.debug("Listando todos os lançamentos contábeis");
-        return lancamentoRepository.findAll();
-    }
-
+    /**
+     * Lista lançamentos contábeis pertencentes à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
     public List<LancamentoContabil> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando lançamentos da empresa ID: {}", idEmpresa);
         return lancamentoRepository.buscarPorEmpresaId(idEmpresa);
     }
 
+    /**
+     * Busca lançamento contábil verificando se pertence à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public LancamentoContabil buscarPorId(Integer id) {
-        logger.debug("Buscando lançamento contábil ID: {}", id);
-        return lancamentoRepository.findById(id)
+    public LancamentoContabil buscarPorId(Integer id, Integer idEmpresa) {
+        logger.debug("Buscando lançamento contábil ID: {} para empresa ID: {}", id, idEmpresa);
+        return lancamentoRepository.findByIdLancamentoAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> {
-                    logger.warn("Lançamento não encontrado. ID: {}", id);
+                    logger.warn("Lançamento não encontrado ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Lançamento não encontrado com ID: " + id);
                 });
     }
@@ -74,10 +74,10 @@ public class LancamentoContabilService {
     }
 
     @Transactional
-    public LancamentoContabil atualizar(Integer id, LancamentoContabil dadosNovos) {
-        logger.info("Atualizando lançamento contábil ID: {}", id);
+    public LancamentoContabil atualizar(Integer id, LancamentoContabil dadosNovos, Integer idEmpresa) {
+        logger.info("Atualizando lançamento contábil ID: {} para empresa ID: {}", id, idEmpresa);
 
-        LancamentoContabil lancamento = lancamentoRepository.findById(id)
+        LancamentoContabil lancamento = lancamentoRepository.findByIdLancamentoAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> new IllegalArgumentException("Lançamento não encontrado com ID: " + id));
 
         lancamento.setData(dadosNovos.getData());
@@ -91,12 +91,11 @@ public class LancamentoContabilService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando lançamento contábil ID: {}", id);
-        if (!lancamentoRepository.existsById(id)) {
-            throw new IllegalArgumentException("Lançamento não encontrado com ID: " + id);
-        }
-        lancamentoRepository.deleteById(id);
+    public void deletar(Integer id, Integer idEmpresa) {
+        logger.info("Deletando lançamento contábil ID: {} para empresa ID: {}", id, idEmpresa);
+        LancamentoContabil lancamento = lancamentoRepository.findByIdLancamentoAndEmpresaId(id, idEmpresa)
+                .orElseThrow(() -> new IllegalArgumentException("Lançamento não encontrado com ID: " + id));
+        lancamentoRepository.delete(lancamento);
         logger.info("Lançamento contábil deletado com sucesso. ID: {}", id);
     }
 }
