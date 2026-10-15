@@ -26,18 +26,26 @@ public class EmpresaService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    /**
+     * Lista a empresa vinculada ao usuário autenticado (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public List<Empresa> listarTodas() {
-        logger.debug("Listando todas as empresas");
-        return empresaRepository.findAll();
+    public List<Empresa> listarPorUsuario(UUID idUsuario) {
+        logger.debug("Listando empresa do usuário ID: {}", idUsuario);
+        return empresaRepository.findByUsuarioIdUsuario(idUsuario)
+                .map(List::of)
+                .orElse(List.of());
     }
 
+    /**
+     * Busca empresa por ID verificando se pertence ao usuário autenticado (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public Empresa buscarPorId(Integer id) {
-        logger.debug("Buscando empresa por ID: {}", id);
-        return empresaRepository.findById(id)
+    public Empresa buscarPorId(Integer id, UUID idUsuario) {
+        logger.debug("Buscando empresa por ID: {} para usuário: {}", id, idUsuario);
+        return empresaRepository.findByIdAndUsuarioIdUsuario(id, idUsuario)
                 .orElseThrow(() -> {
-                    logger.warn("Empresa não encontrada. ID: {}", id);
+                    logger.warn("Empresa não encontrada ou não pertence ao usuário. ID: {}", id);
                     return new IllegalArgumentException("Empresa não encontrada com ID: " + id);
                 });
     }
@@ -62,10 +70,10 @@ public class EmpresaService {
     }
 
     @Transactional
-    public Empresa atualizar(Integer id, Empresa dadosNovos) {
-        logger.info("Atualizando empresa ID: {}", id);
+    public Empresa atualizar(Integer id, Empresa dadosNovos, UUID idUsuario) {
+        logger.info("Atualizando empresa ID: {} para usuário: {}", id, idUsuario);
 
-        Empresa empresa = empresaRepository.findById(id)
+        Empresa empresa = empresaRepository.findByIdAndUsuarioIdUsuario(id, idUsuario)
                 .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada com ID: " + id));
 
         // Valida CNPJ apenas se foi alterado
@@ -86,12 +94,11 @@ public class EmpresaService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando empresa ID: {}", id);
-        if (!empresaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Empresa não encontrada com ID: " + id);
-        }
-        empresaRepository.deleteById(id);
+    public void deletar(Integer id, UUID idUsuario) {
+        logger.info("Deletando empresa ID: {} para usuário: {}", id, idUsuario);
+        Empresa empresa = empresaRepository.findByIdAndUsuarioIdUsuario(id, idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada com ID: " + id));
+        empresaRepository.delete(empresa);
         logger.info("Empresa deletada com sucesso. ID: {}", id);
     }
 }
