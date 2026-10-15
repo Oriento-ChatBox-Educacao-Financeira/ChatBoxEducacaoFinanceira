@@ -27,45 +27,45 @@ public class ConversaService {
         this.empresaRepository = empresaRepository;
     }
 
+    /**
+     * Lista somente as conversas da empresa autenticada (anti-IDOR).
+     * O empresaId vem do token JWT via @AuthenticationPrincipal no controller.
+     */
     @Transactional(readOnly = true)
-    public List<Conversa> listarTodas() {
-        logger.debug("Listando todas as conversas");
-        return conversaRepository.findAll();
+    public List<Conversa> listarPorEmpresa(Integer empresaId) {
+        logger.debug("Listando conversas da empresa ID: {}", empresaId);
+        return conversaRepository.findByEmpresaId(empresaId);
     }
 
+    /**
+     * Busca individual com verificação de posse (anti-IDOR).
+     * Retorna 404 se o id não existir OU não pertencer à empresa autenticada.
+     */
     @Transactional(readOnly = true)
-    public List<Conversa> listarPorUsuario(UUID idUsuario) {
-        logger.debug("Listando conversas do usuário ID: {}", idUsuario);
-        return conversaRepository.findByIdUsuario(idUsuario);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Conversa> listarPorEmpresa(Integer idEmpresa) {
-        logger.debug("Listando conversas da empresa ID: {}", idEmpresa);
-        return conversaRepository.findByEmpresaId(idEmpresa);
-    }
-
-    @Transactional(readOnly = true)
-    public Conversa buscarPorId(UUID id) {
-        logger.debug("Buscando conversa ID: {}", id);
-        return conversaRepository.findById(id)
+    public Conversa buscarPorId(UUID id, Integer empresaId) {
+        logger.debug("Buscando conversa ID: {} para empresa ID: {}", id, empresaId);
+        return conversaRepository.findByIdConversaAndEmpresaId(id, empresaId)
                 .orElseThrow(() -> {
-                    logger.warn("Conversa não encontrada. ID: {}", id);
+                    logger.warn("Conversa não encontrada ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Conversa não encontrada com ID: " + id);
                 });
     }
 
+    /**
+     * Cria conversa para o próprio usuário autenticado.
+     * userId e empresaId vêm do token JWT — nunca do cliente.
+     */
     @Transactional
-    public Conversa criar(UUID idUsuario, Integer idEmpresa) {
-        logger.info("Criando conversa para usuário ID: {}, empresa ID: {}", idUsuario, idEmpresa);
+    public Conversa criar(UUID userId, Integer empresaId) {
+        logger.info("Criando conversa para usuário ID: {}, empresa ID: {}", userId, empresaId);
 
-        Empresa empresa = empresaRepository.findById(idEmpresa)
-                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada com ID: " + idEmpresa));
+        Empresa empresa = empresaRepository.findById(empresaId)
+                .orElseThrow(() -> new IllegalArgumentException("Empresa não encontrada com ID: " + empresaId));
 
         Conversa conversa = new Conversa();
         // O UUID é a chave-ponte com o MongoDB — gerado aqui e usado nos dois bancos
         conversa.setIdConversa(UUID.randomUUID());
-        conversa.setIdUsuario(idUsuario);
+        conversa.setIdUsuario(userId);
         conversa.setEmpresa(empresa);
         // status e iniciadaEm já têm defaults no model
 
@@ -75,14 +75,13 @@ public class ConversaService {
     }
 
     /**
-     * Encerra uma conversa ativa.
-     * Altera o status de 'ativa' para 'encerrada'.
+     * Encerra uma conversa ativa verificando posse antes de alterar.
      */
     @Transactional
-    public Conversa encerrar(UUID id) {
+    public Conversa encerrar(UUID id, Integer empresaId) {
         logger.info("Encerrando conversa ID: {}", id);
 
-        Conversa conversa = conversaRepository.findById(id)
+        Conversa conversa = conversaRepository.findByIdConversaAndEmpresaId(id, empresaId)
                 .orElseThrow(() -> new IllegalArgumentException("Conversa não encontrada com ID: " + id));
 
         if (conversa.getStatus() == StatusConversa.encerrada) {
@@ -96,13 +95,16 @@ public class ConversaService {
         return encerrada;
     }
 
+    /**
+     * Deleta conversa verificando posse antes de remover.
+     */
     @Transactional
-    public void deletar(UUID id) {
+    public void deletar(UUID id, Integer empresaId) {
         logger.info("Deletando conversa ID: {}", id);
-        if (!conversaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Conversa não encontrada com ID: " + id);
-        }
+        // verificação de posse: lança exceção se não pertencer à empresa
+        conversaRepository.findByIdConversaAndEmpresaId(id, empresaId)
+                .orElseThrow(() -> new IllegalArgumentException("Conversa não encontrada com ID: " + id));
         conversaRepository.deleteById(id);
         logger.info("Conversa deletada com sucesso. ID: {}", id);
     }
-}
+}
