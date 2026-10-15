@@ -12,5 +12,7 @@ public interface IndicadorFinanceiroRepository extends JpaRepository<IndicadorFi
 
     List<IndicadorFinanceiro> findByEmpresaId(Integer idEmpresa);
 
+    List<IndicadorFinanceiro> findTop12ByEmpresaIdOrderByAnoMesDesc(Integer idEmpresa);
+
     boolean existsByEmpresaIdAndAnoMes(Integer idEmpresa, LocalDate anoMes);
 }

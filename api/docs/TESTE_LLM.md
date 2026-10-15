@@ -1,99 +1,172 @@
-# Tutorial: testar integração LLM local (Oriento)
+# Integração Oriento: Java → Python → Ollama
 
-## Pré-requisitos
+O frontend continua chamando `POST /api/oriento/ask` no Java.
+Java autentica o usuário, autoriza a conversa, resolve sua empresa, carrega o histórico
+do MongoDB e encaminha a geração ao projeto irmão `chatbox-ai`.
+Python consulta os indicadores no Java e chama Ollama. Java salva o turno antes de responder.
 
-1. **MySQL e MongoDB** configurados conforme `application.properties` (variáveis de ambiente ou `.env`).
-2. **Ollama** ativo na porta definida em `llm.api.base-url` (padrão: `11435`).
+## Preparação
 
-```powershell
-$env:OLLAMA_HOST = "127.0.0.1:11435"
-ollama serve
-```
+Requer Java 21+, Maven, PostgreSQL com o schema do projeto, MongoDB, Python 3.12+ e Ollama.
+O `compose.yaml` antigo contém MySQL e não representa esta integração com PostgreSQL/MongoDB.
 
-3. **Modelo instalado** (nome deve coincidir com `llm.api.model`):
-
-```powershell
-ollama list
-ollama pull deepseek-r1:8b
-```
-
-## Passo 1 — Subir a API
+1. Configure os bancos do Java com `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`,
+   `SPRING_DATASOURCE_PASSWORD`, `SPRING_DATA_MONGODB_URI` e `SPRING_DATA_MONGODB_DATABASE`.
+   As propriedades padrão existentes do projeto continuam válidas; use variáveis para selecionar o ambiente.
+2. Execute a migração no PostgreSQL escolhido, antes de habilitar a IA:
 
 ```powershell
-cd api
-.\mvnw.cmd spring-boot:run
+cd chatbox-backend/api
+psql -h localhost -U seu_usuario -d oriento -f docs/migrations/001_conversa_empresa_opcional.sql
 ```
 
-## Passo 2 — Obter JWT
+A migração remove apenas a obrigatoriedade de `conversa.id_empresa`, preservando os IDs e dados.
+É repetível. Não executamos essa migração automaticamente no banco configurado.
+Os dois mapeamentos Java da tabela `conversa` passam a permitir empresa nula.
 
-```http
-POST http://localhost:8080/api/auth/login
-Content-Type: application/json
+3. Instale e inicie Python conforme `../../chatbox-ai/README.md` a partir da pasta `api`
+   (o projeto Python fica dois níveis acima de `api`, ao lado de `chatbox-backend`).
+4. Inicie Ollama em `127.0.0.1:11435` e instale `deepseek-r1:8b`.
+5. Configure o segredo compartilhado e ative o proxy:
 
-{
-  "email": "seu@email.com",
-  "senha": "sua-senha"
-}
+```powershell
+$env:ORIENTO_INTERNAL_TOKEN = "seu-segredo-compartilhado"
+$env:ORIENTO_AI_BASE_URL = "http://127.0.0.1:8000"
+$env:ORIENTO_AI_ENABLED = "true"
+mvn spring-boot:run
+# Alternativa, se disponível neste checkout: .\mvnw.cmd spring-boot:run
 ```
 
-Copie o campo `accessToken` da resposta.
+No `chatbox-ai/.env`, `INTERNAL_TOKEN` deve ter o mesmo valor de `ORIENTO_INTERNAL_TOKEN`.
+O exemplo `api/.env.example` documenta as variáveis Java; Spring não carrega arquivos
+`.env` automaticamente. Exporte as variáveis no shell ou na configuração do processo.
 
-## Passo 3 — Primeira pergunta (nova conversa)
+| Variável Java | Padrão |
+| --- | --- |
+| `ORIENTO_AI_ENABLED` | `false` |
+| `ORIENTO_AI_BASE_URL` | `http://127.0.0.1:8000` |
+| `ORIENTO_INTERNAL_TOKEN` | vazio; obrigatório com IA habilitada |
+| `ORIENTO_AI_CONNECT_TIMEOUT` | `5s` |
+| `ORIENTO_AI_READ_TIMEOUT` | `150s` |
+
+A flag desligada retorna 503 sem criar conversa nem chamar Python.
+IA habilitada sem segredo impede a inicialização. A flag é lida na inicialização;
+reinicie o Java ao alterá-la. O Java não chama mais Ollama diretamente.
+
+## Contrato público preservado
+
+Use um JWT aceito pelo Java, cujo `sub` seja o UUID de um usuário registrado.
 
 ```http
 POST http://localhost:8080/api/oriento/ask
-Authorization: Bearer {accessToken}
+Authorization: Bearer JWT-do-usuario
 Content-Type: text/plain
 
-Explique o que é fluxo de caixa para uma PME.
+Explique como melhorar o fluxo de caixa.
 ```
 
-Resposta esperada (JSON):
+Resposta:
 
 ```json
 {
-  "conversationId": "uuid-gerado",
-  "response": "texto do assistente..."
+  "conversationId": "uuid-da-conversa",
+  "response": "texto do Oriento"
 }
 ```
 
-## Passo 4 — Continuar a mesma conversa
+Para continuar, use `POST /api/oriento/ask?conversationId={uuid}`.
+O frontend não precisa alterar corpo, URL ou formato de resposta.
+Prompt vazio e UUID malformado retornam 400; conversa inexistente, 404;
+conversa de outro usuário, 403; conversa encerrada ou conflito entre turnos, 409.
+O JWT encaminhado ao Python é o token recebido na chamada pública.
+
+## Indicadores internos
 
 ```http
-POST http://localhost:8080/api/oriento/ask?conversationId={conversationId}
-Authorization: Bearer {accessToken}
-Content-Type: text/plain
-
-Quais são os três principais indicadores que devo acompanhar?
+GET http://localhost:8080/internal/empresas/7/indicadores
+X-Internal-Token: segredo-compartilhado
+Authorization: Bearer JWT-do-usuario
 ```
 
-A resposta deve considerar o contexto da pergunta anterior.
+Retorna os últimos 12 períodos cadastrados, do mais antigo para o mais recente:
 
-## Passo 5 — Swagger UI
+```json
+{
+  "empresaId": 7,
+  "indicadores": [
+    {
+      "idIndicador": 1,
+      "anoMes": "2026-09-01",
+      "receitaTotal": "12500.00",
+      "despesasTotais": "9000.00",
+      "lucroLiquido": "3500.00",
+      "margemLucro": "28.00",
+      "fluxoCaixa": null
+    }
+  ]
+}
+```
 
-1. Abra `http://localhost:8080/swagger-ui.html`
-2. Clique em **Authorize** e informe `Bearer {accessToken}`
-3. Use o endpoint **POST /api/oriento/ask** na tag **Assistente Oriento**
+Decimais são strings, datas são ISO e ausência de dado permanece nula.
+O endpoint projeta somente os indicadores e exige ambas as credenciais.
+Empresa inexistente retorna 404; empresa de outro usuário, 403.
+Empresa existente sem indicadores retorna lista vazia.
+O projeto considera uma empresa por usuário, conforme o relacionamento atual.
 
-## Passo 6 — Teste direto no servidor LLM (isolado)
+## Persistência e falhas
+
+A coleção `oriento_turnos` reutiliza a conexão MongoDB do Java.
+Cada documento contém `conversationId` como UUID textual, `ordem`, `pergunta`,
+`resposta` e `criadoEm`. O índice único `uk_oriento_conversa_ordem` é criado
+durante a inicialização com a flag ligada.
+
+Pergunta e resposta são inseridas no mesmo documento após a geração.
+O histórico completo fica armazenado; somente os últimos 20 turnos entram no contexto.
+Duas chamadas que leem a mesma próxima ordem disputam o índice: uma grava e outra recebe 409.
+Não há repetição automática da geração.
+
+Falha de geração não grava turno; falha de armazenamento impede retorno de sucesso.
+Uma primeira chamada que falhe pode deixar uma conversa vazia no PostgreSQL.
+A criação da conversa e a gravação do turno usam bancos distintos, sem transação distribuída.
+O contexto anteriormente mantido apenas em memória não é migrável; conversas existentes
+conservam seus IDs e passam a acumular novos turnos persistidos.
+
+A coleção de turnos atende o contexto do assistente. As APIs existentes de `mensagens`
+continuam usando sua coleção própria; não passam a listar esses turnos automaticamente.
+
+Timeout, conexão indisponível, HTTP 429 ou 5xx ao consultar indicadores permitem uma
+resposta genérica com aviso explícito. Erros de autenticação e autorização interrompem a geração.
+Indisponibilidade de Python/Ollama retorna 503; resposta incoerente do Python retorna 502.
+Os logs da integração registram duração e códigos de falha sem conteúdo da conversa ou tokens.
+
+## Testes
 
 ```powershell
-curl http://127.0.0.1:11435/api/chat -Method POST -ContentType "application/json" -Body '{"model":"deepseek-r1:8b","stream":false,"messages":[{"role":"user","content":"Olá"}]}'
+cd chatbox-backend/api
+mvn test
 ```
 
-## Diagnóstico de falhas
+Os testes de contratos usam dependências simuladas. Com Docker disponível,
+os testes de persistência iniciam PostgreSQL e MongoDB descartáveis via Testcontainers.
+Sem Docker e sem os endereços de teste, a classe de integração é abortada com indicação do requisito.
 
-| Sintoma | Causa provável | Ação |
-|---------|----------------|------|
-| Connection refused | Ollama parado ou URL errada | Verificar `ollama serve` e `llm.api.base-url` |
-| 404 model not found | Modelo não instalado | `ollama pull {modelo}` |
-| Timeout na 1ª chamada | Modelo carregando na memória | Aumentar `llm.api.read-timeout` |
-| 401 / 403 | JWT inválido ou conversa de outro usuário | Renovar token ou usar `conversationId` correto |
-| 503 | Servidor LLM indisponível | Ver logs da API e do Ollama |
+Para executar a mesma integração no Windows com binários locais e dados novos:
 
-## Configuração opcional por variáveis de ambiente
+```powershell
+.\scripts\test-local-databases.ps1 `
+  -PostgresBin "C:\Program Files\PostgreSQL\18\bin" `
+  -MongoExecutable "C:\caminho\mongodb\bin\mongod.exe" `
+  -MavenCommand "mvn"
+```
 
-| Variável | Propriedade | Padrão |
-|----------|-------------|--------|
-| `LLM_API_BASE_URL` | `llm.api.base-url` | `http://127.0.0.1:11435` |
-| `LLM_API_MODEL` | `llm.api.model` | `deepseek-r1:8b` |
+O executor usa exclusivamente as portas 54394/27094, verifica se estão livres, cria
+um cluster em `target/local-database-tests` e encerra seus processos ao terminar.
+Os logs e diretórios temporários ficam nesse diretório ignorado pelo Git.
+Pode alterar portas com `-PostgresPort` e `-MongoPort`.
+
+Também é possível fornecer `ORIENTO_TEST_JDBC_URL`, `ORIENTO_TEST_JDBC_USER`,
+`ORIENTO_TEST_JDBC_PASSWORD` e `ORIENTO_TEST_MONGO_URI` para instâncias descartáveis.
+Esses testes criam e removem tabelas; use exclusivamente bancos de teste.
+O smoke test Java verifica a configuração do proxy sem acessar servidores do ambiente.
+
+Os testes Python estão em `chatbox-ai/tests` e usam transporte HTTP simulado para Java/Ollama.

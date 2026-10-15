@@ -43,6 +43,9 @@ public class Empresa {
             columnDefinition = "TIMESTAMP DEFAULT NOW()")
     private LocalDateTime datacriacao;
 
+    public Empresa() {
+    }
+
     public Empresa(Integer id) {
         this.id = id;
     }

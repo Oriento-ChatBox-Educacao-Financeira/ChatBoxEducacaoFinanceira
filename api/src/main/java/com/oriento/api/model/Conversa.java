@@ -17,7 +17,7 @@ public class Conversa {
     private UUID idUsuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_empresa", nullable = false)
+    @JoinColumn(name = "id_empresa", nullable = true)
     private Empresa empresa;
 
     @Enumerated(EnumType.STRING)

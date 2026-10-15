@@ -19,7 +19,7 @@ public class AIConversation {
     private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "id_empresa")
+    @JoinColumn(name = "id_empresa", nullable = true)
     private Empresa empresa;
 
     @Enumerated(EnumType.STRING)

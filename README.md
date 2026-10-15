@@ -8,7 +8,7 @@
 
 ## Sobre o Projeto
 
-**Oriento** é uma plataforma web completa de educação financeira voltada para pequenas e médias empresas (PMEs). A aplicação oferece um assistente virtual inteligente alimentado pela API do Google Gemini, que auxilia empreendedores com orientações personalizadas sobre gestão financeira, controle de fluxo de caixa, investimentos e estratégias de crescimento empresarial.
+**Oriento** é uma plataforma web completa de educação financeira voltada para pequenas e médias empresas (PMEs). A aplicação oferece um assistente virtual inteligente executado pelo serviço Python independente `chatbox-ai`, integrado ao Ollama, que auxilia empreendedores com orientações personalizadas sobre gestão financeira, controle de fluxo de caixa, investimentos e estratégias de crescimento empresarial.
 
 ### Principais Funcionalidades
 
@@ -29,9 +29,9 @@ O projeto segue uma arquitetura **Fullstack Monorepo** com separação clara ent
 ChatBoxEducacaoFinanceira/
 ├── api/                    # Backend - Spring Boot REST API
 │   ├── src/main/java/com/oriento/api/
-│   │   ├── client/         # Integrações externas (Gemini AI)
+│   │   ├── client/         # Proxy para o serviço Python Oriento
 │   │   ├── config/         # Configurações (Security, CORS, Rate Limit)
-│   │   ├── controller/     # Controllers REST (Auth, Gemini, Usuario)
+│   │   ├── controller/     # Controllers REST (Auth, Oriento, Usuario)
 │   │   ├── dto/            # Data Transfer Objects
 │   │   ├── exception/      # Tratamento global de exceções
 │   │   ├── filter/         # Filtros HTTP personalizados
@@ -65,7 +65,7 @@ ChatBoxEducacaoFinanceira/
 - **MySQL** - Banco de dados relacional
 - **JWT (JSON Web Tokens)** - Autenticação stateless
 - **Bucket4j** - Rate limiting
-- **Google Gemini API** - Inteligência artificial conversacional
+- **Chatbox AI (Python/FastAPI) + Ollama** - Geração do assistente em serviço independente
 - **Maven** - Gerenciamento de dependências
 
 ### Frontend
@@ -126,8 +126,10 @@ spring.datasource.url=jdbc:mysql://localhost:3306/oriento
 spring.datasource.username=orientodb
 spring.datasource.password=sua_senha_segura
 
-# Gemini API Key (obtenha em https://makersuite.google.com/app/apikey)
-gemini.api.key=SUA_CHAVE_GEMINI_API
+# Proxy para o serviço Python (configuração completa em api/docs/TESTE_LLM.md)
+oriento.ai.enabled=${ORIENTO_AI_ENABLED:false}
+oriento.ai.base-url=${ORIENTO_AI_BASE_URL:http://127.0.0.1:8000}
+oriento.ai.internal-token=${ORIENTO_INTERNAL_TOKEN:}
 ```
 
 #### 3.2. Gerar Chaves RSA para JWT
@@ -273,7 +275,9 @@ Os arquivos otimizados serão gerados em `frontend/dist/`
 | `spring.datasource.url` | URL do banco MySQL | `jdbc:mysql://localhost:3306/oriento` |
 | `spring.datasource.username` | Usuário do banco | `orientodb` |
 | `spring.datasource.password` | Senha do banco | - |
-| `gemini.api.key` | Chave da API Gemini | - |
+| `ORIENTO_AI_ENABLED` | Ativa o proxy Python | `false` |
+| `ORIENTO_AI_BASE_URL` | URL do serviço Python | `http://127.0.0.1:8000` |
+| `ORIENTO_INTERNAL_TOKEN` | Segredo interno compartilhado | obrigatório ao ativar IA |
 | `jwt.public.key` | Caminho da chave pública JWT | `classpath:keys/app.pub` |
 | `jwt.private.key` | Caminho da chave privada JWT | `classpath:keys/app.key` |
 
@@ -353,3 +357,7 @@ Para dúvidas ou sugestões, entre em contato:
 ---
 
 **Desenvolvido com dedicação para ajudar PMEs a prosperarem financeiramente.**
+
+## Serviço independente de IA
+
+A IA é executada no projeto irmão chatbox-ai. O Java conserva autenticação e histórico persistido. Consulte [Integração e ativação](api/docs/TESTE_LLM.md) para instalação, contratos, migração e testes.
