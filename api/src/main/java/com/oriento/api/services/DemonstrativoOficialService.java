@@ -25,24 +25,24 @@ public class DemonstrativoOficialService {
         this.empresaRepository = empresaRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<DemonstrativoOficial> listarTodos() {
-        logger.debug("Listando todos os demonstrativos oficiais");
-        return demonstrativoRepository.findAll();
-    }
-
+    /**
+     * Lista demonstrativos pertencentes à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
     public List<DemonstrativoOficial> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando demonstrativos da empresa ID: {}", idEmpresa);
         return demonstrativoRepository.findByEmpresaId(idEmpresa);
     }
 
+    /**
+     * Busca demonstrativo verificando se pertence à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public DemonstrativoOficial buscarPorId(Integer id) {
-        logger.debug("Buscando demonstrativo ID: {}", id);
-        return demonstrativoRepository.findById(id)
+    public DemonstrativoOficial buscarPorId(Integer id, Integer idEmpresa) {
+        logger.debug("Buscando demonstrativo ID: {} para empresa ID: {}", id, idEmpresa);
+        return demonstrativoRepository.findByIdDemonstrativoAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> {
-                    logger.warn("Demonstrativo não encontrado. ID: {}", id);
+                    logger.warn("Demonstrativo não encontrado ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Demonstrativo não encontrado com ID: " + id);
                 });
     }
@@ -67,14 +67,14 @@ public class DemonstrativoOficialService {
     }
 
     @Transactional
-    public DemonstrativoOficial atualizar(Integer id, DemonstrativoOficial dadosNovos) {
-        logger.info("Atualizando demonstrativo ID: {}", id);
+    public DemonstrativoOficial atualizar(Integer id, DemonstrativoOficial dadosNovos, Integer idEmpresa) {
+        logger.info("Atualizando demonstrativo ID: {} para empresa ID: {}", id, idEmpresa);
 
         if (dadosNovos.getDataFim().isBefore(dadosNovos.getDataInicio())) {
             throw new IllegalArgumentException("A data fim não pode ser anterior à data início.");
         }
 
-        DemonstrativoOficial demonstrativo = demonstrativoRepository.findById(id)
+        DemonstrativoOficial demonstrativo = demonstrativoRepository.findByIdDemonstrativoAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> new IllegalArgumentException("Demonstrativo não encontrado com ID: " + id));
 
         demonstrativo.setTipo(dadosNovos.getTipo());
@@ -88,12 +88,11 @@ public class DemonstrativoOficialService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando demonstrativo ID: {}", id);
-        if (!demonstrativoRepository.existsById(id)) {
-            throw new IllegalArgumentException("Demonstrativo não encontrado com ID: " + id);
-        }
-        demonstrativoRepository.deleteById(id);
+    public void deletar(Integer id, Integer idEmpresa) {
+        logger.info("Deletando demonstrativo ID: {} para empresa ID: {}", id, idEmpresa);
+        DemonstrativoOficial demonstrativo = demonstrativoRepository.findByIdDemonstrativoAndEmpresaId(id, idEmpresa)
+                .orElseThrow(() -> new IllegalArgumentException("Demonstrativo não encontrado com ID: " + id));
+        demonstrativoRepository.delete(demonstrativo);
         logger.info("Demonstrativo deletado com sucesso. ID: {}", id);
     }
 }
