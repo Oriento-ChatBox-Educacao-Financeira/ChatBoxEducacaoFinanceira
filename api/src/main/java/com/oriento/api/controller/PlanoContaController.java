@@ -1,11 +1,13 @@
 package com.oriento.api.controller;
 
 import com.oriento.api.model.PlanoConta;
+import com.oriento.api.security.UsuarioAutenticado;
 import com.oriento.api.services.PlanoContaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,37 +24,32 @@ public class PlanoContaController {
         this.planoContaService = planoContaService;
     }
 
-    /** GET /api/planos-conta */
+    /** GET /api/planos-conta - Lista planos de conta da empresa autenticada */
     @GetMapping
-    public ResponseEntity<List<PlanoConta>> listarTodos() {
-        logger.debug("GET /api/planos-conta");
-        return ResponseEntity.ok(planoContaService.listarTodos());
+    public ResponseEntity<List<PlanoConta>> listarTodos(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.debug("GET /api/planos-conta - empresa: {}", usuario.empresaId());
+        return ResponseEntity.ok(planoContaService.listarPorEmpresa(usuario.empresaId()));
     }
 
-    /** GET /api/planos-conta/empresa/{idEmpresa} */
-    @GetMapping("/empresa/{idEmpresa}")
-    public ResponseEntity<List<PlanoConta>> listarPorEmpresa(@PathVariable Integer idEmpresa) {
-        logger.debug("GET /api/planos-conta/empresa/{}", idEmpresa);
-        return ResponseEntity.ok(planoContaService.listarPorEmpresa(idEmpresa));
-    }
-
-    /** GET /api/planos-conta/{id} */
+    /** GET /api/planos-conta/{id} - Busca plano de conta verificando posse da empresa */
     @GetMapping("/{id}")
-    public ResponseEntity<PlanoConta> buscarPorId(@PathVariable Integer id) {
-        logger.debug("GET /api/planos-conta/{}", id);
-        return ResponseEntity.ok(planoContaService.buscarPorId(id));
+    public ResponseEntity<PlanoConta> buscarPorId(@PathVariable Integer id,
+                                                  @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.debug("GET /api/planos-conta/{} - empresa: {}", id, usuario.empresaId());
+        return ResponseEntity.ok(planoContaService.buscarPorId(id, usuario.empresaId()));
     }
 
     /**
-     * POST /api/planos-conta/empresa/{idEmpresa}
+     * POST /api/planos-conta
+     * Cria plano de conta vinculado à empresa do token JWT.
      * Query param opcional: idContaPai (para contas sintéticas)
      */
-    @PostMapping("/empresa/{idEmpresa}")
+    @PostMapping
     public ResponseEntity<PlanoConta> criar(@RequestBody PlanoConta planoConta,
-                                             @PathVariable Integer idEmpresa,
-                                             @RequestParam(required = false) Integer idContaPai) {
-        logger.info("POST /api/planos-conta/empresa/{}", idEmpresa);
-        PlanoConta criado = planoContaService.criar(planoConta, idEmpresa, idContaPai);
+                                            @RequestParam(required = false) Integer idContaPai,
+                                            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("POST /api/planos-conta - empresa: {}", usuario.empresaId());
+        PlanoConta criado = planoContaService.criar(planoConta, usuario.empresaId(), idContaPai);
         return ResponseEntity.status(HttpStatus.CREATED).body(criado);
     }
 
@@ -62,17 +59,19 @@ public class PlanoContaController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<PlanoConta> atualizar(@PathVariable Integer id,
-                                                 @RequestBody PlanoConta dadosNovos,
-                                                 @RequestParam(required = false) Integer idContaPai) {
-        logger.info("PUT /api/planos-conta/{}", id);
-        return ResponseEntity.ok(planoContaService.atualizar(id, dadosNovos, idContaPai));
+                                                @RequestBody PlanoConta dadosNovos,
+                                                @RequestParam(required = false) Integer idContaPai,
+                                                @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("PUT /api/planos-conta/{} - empresa: {}", id, usuario.empresaId());
+        return ResponseEntity.ok(planoContaService.atualizar(id, dadosNovos, idContaPai, usuario.empresaId()));
     }
 
     /** DELETE /api/planos-conta/{id} */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        logger.info("DELETE /api/planos-conta/{}", id);
-        planoContaService.deletar(id);
+    public ResponseEntity<Void> deletar(@PathVariable Integer id,
+                                        @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("DELETE /api/planos-conta/{} - empresa: {}", id, usuario.empresaId());
+        planoContaService.deletar(id, usuario.empresaId());
         return ResponseEntity.noContent().build();
     }
 }
