@@ -25,24 +25,24 @@ public class IndicadorFinanceiroService {
         this.empresaRepository = empresaRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<IndicadorFinanceiro> listarTodos() {
-        logger.debug("Listando todos os indicadores financeiros");
-        return indicadorRepository.findAll();
-    }
-
+    /**
+     * Lista indicadores pertencentes à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
     public List<IndicadorFinanceiro> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando indicadores da empresa ID: {}", idEmpresa);
         return indicadorRepository.findByEmpresaId(idEmpresa);
     }
 
+    /**
+     * Busca indicador verificando se pertence à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public IndicadorFinanceiro buscarPorId(Integer id) {
-        logger.debug("Buscando indicador financeiro ID: {}", id);
-        return indicadorRepository.findById(id)
+    public IndicadorFinanceiro buscarPorId(Integer id, Integer idEmpresa) {
+        logger.debug("Buscando indicador financeiro ID: {} para empresa ID: {}", id, idEmpresa);
+        return indicadorRepository.findByIdIndicadorAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> {
-                    logger.warn("Indicador financeiro não encontrado. ID: {}", id);
+                    logger.warn("Indicador financeiro não encontrado ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Indicador financeiro não encontrado com ID: " + id);
                 });
     }
@@ -68,10 +68,10 @@ public class IndicadorFinanceiroService {
     }
 
     @Transactional
-    public IndicadorFinanceiro atualizar(Integer id, IndicadorFinanceiro dadosNovos) {
-        logger.info("Atualizando indicador financeiro ID: {}", id);
+    public IndicadorFinanceiro atualizar(Integer id, IndicadorFinanceiro dadosNovos, Integer idEmpresa) {
+        logger.info("Atualizando indicador financeiro ID: {} para empresa ID: {}", id, idEmpresa);
 
-        IndicadorFinanceiro indicador = indicadorRepository.findById(id)
+        IndicadorFinanceiro indicador = indicadorRepository.findByIdIndicadorAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> new IllegalArgumentException("Indicador financeiro não encontrado com ID: " + id));
 
         indicador.setAnoMes(dadosNovos.getAnoMes());
@@ -88,12 +88,11 @@ public class IndicadorFinanceiroService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando indicador financeiro ID: {}", id);
-        if (!indicadorRepository.existsById(id)) {
-            throw new IllegalArgumentException("Indicador financeiro não encontrado com ID: " + id);
-        }
-        indicadorRepository.deleteById(id);
+    public void deletar(Integer id, Integer idEmpresa) {
+        logger.info("Deletando indicador financeiro ID: {} para empresa ID: {}", id, idEmpresa);
+        IndicadorFinanceiro indicador = indicadorRepository.findByIdIndicadorAndEmpresaId(id, idEmpresa)
+                .orElseThrow(() -> new IllegalArgumentException("Indicador financeiro não encontrado com ID: " + id));
+        indicadorRepository.delete(indicador);
         logger.info("Indicador financeiro deletado com sucesso. ID: {}", id);
     }
 }
