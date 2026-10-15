@@ -1,11 +1,13 @@
 package com.oriento.api.controller;
 
 import com.oriento.api.model.Conversa;
+import com.oriento.api.security.UsuarioAutenticado;
 import com.oriento.api.services.ConversaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,61 +25,49 @@ public class ConversaController {
         this.conversaService = conversaService;
     }
 
-    /** GET /api/conversas */
+    /** GET /api/conversas - Lista conversas da empresa do usuário autenticado */
     @GetMapping
-    public ResponseEntity<List<Conversa>> listarTodas() {
-        logger.debug("GET /api/conversas");
-        return ResponseEntity.ok(conversaService.listarTodas());
+    public ResponseEntity<List<Conversa>> listarTodas(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.debug("GET /api/conversas - empresa: {}", usuario.empresaId());
+        return ResponseEntity.ok(conversaService.listarPorEmpresa(usuario.empresaId()));
     }
 
-    /** GET /api/conversas/usuario/{idUsuario} */
-    @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<Conversa>> listarPorUsuario(@PathVariable UUID idUsuario) {
-        logger.debug("GET /api/conversas/usuario/{}", idUsuario);
-        return ResponseEntity.ok(conversaService.listarPorUsuario(idUsuario));
-    }
-
-    /** GET /api/conversas/empresa/{idEmpresa} */
-    @GetMapping("/empresa/{idEmpresa}")
-    public ResponseEntity<List<Conversa>> listarPorEmpresa(@PathVariable Integer idEmpresa) {
-        logger.debug("GET /api/conversas/empresa/{}", idEmpresa);
-        return ResponseEntity.ok(conversaService.listarPorEmpresa(idEmpresa));
-    }
-
-    /** GET /api/conversas/{id} */
+    /** GET /api/conversas/{id} - Busca conversa verificando se pertence à empresa autenticada */
     @GetMapping("/{id}")
-    public ResponseEntity<Conversa> buscarPorId(@PathVariable UUID id) {
-        logger.debug("GET /api/conversas/{}", id);
-        return ResponseEntity.ok(conversaService.buscarPorId(id));
+    public ResponseEntity<Conversa> buscarPorId(@PathVariable UUID id,
+                                                @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.debug("GET /api/conversas/{} - empresa: {}", id, usuario.empresaId());
+        return ResponseEntity.ok(conversaService.buscarPorId(id, usuario.empresaId()));
     }
 
     /**
      * POST /api/conversas
-     * Query params obrigatórios: idUsuario, idEmpresa
+     * Cria conversa vinculando automaticamente o usuário e a empresa do token JWT.
      */
     @PostMapping
-    public ResponseEntity<Conversa> criar(@RequestParam UUID idUsuario,
-                                           @RequestParam Integer idEmpresa) {
-        logger.info("POST /api/conversas - usuário: {}, empresa: {}", idUsuario, idEmpresa);
-        Conversa criada = conversaService.criar(idUsuario, idEmpresa);
+    public ResponseEntity<Conversa> criar(@AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("POST /api/conversas - usuário: {}, empresa: {}", usuario.userId(), usuario.empresaId());
+        Conversa criada = conversaService.criar(usuario.userId(), usuario.empresaId());
         return ResponseEntity.status(HttpStatus.CREATED).body(criada);
     }
 
     /**
      * PATCH /api/conversas/{id}/encerrar
-     * Encerra uma conversa ativa.
+     * Encerra uma conversa ativa pertencente à empresa do usuário autenticado.
      */
     @PatchMapping("/{id}/encerrar")
-    public ResponseEntity<Conversa> encerrar(@PathVariable UUID id) {
-        logger.info("PATCH /api/conversas/{}/encerrar", id);
-        return ResponseEntity.ok(conversaService.encerrar(id));
+    public ResponseEntity<Conversa> encerrar(@PathVariable UUID id,
+                                             @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("PATCH /api/conversas/{}/encerrar - empresa: {}", id, usuario.empresaId());
+        return ResponseEntity.ok(conversaService.encerrar(id, usuario.empresaId()));
     }
 
-    /** DELETE /api/conversas/{id} */
+    /** DELETE /api/conversas/{id} - Deleta conversa pertencente à empresa do usuário autenticado */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        logger.info("DELETE /api/conversas/{}", id);
-        conversaService.deletar(id);
+    public ResponseEntity<Void> deletar(@PathVariable UUID id,
+                                        @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        logger.info("DELETE /api/conversas/{} - empresa: {}", id, usuario.empresaId());
+        conversaService.deletar(id, usuario.empresaId());
         return ResponseEntity.noContent().build();
     }
 }
