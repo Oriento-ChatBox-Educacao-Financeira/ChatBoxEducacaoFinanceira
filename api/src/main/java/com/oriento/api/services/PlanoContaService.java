@@ -25,24 +25,24 @@ public class PlanoContaService {
         this.empresaRepository = empresaRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<PlanoConta> listarTodos() {
-        logger.debug("Listando todos os planos de conta");
-        return planoContaRepository.findAll();
-    }
-
+    /**
+     * Lista planos de conta pertencentes à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
     public List<PlanoConta> listarPorEmpresa(Integer idEmpresa) {
         logger.debug("Listando planos de conta da empresa ID: {}", idEmpresa);
         return planoContaRepository.buscarPorEmpresa(idEmpresa);
     }
 
+    /**
+     * Busca plano de conta por ID verificando se pertence à empresa autenticada (anti-IDOR).
+     */
     @Transactional(readOnly = true)
-    public PlanoConta buscarPorId(Integer id) {
-        logger.debug("Buscando plano de conta ID: {}", id);
-        return planoContaRepository.findById(id)
+    public PlanoConta buscarPorId(Integer id, Integer idEmpresa) {
+        logger.debug("Buscando plano de conta ID: {} para empresa ID: {}", id, idEmpresa);
+        return planoContaRepository.findByIdContaAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> {
-                    logger.warn("Plano de conta não encontrado. ID: {}", id);
+                    logger.warn("Plano de conta não encontrado ou não pertence à empresa. ID: {}", id);
                     return new IllegalArgumentException("Plano de conta não encontrado com ID: " + id);
                 });
     }
@@ -56,10 +56,10 @@ public class PlanoContaService {
 
         planoConta.setIdEmpresa(empresa);
 
-        // Víncula conta pai se informada (conta sintética)
+        // Víncula conta pai se informada (garantindo que pertence à mesma empresa)
         if (idContaPai != null) {
-            PlanoConta contaPai = planoContaRepository.findById(idContaPai)
-                    .orElseThrow(() -> new IllegalArgumentException("Conta pai não encontrada com ID: " + idContaPai));
+            PlanoConta contaPai = planoContaRepository.findByIdContaAndEmpresaId(idContaPai, idEmpresa)
+                    .orElseThrow(() -> new IllegalArgumentException("Conta pai não encontrada para esta empresa com ID: " + idContaPai));
             planoConta.setContaPai(contaPai);
         }
 
@@ -69,10 +69,10 @@ public class PlanoContaService {
     }
 
     @Transactional
-    public PlanoConta atualizar(Integer id, PlanoConta dadosNovos, Integer idContaPai) {
-        logger.info("Atualizando plano de conta ID: {}", id);
+    public PlanoConta atualizar(Integer id, PlanoConta dadosNovos, Integer idContaPai, Integer idEmpresa) {
+        logger.info("Atualizando plano de conta ID: {} para empresa ID: {}", id, idEmpresa);
 
-        PlanoConta planoConta = planoContaRepository.findById(id)
+        PlanoConta planoConta = planoContaRepository.findByIdContaAndEmpresaId(id, idEmpresa)
                 .orElseThrow(() -> new IllegalArgumentException("Plano de conta não encontrado com ID: " + id));
 
         planoConta.setCodigo(dadosNovos.getCodigo());
@@ -83,8 +83,8 @@ public class PlanoContaService {
         planoConta.setPermitelancamento(dadosNovos.getPermitelancamento());
 
         if (idContaPai != null) {
-            PlanoConta contaPai = planoContaRepository.findById(idContaPai)
-                    .orElseThrow(() -> new IllegalArgumentException("Conta pai não encontrada com ID: " + idContaPai));
+            PlanoConta contaPai = planoContaRepository.findByIdContaAndEmpresaId(idContaPai, idEmpresa)
+                    .orElseThrow(() -> new IllegalArgumentException("Conta pai não encontrada para esta empresa com ID: " + idContaPai));
             planoConta.setContaPai(contaPai);
         } else {
             planoConta.setContaPai(null); // remove hierarquia se não informada
@@ -96,12 +96,11 @@ public class PlanoContaService {
     }
 
     @Transactional
-    public void deletar(Integer id) {
-        logger.info("Deletando plano de conta ID: {}", id);
-        if (!planoContaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Plano de conta não encontrado com ID: " + id);
-        }
-        planoContaRepository.deleteById(id);
+    public void deletar(Integer id, Integer idEmpresa) {
+        logger.info("Deletando plano de conta ID: {} para empresa ID: {}", id, idEmpresa);
+        PlanoConta planoConta = planoContaRepository.findByIdContaAndEmpresaId(id, idEmpresa)
+                .orElseThrow(() -> new IllegalArgumentException("Plano de conta não encontrado com ID: " + id));
+        planoContaRepository.delete(planoConta);
         logger.info("Plano de conta deletado com sucesso. ID: {}", id);
     }
 }
